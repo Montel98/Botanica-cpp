@@ -1,0 +1,8 @@
+bin/
+textures/
+glad.o
+src/test.cpp
+src/glad.o
+src/glad.c
+src/ParametricFunction.cpp
+src/mesh_generator.cpp
