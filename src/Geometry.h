@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "BufferAttributes.h"
 
@@ -15,7 +16,7 @@ private:
 public:
 	Geometry();
 
-	void addMorphTarget(const std::string &targetName, const std::vector<glm::vec3>&morphVertices);
+	void addMorphTarget(const std::string &targetName, std::vector<glm::vec3> morphVertices);
 
 	bool usesNormals();
 	bool usesSTs();
@@ -24,4 +25,9 @@ public:
 	void useSTs();
 
 	BufferAttributes bufferAttributes;
+
+	virtual Geometry* clone() const;
+	virtual ~Geometry();
+
+	Geometry mergeGeometry(const std::vector<std::reference_wrapper<Geometry>>& geometries);
 };

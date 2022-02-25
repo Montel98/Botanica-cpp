@@ -31,8 +31,10 @@ float LeafProfileEnd::profileXZ(float x) const {
 	return pow(0.4*x, 2.0);
 }
 
-Leaf::Leaf() : geometry(generateGeometry()) {
-}
+/*Leaf::Leaf() : geometry(generateGeometry()) {
+}*/
+
+Leaf::Leaf() {};
 
 ParametricGeometry<LeafProfileStart> Leaf::generateGeometry() const {
 

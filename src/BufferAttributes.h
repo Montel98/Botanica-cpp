@@ -33,6 +33,9 @@ private:
 
 	bool isAttributeNameUsed(const std::string &name) const;
 
+	template<typename V>
+	std::vector<std::string> getAttributeNames(const std::map<std::string, BufferAttribute<V>>& attributesVec) const;
+
 public:
 
 	// Creates a new empty buffer attribute of specified type with given name
@@ -44,11 +47,11 @@ public:
 
 
 	// Sets the buffer data of given name and type, if it exists
-	void setBufferAttributeDataVec1(const std::string &name, const std::vector<glm::vec1> &newBufferData);
-	void setBufferAttributeDataVec2(const std::string &name, const std::vector<glm::vec2> &newBufferData);
-	void setBufferAttributeDataVec3(const std::string &name, const std::vector<glm::vec3> &newBufferData);
-	void setBufferAttributeDataVec4(const std::string &name, const std::vector<glm::vec4> &newBufferData);
-	void setBufferAttributeDataMat4(const std::string &name, const std::vector<glm::mat4> &newBufferData);
+	void setBufferAttributeDataVec1(const std::string &name, std::vector<glm::vec1> newBufferData);
+	void setBufferAttributeDataVec2(const std::string &name, std::vector<glm::vec2> newBufferData);
+	void setBufferAttributeDataVec3(const std::string &name, std::vector<glm::vec3> newBufferData);
+	void setBufferAttributeDataVec4(const std::string &name, std::vector<glm::vec4> newBufferData);
+	void setBufferAttributeDataMat4(const std::string &name, std::vector<glm::mat4> newBufferData);
 
 
 	// Gets the buffer attribute of given name and type
@@ -57,7 +60,14 @@ public:
 	BufferAttribute<glm::vec2>& getBufferAttributeVec2(const std::string &name);
 	BufferAttribute<glm::vec3>& getBufferAttributeVec3(const std::string &name);
 	BufferAttribute<glm::vec4>& getBufferAttributeVec4(const std::string &name);
-	BufferAttribute<glm::mat4>& getBufferAttributeMat4(const std::string &name); 
+	BufferAttribute<glm::mat4>& getBufferAttributeMat4(const std::string &name);
+
+	// Get list of attribute names in use by type
+	std::vector<std::string> getAttributeNamesVec1() const;
+	std::vector<std::string> getAttributeNamesVec2() const;
+	std::vector<std::string> getAttributeNamesVec3() const;
+	std::vector<std::string> getAttributeNamesVec4() const;
+	std::vector<std::string> getAttributeNamesMat4() const;
 
 	void removeBufferAttribute(const std::string &name);
 

@@ -2,10 +2,12 @@
 
 #include <glm/glm.hpp>
 #include "Geometry.h"
+#include <memory>
 
 // Defines bounds and granularity for 2 variable parametric function
 struct GeometryConstraints {
-	float uMin, uMax, vMin, vMax, uSteps, vSteps;
+	float uMin, uMax, vMin, vMax;
+	int uSteps, vSteps;
 };
 
 // Defines bounds for texture coordinates
@@ -21,13 +23,15 @@ private:
 	STMapping mapping;
 	float deltaU, deltaV;
 
-public:
-	ParametricGeometry(const F &surfaceFunc, const GeometryConstraints &constraints);
-
 	std::vector<glm::vec2> generateSTs() const;
 	std::vector<glm::vec3> generateNormals() const;
 	std::vector<glm::vec3> generateVertices() const;
 	std::vector<int> generateIndices() const;
+
+public:
+	ParametricGeometry(const F &surfaceFunc, const GeometryConstraints &constraints);
+	virtual ParametricGeometry<F>* clone() const override;
+	virtual ~ParametricGeometry<F>();
 
 	// Concatenates all vertex attributes and populates the vertex + index buffer
 	void generateGeometry();
@@ -169,3 +173,11 @@ template<typename F>
 void ParametricGeometry<F>::useSTMapping(const STMapping &mappingST) {
 	mapping = mappingST;
 }
+
+template<typename F>
+ParametricGeometry<F>* ParametricGeometry<F>::clone() const {
+	return new ParametricGeometry(*this);
+}
+
+template<typename F>
+ParametricGeometry<F>::~ParametricGeometry<F>() {};

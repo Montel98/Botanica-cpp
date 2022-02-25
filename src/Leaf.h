@@ -1,8 +1,11 @@
+#pragma once
+
 #include <glm/glm.hpp>
 #include <math.h>
 #include "FourierSeries.h"
 #include "BezierCubic.h"
 #include "ParametricGeometry.h"
+#include "Entity.h"
 
 class LeafSurface {
 private:
@@ -28,8 +31,9 @@ public:
 };
 
 class Leaf {
+	//Object3D worldObject;
 public:
 	Leaf();
 	ParametricGeometry<LeafProfileStart> generateGeometry() const;
-	ParametricGeometry<LeafProfileStart> geometry;
+	//ParametricGeometry<LeafProfileStart> geometry;
 };

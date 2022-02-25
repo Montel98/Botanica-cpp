@@ -8,6 +8,11 @@ default:
 	g++ -c src/ParametricGeometry.cpp -o bin/ParametricGeometry.o
 	g++ -c src/Entity.cpp -o bin/Entity.o
 	g++ -c src/BufferAttributes.cpp -o bin/BufferAttributes.o
+	g++ -c src/Texture.cpp -o bin/Texture.o
+	g++ -c src/Material.cpp -o bin/Material.o
+	g++ -c src/Mesh.cpp -o bin/Mesh.o
+	g++ -c src/Stem.cpp -o bin/Stem.o
+	g++ -c src/StemBuilder.cpp -o bin/StemBuilder.o
 	g++ -c src/test.cpp -o bin/Test.o
 
-	g++ bin/Test.o bin/Leaf.o bin/FourierSeries.o bin/Geometry.o bin/ParametricGeometry.o bin/BufferAttributes.o bin/BezierCubic.o src/glad.o -lGL -lGLEW -lGLU -lglfw -ldl -o bin/OpenGLTest
+	g++ bin/Test.o bin/Mesh.o bin/Entity.o bin/Leaf.o bin/FourierSeries.o bin/Geometry.o bin/ParametricGeometry.o bin/BufferAttributes.o bin/Texture.o bin/Material.o bin/BezierCubic.o bin/BezierLinear.o bin/Stem.o bin/StemBuilder.o src/glad.o -lGL -lGLEW -lGLU -lglfw -ldl -o bin/OpenGLTest

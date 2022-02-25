@@ -48,24 +48,24 @@ void BufferAttributes::addBufferAttributeMat4(const std::string &name) {
 	stride += 16;
 }
 
-void BufferAttributes::setBufferAttributeDataVec1(const std::string &name, const std::vector<glm::vec1> &newBufferData) {
-	attributesVec1[name].bufferData = newBufferData;
+void BufferAttributes::setBufferAttributeDataVec1(const std::string &name, std::vector<glm::vec1> newBufferData) {
+	attributesVec1[name].bufferData = std::move(newBufferData);
 }
 
-void BufferAttributes::setBufferAttributeDataVec2(const std::string &name, const std::vector<glm::vec2> &newBufferData) {
-	attributesVec2[name].bufferData = newBufferData;
+void BufferAttributes::setBufferAttributeDataVec2(const std::string &name, std::vector<glm::vec2> newBufferData) {
+	attributesVec2[name].bufferData = std::move(newBufferData);
 }
 
-void BufferAttributes::setBufferAttributeDataVec3(const std::string &name, const std::vector<glm::vec3> &newBufferData) {
-	attributesVec3[name].bufferData = newBufferData;
+void BufferAttributes::setBufferAttributeDataVec3(const std::string &name, std::vector<glm::vec3> newBufferData) {
+	attributesVec3[name].bufferData = std::move(newBufferData);
 }
 
-void BufferAttributes::setBufferAttributeDataVec4(const std::string &name, const std::vector<glm::vec4> &newBufferData) {
-	attributesVec4[name].bufferData = newBufferData;
+void BufferAttributes::setBufferAttributeDataVec4(const std::string &name, std::vector<glm::vec4> newBufferData) {
+	attributesVec4[name].bufferData = std::move(newBufferData);
 }
 
-void BufferAttributes::setBufferAttributeDataMat4(const std::string &name, const std::vector<glm::mat4> &newBufferData) {
-	attributesMat4[name].bufferData = newBufferData;
+void BufferAttributes::setBufferAttributeDataMat4(const std::string &name, std::vector<glm::mat4> newBufferData) {
+	attributesMat4[name].bufferData = std::move(newBufferData);
 }
 
 BufferAttribute<glm::vec1>& BufferAttributes::getBufferAttributeVec1(const std::string &name) {
@@ -111,6 +111,37 @@ void BufferAttributes::removeBufferAttribute(const std::string &name) {
 		attributesMat4.erase(name);
 		stride -= 16;
 	}
+}
+
+template <typename V>
+std::vector<std::string> BufferAttributes::getAttributeNames(const std::map<std::string, BufferAttribute<V>>& attributesVec) const {
+	std::vector<std::string> attributeNames;
+
+	for (const std::pair<std::string, BufferAttribute<V>>& attrib: attributesVec) {
+		attributeNames.push_back(attrib.first);
+	}
+
+	return attributeNames;
+}
+
+std::vector<std::string> BufferAttributes::getAttributeNamesVec1() const {
+	return getAttributeNames<glm::vec1>(attributesVec1);
+}
+
+std::vector<std::string> BufferAttributes::getAttributeNamesVec2() const {
+	return getAttributeNames<glm::vec2>(attributesVec2);
+}
+
+std::vector<std::string> BufferAttributes::getAttributeNamesVec3() const {
+	return getAttributeNames<glm::vec3>(attributesVec3);
+}
+
+std::vector<std::string> BufferAttributes::getAttributeNamesVec4() const {
+	return getAttributeNames<glm::vec4>(attributesVec4);
+}
+
+std::vector<std::string> BufferAttributes::getAttributeNamesMat4() const {
+	return getAttributeNames<glm::mat4>(attributesMat4);
 }
 
 // The total length of one line of vertex attributes

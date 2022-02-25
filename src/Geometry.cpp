@@ -14,7 +14,7 @@ Geometry::Geometry() : useST(false), useNormal(false) {
 	bufferAttributes.addBufferAttributeVec3("aVertexPosition");
 }
 
-void Geometry::addMorphTarget(const std::string &targetName, const std::vector<glm::vec3>&morphVertices) {
+void Geometry::addMorphTarget(const std::string &targetName, std::vector<glm::vec3> morphVertices) {
 	bufferAttributes.addBufferAttributeVec3(targetName);
 	bufferAttributes.setBufferAttributeDataVec3(targetName, morphVertices);
 }
@@ -35,4 +35,14 @@ void Geometry::useSTs() {
 void Geometry::useNormals() {
 	useNormal = true;
 	bufferAttributes.addBufferAttributeVec3("aNormal");
+}
+
+Geometry* Geometry::clone() const {
+	return new Geometry(*this);
+}
+
+Geometry::~Geometry() {}
+
+Geometry Geometry::mergeGeometry(const std::vector<std::reference_wrapper<Geometry>>& geometries) {
+	return Geometry();
 }
