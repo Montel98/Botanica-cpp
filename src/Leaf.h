@@ -5,7 +5,7 @@
 #include "FourierSeries.h"
 #include "BezierCubic.h"
 #include "ParametricGeometry.h"
-#include "Entity.h"
+#include "Object3D.h"
 
 class LeafSurface {
 private:

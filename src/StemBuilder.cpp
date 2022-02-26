@@ -89,8 +89,10 @@ StemSurfaceMorphInfo::StemSurfaceMorphInfo(
 	pathStart(std::move(pathBegin)), 
 	pathEnd(std::move(pathFinish)) {};
 
-StemSurfaceMorphInfo::StemSurfaceMorphInfo(const StemSurfaceMorphInfo& other) : 
-pathStart(other.pathStart), pathEnd(other.pathEnd) {
+StemSurfaceMorphInfo::StemSurfaceMorphInfo(
+	const StemSurfaceMorphInfo& other) : 
+	pathStart(other.pathStart), 
+	pathEnd(other.pathEnd) {
 
 	radiusStart = std::unique_ptr<StemRadius>(other.radiusStart->clone());
 	radiusEnd = std::unique_ptr<StemRadius>(other.radiusEnd->clone());
@@ -107,10 +109,12 @@ ParametricGeometry<StemSurface> generateStemBody(const LSystemParams &lParams) {
 
 	StemBodyRadius startBodyRadiusFunc(0.001f, 0.001f, BRANCH_LENGTH, 0);
 
-	StemBodyRadius endBodyRadiusFunc(lParams.radiusStart,
-									lParams.radiusEnd,
-									BRANCH_LENGTH,
-									lParams.count);
+	StemBodyRadius endBodyRadiusFunc(
+		lParams.radiusStart,
+		lParams.radiusEnd,
+		BRANCH_LENGTH,
+		lParams.count
+	);
 
 	GeometryConstraints stemConstraints = {0.0, 1.0, 0.0, 2.0 * PI, 2, 10};
 
@@ -139,10 +143,11 @@ ParametricGeometry<StemSurface> generateStemTip(const LSystemParams &lParams) {
 	// Define the parametric functions for radius over length of tip
 	StemTipRadiusStart startTipRadiusFunc(0.001f, 0.001f, BRANCH_LENGTH, 0);
 
-	StemTipRadiusEnd endTipRadiusFunc(lParams.radiusStart,
-									lParams.radiusEnd,
-									BRANCH_LENGTH,
-									lParams.count);
+	StemTipRadiusEnd endTipRadiusFunc(
+		lParams.radiusStart,
+		lParams.radiusEnd,
+		BRANCH_LENGTH,
+	lParams.count);
 
 	GeometryConstraints stemConstraints = {0.0, 1.0, 0.0, 2.0 * PI, 3, 10};
 
@@ -156,9 +161,11 @@ ParametricGeometry<StemSurface> generateStemTip(const LSystemParams &lParams) {
 	return StemBuilder::generateStemGeometry(std::move(keyFrameInfo), lParams.axis, stemConstraints);
 }
 
-ParametricGeometry<StemSurface> generateStemGeometry(StemSurfaceMorphInfo keyFrameInfo,
-																const Axis& axis,
-																const GeometryConstraints& constraints) {
+ParametricGeometry<StemSurface> generateStemGeometry(
+	StemSurfaceMorphInfo keyFrameInfo,
+	const Axis& axis,
+	const GeometryConstraints& constraints) {
+
 	// Main geometry
 	StemSurface endSurface(std::move(keyFrameInfo.radiusEnd), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> endGeometry(endSurface, constraints);
