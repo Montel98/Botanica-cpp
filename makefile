@@ -15,6 +15,8 @@ default:
 	g++ -c src/StemBuilder.cpp -o bin/StemBuilder.o
 	g++ -c src/EntityManager.cpp -o bin/EntityManager.o
 	g++ -c src/Object3D.cpp -o bin/Object3D.o
+	g++ -c src/Axis.cpp -o bin/Axis.o
+	g++ -c src/LSystem.cpp -o bin/LSystem.o
 	g++ -c src/test.cpp -o bin/Test.o
 
-	g++ bin/Test.o bin/Mesh.o bin/Entity.o bin/Leaf.o bin/FourierSeries.o bin/Geometry.o bin/ParametricGeometry.o bin/BufferAttributes.o bin/Texture.o bin/Material.o bin/BezierCubic.o bin/BezierLinear.o bin/Stem.o bin/StemBuilder.o bin/EntityManager.o bin/Object3D.o src/glad.o -lGL -lGLEW -lGLU -lglfw -ldl -o bin/OpenGLTest
+	g++ bin/Test.o bin/Mesh.o bin/Entity.o bin/Leaf.o bin/FourierSeries.o bin/Geometry.o bin/ParametricGeometry.o bin/BufferAttributes.o bin/Texture.o bin/Material.o bin/BezierCubic.o bin/BezierLinear.o bin/Stem.o bin/StemBuilder.o bin/EntityManager.o bin/Object3D.o bin/Axis.o bin/LSystem.o src/glad.o -lGL -lGLEW -lGLU -lglfw -ldl -o bin/OpenGLTest

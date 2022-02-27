@@ -3,14 +3,10 @@
 #include "BezierLinear.h"
 #include "glm/glm.hpp"
 #include "ParametricGeometry.h"
+#include "Axis.h"
+#include "LSystem.h"
 
 namespace StemBuilder {
-
-	struct Axis {
-		glm::vec3 forward;
-		glm::vec3 up;
-		glm::vec3 left;
-	};
 
 	class StemRadius {
 	private:
@@ -45,17 +41,6 @@ namespace StemBuilder {
 		StemTipRadiusEnd(float rStart, float rEnd, int branchLength, int shift);
 		float operator()(float u) const override;
 		StemTipRadiusEnd* clone() const override;
-	};
-
-	struct LSystemParams {
-		glm::vec3 position;
-		Axis axis;
-		int count;
-		int depth;
-		bool connectParent;
-		int stringIndex;
-		float radiusStart;
-		float radiusEnd;
 	};
 
 	class StemSurface {

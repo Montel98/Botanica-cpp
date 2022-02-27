@@ -2,6 +2,7 @@
 #include "Stem.h"
 #include "Geometry.h"
 #include "Material.h"
+#include "StemBuilder.h"
 #include <memory>
 #include <math.h>
 
@@ -15,7 +16,7 @@ Mesh Stem::generateMesh(Stem* prevStem) {
 	return Mesh(material, std::make_unique<Geometry>(Geometry()));
 }
 
-void Stem::generateGeometry(const StemBuilder::LSystemParams &lParams, Stem* prevStem) {
+void Stem::generateGeometry(const LSystemParams &lParams, Stem* prevStem) {
 
 	ParametricGeometry<StemBuilder::StemSurface> stemBody = StemBuilder::generateStemBody(lParams);
 	ParametricGeometry<StemBuilder::StemSurface> stemTip = StemBuilder::generateStemTip(lParams);
