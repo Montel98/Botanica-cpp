@@ -46,6 +46,14 @@ public:
 	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
 };
 
+class RotatePlane : public LSystemOp {
+private:
+	float _horizontalAngle, _verticalAngle;
+public:
+	RotatePlane(float horizontalAngle, float verticalAngle);
+	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
+};
+
 class StackPush : public LSystemOp {
 private:
 	bool _connectParent;
@@ -66,16 +74,33 @@ public:
 	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
 };
 
-std::unique_ptr<RotateHorizontal> ROT_H(float angle);
+class NoOp : public LSystemOp {
+public:
+	NoOp() = default;
+	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
+};
 
-std::unique_ptr<RotateVertical> ROT_V(float angle);
+struct OpCode {
+	char symbol;
+	std::unique_ptr<LSystemOp> params;
+};
 
-std::unique_ptr<RotateRoll> ROT_R(float angle);
+OpCode ROT_H(float angle);
 
-std::unique_ptr<StackPush> S_PUSH(bool connectParent);
+OpCode ROT_V(float angle);
 
-std::unique_ptr<StackPop> S_POP();
+OpCode ROT_R(float angle);
 
-std::unique_ptr<GenStem> GEN_STEM();
+OpCode ROT_P(float horizontalAngle, float verticalAngle);
 
-void makeLString();
+OpCode S_PUSH(bool connectParent);
+
+OpCode S_POP();
+
+OpCode GEN_STEM();
+
+OpCode BRANCH_1();
+
+OpCode BRANCH_2();
+
+void makeLString(std::vector<OpCode> startString);
