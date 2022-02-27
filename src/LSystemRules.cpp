@@ -1,4 +1,5 @@
 #include "LSystemRules.h"
+#include <utility>
 
 #define PI 3.1415f
 
@@ -62,4 +63,21 @@ std::vector<OpCode> BranchRule2::getRule() const {
 	rule.push_back(S_POP());
 
 	return rule;
+}
+
+LSystemRules::LSystemRules() {
+	addRule('1', std::make_unique<BranchRule1>());
+	addRule('2', std::make_unique<BranchRule2>());
+}
+
+void LSystemRules::addRule(char symbol, std::unique_ptr<LSystemRule> newRule) {
+	rules.emplace(std::make_pair(symbol, std::move(newRule)));
+}
+
+bool LSystemRules::hasRule(char symbol) {
+	return rules.find(symbol) != rules.end();
+}
+
+std::vector<OpCode> LSystemRules::getRandomStringFromRule(char symbol) {
+	return rules[symbol]->getRule();
 }
