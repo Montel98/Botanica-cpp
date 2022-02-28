@@ -156,7 +156,7 @@ void ParametricGeometry<F>::generateGeometry() {
 
 	//bufferAttributes.setBufferAttributeDataVec3("aVertexPosition", std::move(generateVertices()));
 	bufferAttributes.setBufferAttributeDataVec3("aVertexPosition", generateVertices());
-	std::vector<int> indices = generateIndices();
+	indexBuffer = generateIndices();
 
 	if (usesNormals()) {
 		//std::vector<glm::vec3> normals = generateNormals();

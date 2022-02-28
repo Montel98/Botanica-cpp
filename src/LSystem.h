@@ -13,4 +13,5 @@ private:
 public:
 	LSystem() = default;
 	std::vector<OpCode> buildString(std::vector<OpCode> startString, int depth);
+	void buildTree(const std::vector<OpCode>& lString, const LSystemParams &params, int endIndex);
 };

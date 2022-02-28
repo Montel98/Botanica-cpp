@@ -4,48 +4,43 @@
 #include "Geometry.h"
 
 void BufferAttributes::addBufferAttributeVec1(const std::string &name) {
-
-	if (isAttributeNameUsed(name)) {
-		throw BufferAttributeException();
-	}
-	attributesVec1[name] = {1, stride, ++indexesUsed};
-	stride += 1;
+	addBufferAttribute<glm::vec1>(name, attributesVec1);
 }
 
 void BufferAttributes::addBufferAttributeVec2(const std::string &name) {
-
-	if (isAttributeNameUsed(name)) {
-		throw BufferAttributeException();
-	}
-	attributesVec2[name] = {2, stride, ++indexesUsed};
-	stride += 2;
+	addBufferAttribute<glm::vec2>(name, attributesVec2);
 }
 
 void BufferAttributes::addBufferAttributeVec3(const std::string &name) {
-
-	if (isAttributeNameUsed(name)) {
-		throw BufferAttributeException();
-	}
-	attributesVec3[name] = {3, stride, ++indexesUsed};
-	stride += 3;
+	addBufferAttribute<glm::vec3>(name, attributesVec3);
 }
 
 void BufferAttributes::addBufferAttributeVec4(const std::string &name) {
-
-	if (isAttributeNameUsed(name)) {
-		throw BufferAttributeException();
-	}
-	attributesVec4[name] = {4, stride, ++indexesUsed};
-	stride += 4;
+	addBufferAttribute<glm::vec4>(name, attributesVec4);
 }
 
 void BufferAttributes::addBufferAttributeMat4(const std::string &name) {
+	addBufferAttribute<glm::mat4>(name, attributesMat4);
+}
 
-	if (isAttributeNameUsed(name)) {
-		throw BufferAttributeException();
-	}
-	attributesMat4[name] = {16, stride, ++indexesUsed};
-	stride += 16;
+void BufferAttributes::mergeBufferAttributesVec1(BufferAttributes& other) {
+	mergeBufferAttributes<glm::vec1>(other.attributesVec1, attributesVec1);
+}
+
+void BufferAttributes::mergeBufferAttributesVec2(BufferAttributes& other) {
+	mergeBufferAttributes<glm::vec2>(other.attributesVec2, attributesVec2);
+}
+
+void BufferAttributes::mergeBufferAttributesVec3(BufferAttributes& other) {
+	mergeBufferAttributes<glm::vec3>(other.attributesVec3, attributesVec3);	
+}
+
+void BufferAttributes::mergeBufferAttributesVec4(BufferAttributes& other) {
+	mergeBufferAttributes<glm::vec4>(other.attributesVec4, attributesVec4);
+}
+
+void BufferAttributes::mergeBufferAttributesMat4(BufferAttributes& other) {
+	mergeBufferAttributes<glm::mat4>(other.attributesMat4, attributesMat4);
 }
 
 void BufferAttributes::setBufferAttributeDataVec1(const std::string &name, std::vector<glm::vec1> newBufferData) {
@@ -117,7 +112,7 @@ template <typename V>
 std::vector<std::string> BufferAttributes::getAttributeNames(const std::map<std::string, BufferAttribute<V>>& attributesVec) const {
 	std::vector<std::string> attributeNames;
 
-	for (const std::pair<std::string, BufferAttribute<V>>& attrib: attributesVec) {
+	for (const std::pair<std::string, BufferAttribute<V>>& attrib : attributesVec) {
 		attributeNames.push_back(attrib.first);
 	}
 

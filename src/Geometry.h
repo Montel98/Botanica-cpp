@@ -11,7 +11,6 @@ private:
 	bool useST, useNormal;
 
 	std::vector<float> vertexBuffer;
-	std::vector<int> indexBuffer;
 
 public:
 	Geometry();
@@ -25,9 +24,10 @@ public:
 	void useSTs();
 
 	BufferAttributes bufferAttributes;
+	std::vector<int> indexBuffer;
 
 	virtual Geometry* clone() const;
 	virtual ~Geometry();
-
-	Geometry mergeGeometry(const std::vector<std::reference_wrapper<Geometry>>& geometries);
 };
+
+Geometry mergeGeometry(std::vector<std::reference_wrapper<Geometry>>& geometries);
