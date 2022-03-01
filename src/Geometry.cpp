@@ -12,12 +12,12 @@ private:
 
 
 Geometry::Geometry() : useST(false), useNormal(false) {
-	bufferAttributes.addBufferAttributeVec3("aVertexPosition");
+	bufferAttributes.addBufferAttribute<glm::vec3>("aVertexPosition");
 }
 
 void Geometry::addMorphTarget(const std::string &targetName, std::vector<glm::vec3> morphVertices) {
-	bufferAttributes.addBufferAttributeVec3(targetName);
-	bufferAttributes.setBufferAttributeDataVec3(targetName, morphVertices);
+	bufferAttributes.addBufferAttribute<glm::vec3>(targetName);
+	bufferAttributes.setBufferAttributeData<glm::vec3>(targetName, morphVertices);
 }
 
 bool Geometry::usesNormals() {
@@ -30,12 +30,12 @@ bool Geometry::usesSTs() {
 
 void Geometry::useSTs() {
 	useST = true;
-	bufferAttributes.addBufferAttributeVec2("aTexCoord");
+	bufferAttributes.addBufferAttribute<glm::vec2>("aTexCoord");
 }
 
 void Geometry::useNormals() {
 	useNormal = true;
-	bufferAttributes.addBufferAttributeVec3("aNormal");
+	bufferAttributes.addBufferAttribute<glm::vec3>("aNormal");
 }
 
 Geometry* Geometry::clone() const {
@@ -60,18 +60,7 @@ Geometry mergeGeometry(std::vector<std::reference_wrapper<Geometry>>& geometries
 	for(std::reference_wrapper<Geometry>& geometry : geometries) {
 
 		BufferAttributes& otherBufferAttributes = geometry.get().bufferAttributes;
-
-		mergedGeometry.bufferAttributes.mergeBufferAttributesVec1(otherBufferAttributes);
-		mergedGeometry.bufferAttributes.mergeBufferAttributesVec2(otherBufferAttributes);
-		mergedGeometry.bufferAttributes.mergeBufferAttributesVec3(otherBufferAttributes);
-		mergedGeometry.bufferAttributes.mergeBufferAttributesVec4(otherBufferAttributes);
-		mergedGeometry.bufferAttributes.mergeBufferAttributesMat4(otherBufferAttributes);
-
-		mergedGeometry.indexBuffer.insert(
-			mergedGeometry.indexBuffer.end(),
-			geometry.get().indexBuffer.begin(),
-			geometry.get().indexBuffer.end()
-		);
+		mergedGeometry.bufferAttributes.mergeBufferAttributes(otherBufferAttributes);
 	}
 
 	return mergedGeometry;

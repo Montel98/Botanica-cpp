@@ -190,9 +190,9 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	immatureEndGeometry.generateGeometry();
 
 	// Move the morph targets into the main geometry object
-	endGeometry.addMorphTarget("a", std::move(startGeometry.bufferAttributes.getBufferAttributeVec3("aVertexPosition").bufferData));
-	endGeometry.addMorphTarget("b", std::move(immatureStartGeometry.bufferAttributes.getBufferAttributeVec3("aVertexPosition").bufferData));
-	endGeometry.addMorphTarget("c", std::move(immatureEndGeometry.bufferAttributes.getBufferAttributeVec3("aVertexPosition").bufferData));
+	endGeometry.addMorphTarget("a", std::move(startGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData));
+	endGeometry.addMorphTarget("b", std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData));
+	endGeometry.addMorphTarget("c", std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData));
 
 	return endGeometry;
 }

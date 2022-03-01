@@ -10,8 +10,6 @@ class Geometry {
 private:
 	bool useST, useNormal;
 
-	std::vector<float> vertexBuffer;
-
 public:
 	Geometry();
 
@@ -24,7 +22,7 @@ public:
 	void useSTs();
 
 	BufferAttributes bufferAttributes;
-	std::vector<int> indexBuffer;
+	BufferAttribute<int> indexBuffer;
 
 	virtual Geometry* clone() const;
 	virtual ~Geometry();

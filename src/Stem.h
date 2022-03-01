@@ -4,6 +4,7 @@
 #include "glm/glm.hpp"
 #include "ParametricGeometry.h"
 #include "LSystem.h"
+#include <random>
 
 class Stem {
 public:
@@ -13,3 +14,5 @@ public:
 	Mesh generateMesh(Stem* prevStem);
 	void generateGeometry(const LSystemParams &lParams, Stem* prevStem);
 };
+
+float randomNormal(std::linear_congruential_engine<unsigned int, 16807, 0, 2147483647>& generator);

@@ -155,17 +155,17 @@ template <typename F>
 void ParametricGeometry<F>::generateGeometry() {
 
 	//bufferAttributes.setBufferAttributeDataVec3("aVertexPosition", std::move(generateVertices()));
-	bufferAttributes.setBufferAttributeDataVec3("aVertexPosition", generateVertices());
-	indexBuffer = generateIndices();
+	bufferAttributes.setBufferAttributeData<glm::vec3>("aVertexPosition", generateVertices());
+	indexBuffer.bufferData = generateIndices();
 
 	if (usesNormals()) {
 		//std::vector<glm::vec3> normals = generateNormals();
-		bufferAttributes.setBufferAttributeDataVec3("aNormal", generateNormals());
+		bufferAttributes.setBufferAttributeData<glm::vec3>("aNormal", generateNormals());
 	}
 
 	if (usesSTs()) {
 		//std::vector<glm::vec2> STs = generateSTs();
-		bufferAttributes.setBufferAttributeDataVec2("aTexCoord", generateSTs());
+		bufferAttributes.setBufferAttributeData<glm::vec2>("aTexCoord", generateSTs());
 	}
 }
 
