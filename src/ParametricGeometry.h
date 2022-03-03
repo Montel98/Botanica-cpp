@@ -93,7 +93,7 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateNormals() const {
 				normal = glm::normalize(normal);
 			}
 
-			newNormals.push_back(std::move(normal));
+			newNormals.push_back(normal);
 		}
 	}
 
@@ -114,7 +114,7 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateVertices() const {
 
 			glm::vec3 vertex = surface(u, v);
 
-			newVertices.push_back(std::move(vertex));
+			newVertices.push_back(vertex);
 		}
 	}
 

@@ -20,6 +20,21 @@ void Geometry::addMorphTarget(const std::string &targetName, std::vector<glm::ve
 	bufferAttributes.setBufferAttributeData<glm::vec3>(targetName, morphVertices);
 }
 
+void Geometry::addMorphTarget(
+		const std::string &targetName, 
+		std::vector<glm::vec3> morphVertices, 
+		std::vector<glm::vec3> morphNormals) {
+
+	std::string vertexName = "aVertex" + targetName;
+	std::string normalName = "aNormal" + targetName;
+
+	bufferAttributes.addBufferAttribute<glm::vec3>(vertexName);
+	bufferAttributes.setBufferAttributeData<glm::vec3>(vertexName, morphVertices);
+
+	bufferAttributes.addBufferAttribute<glm::vec3>(normalName);
+	bufferAttributes.setBufferAttributeData<glm::vec3>(normalName, morphNormals);
+}
+
 bool Geometry::usesNormals() {
 	return useNormal;
 }
@@ -57,8 +72,14 @@ Geometry mergeGeometry(std::vector<std::reference_wrapper<Geometry>>& geometries
 		mergedGeometry.indexBuffer = firstGeometry.indexBuffer;
 	}
 
-	for(std::reference_wrapper<Geometry>& geometry : geometries) {
+	/*for(std::reference_wrapper<Geometry>& geometry : geometries) {
 
+		BufferAttributes& otherBufferAttributes = geometry.get().bufferAttributes;
+		mergedGeometry.bufferAttributes.mergeBufferAttributes(otherBufferAttributes);
+	}*/
+
+	for (int i = 1; i < geometries.size(); i++) {
+		std::reference_wrapper<Geometry>& geometry = geometries[i];
 		BufferAttributes& otherBufferAttributes = geometry.get().bufferAttributes;
 		mergedGeometry.bufferAttributes.mergeBufferAttributes(otherBufferAttributes);
 	}

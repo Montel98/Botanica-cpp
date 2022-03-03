@@ -72,11 +72,18 @@ namespace StemBuilder {
 		StemSurfaceMorphInfo(const StemSurfaceMorphInfo& other);
 	};
 
-	ParametricGeometry<StemSurface> generateStemTip(const LSystemParams& lParams);
-	ParametricGeometry<StemSurface> generateStemBody(const LSystemParams& lParams);
+	ParametricGeometry<StemSurface> generateStemTip(
+		const LSystemParams& lParams, 
+		const GeometryConstraints& constraints
+	);
+
+	ParametricGeometry<StemSurface> generateStemBody(
+		const LSystemParams& lParams, 
+		const GeometryConstraints& constraints
+	);
 
 	ParametricGeometry<StemSurface> generateStemGeometry(
-		StemSurfaceMorphInfo keyFrameInfo, 
+		const StemSurfaceMorphInfo& keyFrameInfo, 
 		const Axis& axis,
 		const GeometryConstraints& constraints
 	);

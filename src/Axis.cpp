@@ -3,6 +3,9 @@
 
 #define PI 3.1415
 
+Axis::Axis(const glm::vec3& forwardDir, const glm::vec3& upDir, const glm::vec3& leftDir)
+: forward(forwardDir), up(upDir), left(leftDir) {};
+
 void Axis::rotateFrameHorizontal(float angle) {
 	glm::vec3 forwardTemp = forward;
 	float w = angle + 0.5 * PI;

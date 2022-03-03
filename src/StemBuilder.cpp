@@ -98,7 +98,9 @@ StemSurfaceMorphInfo::StemSurfaceMorphInfo(
 	radiusEnd = std::unique_ptr<StemRadius>(other.radiusEnd->clone());
 }
 
-ParametricGeometry<StemSurface> generateStemBody(const LSystemParams &lParams) {
+ParametricGeometry<StemSurface> generateStemBody(
+	const LSystemParams &lParams, 
+	const GeometryConstraints &constraints) {
 
 	glm::vec3 normDir = glm::normalize(lParams.axis.forward);
 	glm::vec3 p0 = lParams.position;
@@ -116,8 +118,6 @@ ParametricGeometry<StemSurface> generateStemBody(const LSystemParams &lParams) {
 		lParams.count
 	);
 
-	GeometryConstraints stemConstraints = {0.0, 1.0, 0.0, 2.0 * PI, 2, 10};
-
 	StemSurfaceMorphInfo keyFrameInfo(
 		std::make_unique<StemBodyRadius>(startBodyRadiusFunc), 
 		std::make_unique<StemBodyRadius>(endBodyRadiusFunc), 
@@ -125,10 +125,12 @@ ParametricGeometry<StemSurface> generateStemBody(const LSystemParams &lParams) {
 		immatureStemBodyPath
 	);
 
-	return StemBuilder::generateStemGeometry(std::move(keyFrameInfo), lParams.axis, stemConstraints);
+	return StemBuilder::generateStemGeometry(std::move(keyFrameInfo), lParams.axis, constraints);
 }
 
-ParametricGeometry<StemSurface> generateStemTip(const LSystemParams &lParams) {
+ParametricGeometry<StemSurface> generateStemTip(
+	const LSystemParams &lParams, 
+	const GeometryConstraints &constraints) {
 
 	// Define the stem tip path direction in 3D space
 	glm::vec3 normDir = glm::normalize(lParams.axis.forward);
@@ -147,9 +149,8 @@ ParametricGeometry<StemSurface> generateStemTip(const LSystemParams &lParams) {
 		lParams.radiusStart,
 		lParams.radiusEnd,
 		BRANCH_LENGTH,
-	lParams.count);
-
-	GeometryConstraints stemConstraints = {0.0, 1.0, 0.0, 2.0 * PI, 3, 10};
+		lParams.count
+	);
 
 	StemSurfaceMorphInfo keyFrameInfo(
 		std::make_unique<StemTipRadiusStart>(startTipRadiusFunc), 
@@ -158,41 +159,53 @@ ParametricGeometry<StemSurface> generateStemTip(const LSystemParams &lParams) {
 		immatureStemTipPath
 	);
 
-	return StemBuilder::generateStemGeometry(std::move(keyFrameInfo), lParams.axis, stemConstraints);
+	return StemBuilder::generateStemGeometry(std::move(keyFrameInfo), lParams.axis, constraints);
 }
 
 ParametricGeometry<StemSurface> generateStemGeometry(
-	StemSurfaceMorphInfo keyFrameInfo,
+	const StemSurfaceMorphInfo &keyFrameInfo,
 	const Axis& axis,
 	const GeometryConstraints& constraints) {
 
 	// Main geometry
-	StemSurface endSurface(std::move(keyFrameInfo.radiusEnd), keyFrameInfo.pathEnd, axis);
+	StemSurface endSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> endGeometry(endSurface, constraints);
 	endGeometry.useNormals();
 	endGeometry.useSTs();
 	endGeometry.generateGeometry();
 
 	// Create the morph targets as seperate geometries first
-	StemSurface startSurface(std::move(keyFrameInfo.radiusEnd), keyFrameInfo.pathEnd, axis);
+	StemSurface startSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> startGeometry(startSurface, constraints);
 	startGeometry.useNormals();
 	startGeometry.generateGeometry();
 
-	StemSurface immatureStartSurface(std::move(keyFrameInfo.radiusStart), keyFrameInfo.pathStart, axis);
+	StemSurface immatureStartSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusStart->clone()), keyFrameInfo.pathStart, axis);
 	ParametricGeometry<StemSurface> immatureStartGeometry(immatureStartSurface, constraints);
 	immatureStartGeometry.useNormals();
 	immatureStartGeometry.generateGeometry();
 
-	StemSurface immatureEndSurface(std::move(keyFrameInfo.radiusStart), keyFrameInfo.pathStart, axis);
+	StemSurface immatureEndSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusStart->clone()), keyFrameInfo.pathStart, axis);
 	ParametricGeometry<StemSurface> immatureEndGeometry(immatureEndSurface, constraints);
 	immatureEndGeometry.useNormals();
 	immatureEndGeometry.generateGeometry();
 
 	// Move the morph targets into the main geometry object
-	endGeometry.addMorphTarget("a", std::move(startGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData));
-	endGeometry.addMorphTarget("b", std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData));
-	endGeometry.addMorphTarget("c", std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData));
+	endGeometry.addMorphTarget(
+		"MatureStart", 
+		std::move(startGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData),
+		std::move(startGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
+	);
+	endGeometry.addMorphTarget(
+		"ImmatureStart",
+		std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData),
+		std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
+	);
+	endGeometry.addMorphTarget(
+		"ImmatureEnd",
+		std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData),
+		std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
+	);
 
 	return endGeometry;
 }

@@ -19,11 +19,11 @@ int BufferAttributes::getStride() {
 }
 
 bool BufferAttributes::isAttributeNameUsed(const std::string &name) const {
-	return (attributeNames.find(name) != attributeNames.end());
+	return (attributes.find(name) != attributes.end());
 }
 
 const char * BufferAttributeException::what() const noexcept {
-	return "Attribute name already exists";
+	return "Contradictory attribute properties";
 }
 
 class BufferTypeVisitor {
@@ -35,12 +35,11 @@ public:
 			b.bufferData.begin(), 
 			b.bufferData.end()
 		);
-		return;
 	}
 
 	template<typename A, typename B>
 	void operator()(A& a, B& b) {
-		return;
+		throw BufferAttributeException();
 	}
 };
 

@@ -1,18 +1,22 @@
+#pragma once
+
 #include "Object3D.h"
 #include "Mesh.h"
 #include "BezierLinear.h"
 #include "glm/glm.hpp"
 #include "ParametricGeometry.h"
-#include "LSystem.h"
+#include "LSystemParams.h"
+#include "EntityManager.h"
 #include <random>
+#include <memory>
 
-class Stem {
+class Stem : public Entity {
+private:
+	EntityManager& entityManager;
 public:
-	Object3D worldObject;
+	//Object3D worldObject;
 	LSystemParams lParams;
-	Stem();
-	Mesh generateMesh(Stem* prevStem);
-	void generateGeometry(const LSystemParams &lParams, Stem* prevStem);
+	Stem(EntityManager &manager, const LSystemParams &lSystemParams, const StemNode* prevStem);
+	Mesh generateMesh(const StemNode* prevStem);
+	Geometry generateGeometry(const LSystemParams &lParams, const StemNode* prevStem);
 };
-
-float randomNormal(std::linear_congruential_engine<unsigned int, 16807, 0, 2147483647>& generator);

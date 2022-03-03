@@ -35,16 +35,14 @@ private:
 
 	std::map<std::string, BufferAttributeVec> attributes;
 
-	std::set<std::string> attributeNames;
-
 	bool isAttributeNameUsed(const std::string &name) const;
-
-	std::vector<std::string> getAttributeNames() const;
 
 	template<typename T>
 	void addBufferAttribute(const std::string& name, std::map<std::string, BufferAttribute<T>>& attributes);
 
 public:
+
+	std::vector<std::string> getAttributeNames() const;
 
 	void mergeBufferAttributes(const BufferAttributes& other);
 

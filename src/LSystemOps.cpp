@@ -40,54 +40,60 @@ NoOp* NoOp::clone() const {
 
 StackPush::StackPush(bool connectParent) : _connectParent(connectParent) {};
 
-LSystemParams RotateHorizontal::operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) {
-	LSystemParams newLParams = lParams;
-	newLParams.axis.rotateFrameHorizontal(horizontalAngle);
-	return lParams;
+LSystemStackFrame RotateHorizontal::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+	LSystemStackFrame newFrame = frame;
+	newFrame.lParams.axis.rotateFrameHorizontal(horizontalAngle);
+	return newFrame;
 }
 
-LSystemParams RotateVertical::operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) {
-	LSystemParams newLParams = lParams;
-	newLParams.axis.rotateFrameVertical(verticalAngle);
-	return lParams;
+LSystemStackFrame RotateVertical::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+	LSystemStackFrame newFrame = frame;
+	newFrame.lParams.axis.rotateFrameVertical(verticalAngle);
+	return newFrame;
 }
 
-LSystemParams RotateRoll::operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) {
-	LSystemParams newLParams = lParams;
-	newLParams.axis.rotateFrameRoll(rollAngle);
-	return lParams;
+LSystemStackFrame RotateRoll::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+	LSystemStackFrame newFrame = frame;
+	newFrame.lParams.axis.rotateFrameRoll(rollAngle);
+	return newFrame;
 }
 
-LSystemParams RotatePlane::operator()(const LSystemParams &lParams, std::vector<LSystemParams>& lParamsStack) {
-	LSystemParams newLParams = lParams;
-	newLParams.axis.rotateFrameHorizontal(_horizontalAngle);
-	newLParams.axis.rotateFrameVertical(_verticalAngle);
-	return lParams;
+LSystemStackFrame RotatePlane::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+	LSystemStackFrame newFrame = frame;
+	newFrame.lParams.axis.rotateFrameHorizontal(_horizontalAngle);
+	newFrame.lParams.axis.rotateFrameVertical(_verticalAngle);
+	return newFrame;
 }
 
-LSystemParams StackPush::operator()(const LSystemParams& params, std::vector<LSystemParams>& lParamsStack) {
-	lParamsStack.push_back(params);
-	return params;
+LSystemStackFrame StackPush::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+
+	frames.push_back(frame);
+	LSystemStackFrame newFrame = frame;
+	newFrame.lParams.radiusStart = 1.0;
+	newFrame.lParams.radiusEnd = 1.0;
+	newFrame.lParams.connectParent = _connectParent;
+	newFrame.lParams.stringIndex++;
+	newFrame.lParams.count = 0;
+	return newFrame;
 }
 
-LSystemParams StackPop::operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) {
-	LSystemParams newLParams = lParamsStack.back();
-	lParamsStack.pop_back();
-	return newLParams;
+LSystemStackFrame StackPop::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+	LSystemStackFrame newFrame = frames.back();
+	frames.pop_back();
+	return newFrame;
 }
 
-LSystemParams GenStem::operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) {
-	LSystemParams newLParams = lParams;
-	newLParams.count++;
-	newLParams.position = lParams.position + 0.03f * lParams.axis.forward;
-	newLParams.depth++;
-	newLParams.connectParent = true;
-
-	return newLParams;
+LSystemStackFrame GenStem::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+	LSystemStackFrame newFrame = frame;
+	newFrame.lParams.count++;
+	newFrame.lParams.position = newFrame.lParams.position + 0.03f * newFrame.lParams.axis.forward;
+	newFrame.lParams.depth++;
+	newFrame.lParams.connectParent = true;
+	return newFrame;
 }
 
-LSystemParams NoOp::operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) { 
-	return lParams;
+LSystemStackFrame NoOp::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) { 
+	return frame;
 }
 
 OpCode::OpCode(char opSymbol, std::unique_ptr<LSystemOp> opFunc) : 

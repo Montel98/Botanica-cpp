@@ -5,21 +5,11 @@
 #include <memory>
 #include <glm/glm.hpp>
 #include "Axis.h"
-
-struct LSystemParams {
-		glm::vec3 position;
-		Axis axis;
-		int count;
-		int depth;
-		bool connectParent;
-		int stringIndex;
-		float radiusStart;
-		float radiusEnd;
-};
+#include "LSystemParams.h"
 
 class LSystemOp {
 public:
-	virtual LSystemParams operator()(const LSystemParams &lParams, std::vector<LSystemParams>& lParamsStack) = 0;
+	virtual LSystemStackFrame operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) = 0;
 	virtual LSystemOp* clone() const = 0;
 };
 
@@ -28,7 +18,7 @@ private:
 	float horizontalAngle;
 public:
 	RotateHorizontal(float angle);
-	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
+	LSystemStackFrame operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) override;
 	RotateHorizontal* clone() const override;
 };
 
@@ -37,7 +27,7 @@ private:
 	float verticalAngle;
 public:
 	RotateVertical(float angle);
-	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
+	LSystemStackFrame operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) override;
 	RotateVertical* clone() const override;
 };
 
@@ -46,7 +36,7 @@ private:
 	float rollAngle;
 public:
 	RotateRoll(float angle);
-	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
+	LSystemStackFrame operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) override;
 	RotateRoll* clone() const override;
 };
 
@@ -55,7 +45,7 @@ private:
 	float _horizontalAngle, _verticalAngle;
 public:
 	RotatePlane(float horizontalAngle, float verticalAngle);
-	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
+	LSystemStackFrame operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) override;
 	RotatePlane* clone() const override;
 };
 
@@ -64,28 +54,28 @@ private:
 	bool _connectParent;
 public:
 	StackPush(bool connectParent);
-	LSystemParams operator()(const LSystemParams& params, std::vector<LSystemParams>& lParamsStack) override;
+	LSystemStackFrame operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) override;
 	StackPush* clone() const override;
 };
 
 class StackPop : public LSystemOp {
 public:
 	StackPop() = default;
-	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
+	LSystemStackFrame operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) override;
 	StackPop* clone() const override;
 };
 
 class GenStem : public LSystemOp {
 public:
 	GenStem() = default;
-	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
+	LSystemStackFrame operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) override;
 	GenStem* clone() const override;
 };
 
 class NoOp : public LSystemOp {
 public:
 	NoOp() = default;
-	LSystemParams operator()(const LSystemParams& lParams, std::vector<LSystemParams>& lParamsStack) override;
+	LSystemStackFrame operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) override;
 	NoOp* clone() const override;
 };
 

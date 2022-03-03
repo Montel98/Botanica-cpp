@@ -14,6 +14,11 @@ public:
 	Geometry();
 
 	void addMorphTarget(const std::string &targetName, std::vector<glm::vec3> morphVertices);
+	void addMorphTarget(
+		const std::string &targetName, 
+		std::vector<glm::vec3> morphVertices, 
+		std::vector<glm::vec3> morphNormals
+	);
 
 	bool usesNormals();
 	bool usesSTs();
