@@ -13,10 +13,12 @@
 class Stem : public Entity {
 private:
 	EntityManager& entityManager;
+
+	Mesh generateMesh(const StemNode* prevStem);
+	Geometry generateGeometry(const LSystemParams &lParams, const StemNode* prevStem);
 public:
 	//Object3D worldObject;
 	LSystemParams lParams;
 	Stem(EntityManager &manager, const LSystemParams &lSystemParams, const StemNode* prevStem);
-	Mesh generateMesh(const StemNode* prevStem);
-	Geometry generateGeometry(const LSystemParams &lParams, const StemNode* prevStem);
+	void act() override;
 };

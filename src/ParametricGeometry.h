@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include "Geometry.h"
 #include <memory>
+#include <iostream>
 
 // Defines bounds and granularity for 2 variable parametric function
 struct GeometryConstraints {
@@ -89,11 +90,12 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateNormals() const {
 
 			glm::vec3 normal = cross(dv, du);
 
-			if (glm::vec3(0,0,0) == normal) {
+			if (glm::vec3(0,0,0) != normal) {
 				normal = glm::normalize(normal);
 			}
 
 			newNormals.push_back(normal);
+			std::cout << normal.x << " " << normal.y << " " << normal.z;
 		}
 	}
 

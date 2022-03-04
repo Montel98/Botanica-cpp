@@ -35,5 +35,6 @@ class Leaf {
 public:
 	Leaf();
 	ParametricGeometry<LeafProfileStart> generateGeometry() const;
+	//void act() override;
 	//ParametricGeometry<LeafProfileStart> geometry;
 };

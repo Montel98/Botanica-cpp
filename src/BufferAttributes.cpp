@@ -29,7 +29,7 @@ const char * BufferAttributeException::what() const noexcept {
 class BufferTypeVisitor {
 public:
 	template<typename T>
-	void operator()(T& a, T& b) {
+	void operator()(T& a, const T& b) {
 		a.bufferData.insert(
 			a.bufferData.end(), 
 			b.bufferData.begin(), 
@@ -47,7 +47,7 @@ public:
 // Only appends if attribute already exists and attribute types of the same name are equal
 void BufferAttributes::mergeBufferAttributes(const BufferAttributes& other) {
 
-	for (std::pair<std::string, BufferAttributeVec> otherAttrib : other.attributes) {
+	for (const std::pair<std::string, BufferAttributeVec>& otherAttrib : other.attributes) {
 		const std::string& name = otherAttrib.first;
 
 		if (isAttributeNameUsed(name)) {

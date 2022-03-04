@@ -64,3 +64,7 @@ ParametricGeometry<LeafProfileStart> Leaf::generateGeometry() const {
 
 	return leafGeometryStart;
 }
+
+/*void Leaf::act() {
+
+}*/

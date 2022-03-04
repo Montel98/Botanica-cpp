@@ -9,10 +9,10 @@ void Object3D::addChild(Object3D* child) {
 
 // Linear search to remove child entity
 void Object3D::removeChild(Object3D* child) {
-	for (auto i = 0; i < children.size(); i++) {
+	for (int i = 0; i < children.size(); i++) {
 
 		if (children[i] == child) {
-			children.erase(children.begin(), children.begin() + i);
+			children.erase(children.begin() + i);
 			break;
 		}
 	}
