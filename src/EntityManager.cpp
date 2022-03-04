@@ -2,6 +2,8 @@
 #include <cassert>
 #include <utility>
 
+EntityManager::EntityManager() : idCount(0) {};
+
 Entity* EntityManager::getEntityById(unsigned int id) {
 	return entities[id].get();
 }

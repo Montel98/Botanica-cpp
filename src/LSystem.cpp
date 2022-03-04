@@ -1,4 +1,5 @@
 #include "LSystem.h"
+#include <iostream>
 
 std::vector<OpCode> LSystem::buildString(std::vector<OpCode> startString, int depth, std::linear_congruential_engine<unsigned int, 16807, 0, 2147483647>& gen) {
 	std::vector<OpCode> finalString = startString;
@@ -27,24 +28,37 @@ std::vector<OpCode> LSystem::buildString(std::vector<OpCode> startString, int de
 
 StemNode LSystem::buildTree(const std::vector<OpCode>& lString, const LSystemParams& params, int endIndex, EntityManager& entityManager) {
 
+	if (endIndex >= lString.size()) {
+		endIndex = lString.size() - 1;
+	}
+
 	StemNode root;
 	root.prev = nullptr;
 
 	LSystemStackFrame currentFrame = LSystemStackFrame{params, nullptr};
 	std::vector<LSystemStackFrame> stackFrame;
 
-	currentFrame.node = &root;
+	bool rootVisited = false;
 
-	for (int index = params.stringIndex; index < endIndex; index++) {
+	for (int index = params.stringIndex; index <= endIndex; index++) {
 
 		const OpCode& currentOp = lString[index];
 
 		if (currentOp.symbol == '0') {
 
-			unsigned int stemId = entityManager.addEntity(std::make_unique<Stem>(Stem(entityManager, currentFrame.lParams, currentFrame.node->prev)));
+			unsigned int stemId = entityManager.addEntity(std::make_unique<Stem>(Stem(entityManager, currentFrame.lParams, currentFrame.node)));
 			StemNode newNode{stemId, currentFrame.node};
-			currentFrame.node->next.push_back(std::make_unique<StemNode>(std::move(newNode)));
-			currentFrame.node = currentFrame.node->next.back().get();
+
+			if(rootVisited) {
+				currentFrame.node->next.push_back(std::make_unique<StemNode>(std::move(newNode)));
+				currentFrame.node->next.back()->prev = currentFrame.node;
+				currentFrame.node = currentFrame.node->next.back().get();
+			}
+			else {
+				currentFrame.node = &root;
+				currentFrame.node->current = stemId;
+				rootVisited = true;
+			}
 		}
 
 		currentFrame = currentOp.params->operator()(currentFrame, stackFrame);
