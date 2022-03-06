@@ -1,13 +1,18 @@
 #pragma once
 
-#include "Entity.h"
+#include "Object3D.h"
+#include "Scene.h"
 #include <string>
+#include <glad/glad.h>
 
 struct DrawPassState {
 	unsigned int frameBuffer;
 	std::string shaderName;
-}
+};
 
 class Renderer {
-	renderEntity(std::unique_ptr<Entity>& entity, Scene scene, DrawPassState drawState)
-}
+public:
+	void renderEntity(Object3D entityObj, const Scene& scene, const DrawPassState& drawState);
+	GLuint* initBuffer(BufferAttributes& bufferAttributes);
+	void initBufferAttributes(ShaderInfo shaderInfo, BufferAttributes& bufferAttributes);
+};

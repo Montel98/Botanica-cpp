@@ -6,6 +6,14 @@
 #include <glm/glm.hpp>
 #include <variant>
 
+template<class... Ts> 
+struct overload : Ts... {
+	using Ts::operator()...;
+};
+
+template<class... Ts>
+overload(Ts...) -> overload<Ts...>;
+
 class BufferAttributeException : public std::exception {
 public:
 	const char * what() const noexcept;
@@ -30,7 +38,6 @@ using BufferAttributeVec = std::variant
 
 class BufferAttributes {
 private:
-	int stride; // Total length (in vector units) of one line of attributes
 	int indexesUsed; // Number of buffer attribute locations used
 
 	std::map<std::string, BufferAttributeVec> attributes;
@@ -41,6 +48,12 @@ private:
 	void addBufferAttribute(const std::string& name, std::map<std::string, BufferAttribute<T>>& attributes);
 
 public:
+
+	int stride; // Total length (in vector units) of one line of attributes
+	bool isInstanceBuffer;
+	int sizeBytes;
+
+	BufferAttributes();
 
 	std::vector<std::string> getAttributeNames() const;
 
@@ -55,10 +68,12 @@ public:
 	template<typename T>
 	BufferAttribute<T>& getBufferAttribute(const std::string& name);
 
+	BufferAttributeVec& getBufferAttributeGeneric(const std::string& name);
+
 	template<typename T>
 	void removeBufferAttribute(const std::string &name);
 
-	int getStride();
+	std::vector<float> mergeAttributes();
 };
 
 template<typename T>
