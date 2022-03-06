@@ -11,9 +11,6 @@ class Object3D {
 private:
 	Object3D* parent;
 	std::vector<Object3D*> children;
-	glm::mat4 localMatrix;
-	glm::mat4 worldMatrix;
-
 	Mesh _mesh;
 public:
 	Object3D(Mesh mesh);
@@ -28,4 +25,7 @@ public:
 	void show();
 
 	Mesh &getMesh();
+
+	glm::mat4 localMatrix;
+	glm::mat4 worldMatrix;
 };

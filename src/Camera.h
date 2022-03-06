@@ -14,6 +14,6 @@ private:
 	double zNear, zFar;
 public:
 	Camera(const glm::vec3& eye, const glm::vec3& centre, const glm::vec3& up);
-	glm::mat4 getCameraMatrix();
-	glm::mat4 getPerspectiveMatrix();
+	glm::mat4 getCameraMatrix() const;
+	glm::mat4 getPerspectiveMatrix() const;
 };

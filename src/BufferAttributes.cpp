@@ -59,13 +59,13 @@ std::vector<float> BufferAttributes::mergeAttributes() {
 	for (const std::string& name : getAttributeNames()) {
 
 		std::visit(overload{
-			[&buffer](BufferAttribute<glm::vec1> bufferAttribute) {
+			[&buffer](BufferAttribute<glm::vec1>& bufferAttribute) {
 
 				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
 					buffer.push_back(bufferAttribute.bufferData[i][0]);
 				}
 			},
-			[&buffer](auto bufferAttribute) {
+			[&buffer](auto& bufferAttribute) {
 
 				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
 					for (int j = 0; j < bufferAttribute.attribLength; j++) {

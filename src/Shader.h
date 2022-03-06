@@ -1,9 +1,13 @@
+#pragma once
+
 #include <map>
 #include <string>
 #include <variant>
 #include <glm/glm.hpp>
 
-using UniformType = std::variant<glm::ivec1, glm::vec1, glm::vec2, glm::vec3, glm::vec4, glm::mat4>;
+//using UniformType = std::variant<glm::ivec1, glm::vec1, glm::vec2, glm::vec3, glm::vec4, glm::mat4>;
+
+using UniformType = std::variant<glm::vec1, glm::vec2, glm::vec3, glm::vec4, glm::mat4>;
 
 struct ShaderInfo {
 	std::string vertexSourcePath;
