@@ -55,4 +55,8 @@ BufferAttributeVec& BufferAttributes::getBufferAttributeGeneric(const std::strin
 	return attributes[name];
 }
 
-BufferAttributes::BufferAttributes() : sizeBytes(0) {};
+int BufferAttributes::getLength() {
+	return length;
+}
+
+BufferAttributes::BufferAttributes() : sizeBytes(0), length(0) {};

@@ -6,6 +6,7 @@
 #include "Object3D.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Buffer.h"
 #include <string>
 #include <glad/glad.h>
 
@@ -15,6 +16,8 @@ struct DrawPassState {
 };
 
 class Renderer {
+private:
+	BufferManager bufferManager;
 public:
 	void renderEntity(Object3D entityObj, const Scene& scene, const DrawPassState& drawState);
 	void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes);
@@ -31,7 +34,7 @@ public:
 	template<typename T>
 	GLuint initBuffer(BufferAttributes& bufferAttributes);
 
-	void initBuffers(Geometry& geometry, GLuint program);
+	int initBuffers(Geometry& geometry, GLuint program);
 
 	void setBuffersAndAttributes(GLuint program, Object3D& object3D);
 };

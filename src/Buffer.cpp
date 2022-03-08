@@ -9,7 +9,19 @@ bool Buffer::isEmpty() {
 }
 
 void Buffer::addEntityBuffer(Geometry* geometry) {
-	BufferRange bufferRange{0,0,0,0};
+
+	int geometryVertexLength = geometry->bufferAttributes.getLength();
+	int geometryIndexLength = geometry->indexBuffer.getLength();
+
+	BufferRange bufferRange{
+		vertexBufferLength, 
+		geometryVertexLength, 
+		indexBufferLength, 
+		geometryIndexLength
+	};
+
+	vertexBufferLength += geometryVertexLength;
+	indexBufferLength += geometryIndexLength;
 	entities[geometry] = bufferRange;
 }
 
@@ -38,6 +50,10 @@ Buffer& BufferManager::getBufferById(BufferId id) {
 	return buffers[id];
 }
 
-Buffer& BufferManager::getBufferByName(std::string alias) {
-	return buffers[aliases[alias]];
+BufferId BufferManager::getBufferIdByName(const std::string& alias) {
+	return aliases[alias];
+}
+
+bool BufferManager::bufferExists(const std::string& alias) {
+	return aliases.find(alias) != aliases.end();
 }

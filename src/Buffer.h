@@ -16,6 +16,8 @@ private:
 	int _ibo;
 	int _vao;
 	int indexCount;
+	int vertexBufferLength;
+	int indexBufferLength;
 	std::map<Geometry*, BufferRange> entities;
 public:
 	Buffer(int vbo, int ibo, int vao);
@@ -36,6 +38,7 @@ public:
 	BufferId addBuffer(std::string name, int vbo, int ibo, int vao);
 	BufferId addBuffer(int vbo, int ibo, int vao);
 	Buffer& getBufferById(BufferId id);
-	Buffer& getBufferByName(std::string alias);
+	BufferId getBufferIdByName(const std::string& alias);
 	void removeBuffer(BufferId id);
+	bool bufferExists(const std::string& alias);
 };

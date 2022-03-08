@@ -11,7 +11,7 @@ private:
 };*/
 
 
-Geometry::Geometry() : useST(false), useNormal(false), bufferName("") {
+Geometry::Geometry() : useST(false), useNormal(false), bufferName(""), bufferId(-1) {
 	bufferAttributes.addBufferAttribute<glm::vec3>("aVertexPosition");
 	indexBuffer.addBufferAttribute<glm::ivec1>("aIndex");
 }

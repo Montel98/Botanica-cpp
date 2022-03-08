@@ -140,7 +140,7 @@ GLuint Renderer::initTexture(const Texture& texture) {
 	return textureHandle;
 }
 
-void Renderer::initBuffers(Geometry& geometry, GLuint program) {
+int Renderer::initBuffers(Geometry& geometry, GLuint program) {
 	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -150,7 +150,11 @@ void Renderer::initBuffers(Geometry& geometry, GLuint program) {
 
 	GLuint IBO = initBuffer<int>(geometry.indexBuffer);
 
+	int bufferId = bufferManager.addBuffer(VBO, IBO, VAO);
+
 	glBindVertexArray(0);
+
+	return bufferId;
 }
 
 void Renderer::bindTexture(GLuint program, Material& material) {
@@ -172,5 +176,17 @@ void Renderer::bindShaderProgram(GLuint program, Shader shader, ShaderManager& s
 
 void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 
+	Geometry& geometry = *(object3D.getMesh()._geometry);
 	bindTexture(program, object3D.getMesh()._material);
+
+	if (geometry.bufferId == -1) {
+
+		if (geometry.bufferName != "") {
+
+			geometry.bufferId = bufferManager.getBufferIdByName(geometry.bufferName);
+		}
+		else {
+			geometry.bufferId = initBuffers(geometry, program);
+		}
+	}
 }

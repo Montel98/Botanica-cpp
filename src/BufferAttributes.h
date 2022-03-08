@@ -50,6 +50,8 @@ private:
 	template<typename T>
 	void addBufferAttribute(const std::string& name, std::map<std::string, BufferAttribute<T>>& attributes);
 
+	int length;
+
 public:
 
 	int stride; // Total length (in vector units) of one line of attributes
@@ -78,6 +80,8 @@ public:
 
 	template<typename T>
 	std::vector<T> mergeAttributes();
+
+	int getLength();
 };
 
 template<typename T>
@@ -90,7 +94,9 @@ void BufferAttributes::addBufferAttribute(const std::string& name) {
 
 template<typename T>
 void BufferAttributes::setBufferAttributeData(const std::string& name, std::vector<T> newBufferData) {
-	std::get<BufferAttribute<T>>(attributes[name]).bufferData = std::move(newBufferData);
+	BufferAttribute<T>& bufferAttribute = std::get<BufferAttribute<T>>(attributes[name]);
+	length += (bufferAttribute.bufferData.size() - newBufferData.size());
+	bufferAttribute.bufferData = std::move(newBufferData);
 }
 
 template<typename T>
@@ -100,7 +106,9 @@ BufferAttribute<T>& BufferAttributes::getBufferAttribute(const std::string& name
 
 template<typename T>
 void BufferAttributes::removeBufferAttribute(const std::string &name) {
+	length -= std::get<BufferAttribute<T>>(attributes[name]).bufferData.size();
 	stride -= T::length();
+	attributes.erase(name);
 }
 
 template<typename T>
