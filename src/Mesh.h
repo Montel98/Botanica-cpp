@@ -7,6 +7,8 @@
 #include <string>
 
 class Mesh {
+private:
+	bool isInstanced;
 public:
 	Material _material;
 	std::unique_ptr<Geometry> _geometry;
@@ -14,4 +16,6 @@ public:
 
 	Mesh(const Material &material, std::unique_ptr<Geometry> geometry);
 	Mesh(const Mesh&);
+
+	bool usesProgram(const std::string programName);
 };

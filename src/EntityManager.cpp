@@ -22,7 +22,7 @@ void EntityManager::removeEntity(unsigned int id) {
 	Entity* entity = getEntityById(id);
 	Geometry* geometry = entity->worldObject.getMesh()._geometry.get();
 	int bufferId = entity->worldObject.getMesh()._geometry->bufferId;
-	_bufferManager.getBufferById(bufferId).removeEntityBuffer(geometry);
+	_bufferManager.getBufferById(bufferId).removeBufferGeometry(geometry);
 
 	entities.erase(id);
 }

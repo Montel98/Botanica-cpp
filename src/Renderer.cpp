@@ -7,8 +7,47 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 
-void Renderer::renderEntity(Object3D entityObj, const Scene& scene, const DrawPassState& drawState) {
+Renderer::Renderer() {
+	drawPassStates.push_back(DrawPassState{0, "Default"});
+}
 
+void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawPassState& drawState) {
+	Mesh& mesh = entityObj.getMesh();
+	Geometry& geometry = *mesh._geometry;
+
+	GLuint program = bindShaderProgram(mesh.shaderPrograms[drawState.shaderName]);
+	updateUniforms(scene.camera, program, entityObj);
+	setBuffersAndAttributes(program, entityObj);
+
+	Buffer& buffer = bufferManager.getBufferById(geometry.bufferId);
+	glBindVertexArray(buffer._vao);
+
+	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
+
+	glDrawElements(
+		GL_TRIANGLES, 
+		bufferInfo.indexBufferLength, 
+		GL_UNSIGNED_INT, 
+		(void*) (bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT))
+	);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Entity>>& entities) {
+
+	for (int state = 0; state < drawPassStates.size(); state++) {
+		DrawPassState& drawState = drawPassStates[state];
+		glBindFramebuffer(GL_FRAMEBUFFER, drawState.fbo);
+
+		for (int entityIndex = 0; entityIndex < entities.size(); entityIndex++) {
+			Entity& entity = entities[entityIndex].get();
+
+			if(entity.worldObject.getMesh().usesProgram(drawState.shaderName)) {
+				renderEntity(entity.worldObject, scene, drawState);
+			}
+		}
+	}
 }
 
 void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes) {
@@ -166,12 +205,13 @@ void Renderer::bindTexture(GLuint program, Material& material) {
 	glUniform1i(glGetUniformLocation(program, material.textureMap.name.c_str()), 1);
 }
 
-void Renderer::bindShaderProgram(GLuint program, Shader shader, ShaderManager& shaderManager) {
+GLuint Renderer::bindShaderProgram(Shader shader) {
 	ShaderInfo &shaderInfo = shaderManager.getShaderInfo(shader.name);
 	if (shaderInfo.programId == -1) {
 		shaderInfo.programId = initShaderProgram(shader.vertexSourcePath, shader.fragmentSourcePath);
 	}
 	glUseProgram(shaderInfo.programId);
+	return shaderInfo.programId;
 }
 
 void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
@@ -184,9 +224,41 @@ void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 		if (geometry.bufferName != "") {
 
 			geometry.bufferId = bufferManager.getBufferIdByName(geometry.bufferName);
+			updateBuffers(geometry);
 		}
 		else {
 			geometry.bufferId = initBuffers(geometry, program);
 		}
 	}
+}
+
+void Renderer::updateBuffers(Geometry& geometry) {
+
+	Buffer& buffer = bufferManager.getBufferById(geometry.bufferId);
+
+	if (!buffer.geometryInBuffer(&geometry)) {
+		buffer.addBufferGeometry(&geometry);
+	}
+
+	glBindVertexArray(buffer._vao);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer._vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer._ibo);
+
+	// Make a temp copy of index buffer data and add real buffer base position to offset
+	std::vector<glm::ivec1> newIndexBuffer = geometry.indexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData;
+	
+	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
+
+	for (int i = 0; i < newIndexBuffer.size(); i++) {
+		newIndexBuffer[i] += bufferInfo.indexBufferStart;
+	}
+
+	glBufferSubData(
+		GL_ELEMENT_ARRAY_BUFFER, 
+		0, 
+		newIndexBuffer.size() * sizeof(GL_UNSIGNED_INT), 
+		&newIndexBuffer
+	);
+
+	glBindVertexArray(0);
 }

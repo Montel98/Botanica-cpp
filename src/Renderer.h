@@ -7,25 +7,31 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Buffer.h"
+#include "Entity.h"
 #include <string>
 #include <glad/glad.h>
 
 struct DrawPassState {
-	unsigned int frameBuffer;
+	unsigned int fbo;
 	std::string shaderName;
 };
 
 class Renderer {
 private:
 	BufferManager bufferManager;
+	ShaderManager shaderManager;
+	std::vector<DrawPassState> drawPassStates;
 public:
-	void renderEntity(Object3D entityObj, const Scene& scene, const DrawPassState& drawState);
+	Renderer();
+	void renderEntity(Object3D& entityObj, const Scene& scene, const DrawPassState& drawState);
+	void renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Entity>>& entities);
+
 	void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes);
 	void updateUniforms(const Camera& camera, GLuint program, Object3D& object3D);
 	void updateModelUniforms(GLuint program, Object3D& object3D);
 
 	void bindTexture(GLuint program, Material& material);
-	void bindShaderProgram(GLuint program, Shader shader, ShaderManager& shaderManager);
+	GLuint bindShaderProgram(Shader shader);
 
 	GLuint initShaderProgram(const std::string& vsSource, const std::string& fsSource);
 	GLuint loadShader(GLenum shaderType, const std::string& source);
@@ -37,6 +43,7 @@ public:
 	int initBuffers(Geometry& geometry, GLuint program);
 
 	void setBuffersAndAttributes(GLuint program, Object3D& object3D);
+	void updateBuffers(Geometry& geometry);
 };
 
 template<typename T>

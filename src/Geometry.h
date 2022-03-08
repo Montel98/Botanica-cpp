@@ -9,7 +9,6 @@
 class Geometry {
 private:
 	bool useST, useNormal;
-
 public:
 	Geometry();
 
@@ -26,12 +25,15 @@ public:
 	void useNormals();
 	void useSTs();
 
+	void updateGeometry();
+
 	BufferAttributes bufferAttributes;
 	BufferAttributes indexBuffer;
 
-	//BufferLocations bufferLocations;
 	std::string bufferName;
 	int bufferId;
+
+	bool geometryModified;
 
 	virtual Geometry* clone() const;
 	virtual ~Geometry();

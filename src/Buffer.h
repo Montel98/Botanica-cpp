@@ -12,20 +12,21 @@ struct BufferRange {
 
 class Buffer {
 private:
-	int _vbo;
-	int _ibo;
-	int _vao;
 	int indexCount;
 	int vertexBufferLength;
 	int indexBufferLength;
-	std::map<Geometry*, BufferRange> entities;
+	std::map<Geometry*, BufferRange> geometries;
 public:
+	int _vbo;
+	int _ibo;
+	int _vao;
 	Buffer(int vbo, int ibo, int vao);
 	Buffer() = default;
 	bool isEmpty();
-	void addEntityBuffer(Geometry* geometry);
-	void removeEntityBuffer(Geometry* geometry);
+	void addBufferGeometry(Geometry* geometry);
+	void removeBufferGeometry(Geometry* geometry);
 	BufferRange getBufferInfo(Geometry* geometry);
+	bool geometryInBuffer(Geometry* geometry);
 };
 
 class BufferManager {

@@ -13,3 +13,5 @@ void Scene::removeEntity(EntityId entity) {
 		}
 	}
 }
+
+Scene::Scene(const Camera& worldCamera) : camera(worldCamera) {};
