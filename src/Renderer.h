@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Object3D.h"
 #include "Mesh.h"
+#include "Texture.h"
 #include <string>
 #include <glad/glad.h>
 
@@ -16,10 +17,39 @@ struct DrawPassState {
 class Renderer {
 public:
 	void renderEntity(Object3D entityObj, const Scene& scene, const DrawPassState& drawState);
-	GLuint* initBuffer(BufferAttributes& bufferAttributes);
-	void initBufferAttributes(ShaderInfo shaderInfo, BufferAttributes& bufferAttributes);
+	void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes);
 	void updateUniforms(const Camera& camera, GLuint program, Object3D& object3D);
 	void updateModelUniforms(GLuint program, Object3D& object3D);
+
+	void bindTexture(GLuint program, Material& material);
+	void bindShaderProgram(GLuint program, Shader shader, ShaderManager& shaderManager);
+
 	GLuint initShaderProgram(const std::string& vsSource, const std::string& fsSource);
 	GLuint loadShader(GLenum shaderType, const std::string& source);
+	GLuint initTexture(const Texture& texture);
+
+	template<typename T>
+	GLuint initBuffer(BufferAttributes& bufferAttributes);
+
+	void initBuffers(Geometry& geometry, GLuint program);
+
+	void setBuffersAndAttributes(GLuint program, Object3D& object3D);
 };
+
+template<typename T>
+GLuint Renderer::initBuffer(BufferAttributes& bufferAttributes) {
+	GLuint bufferObject;
+
+	glGenBuffers(1, &bufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, bufferObject);
+
+	glBufferData(GL_ARRAY_BUFFER, bufferAttributes.sizeBytes * sizeof(T), NULL, GL_STATIC_DRAW);
+
+	std::vector<T> mergedAttributes = bufferAttributes.mergeAttributes<T>();
+
+	int bufferSize = bufferAttributes.sizeBytes > 0 ? mergedAttributes.size() : bufferAttributes.sizeBytes;
+
+	glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize * sizeof(T), &mergedAttributes);
+
+	return bufferObject;
+}

@@ -12,7 +12,7 @@ using UniformType = std::variant<glm::vec1, glm::vec2, glm::vec3, glm::vec4, glm
 struct ShaderInfo {
 	std::string vertexSourcePath;
 	std::string fragmentSourcePath;
-	unsigned int programId;
+	int programId = -1;
 };
 
 struct Shader {

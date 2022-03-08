@@ -4,7 +4,9 @@
 #include <set>
 #include <exception>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <variant>
+#include <vector>
 
 template<class... Ts> 
 struct overload : Ts... {
@@ -29,6 +31,7 @@ struct BufferAttribute {
 
 using BufferAttributeVec = std::variant
 <
+	BufferAttribute<glm::ivec1>,
 	BufferAttribute<glm::vec1>,
 	BufferAttribute<glm::vec2>, 
 	BufferAttribute<glm::vec3>,
@@ -73,7 +76,8 @@ public:
 	template<typename T>
 	void removeBufferAttribute(const std::string &name);
 
-	std::vector<float> mergeAttributes();
+	template<typename T>
+	std::vector<T> mergeAttributes();
 };
 
 template<typename T>
@@ -97,4 +101,39 @@ BufferAttribute<T>& BufferAttributes::getBufferAttribute(const std::string& name
 template<typename T>
 void BufferAttributes::removeBufferAttribute(const std::string &name) {
 	stride -= T::length();
+}
+
+template<typename T>
+std::vector<T> BufferAttributes::mergeAttributes() {
+
+	std::vector<T> buffer;
+
+	for (const std::string& name : getAttributeNames()) {
+
+		std::visit(overload{
+			[&buffer](BufferAttribute<glm::vec1>& bufferAttribute) {
+
+				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
+					buffer.push_back(bufferAttribute.bufferData[i][0]);
+				}
+			},
+			[&buffer](BufferAttribute<glm::ivec1>& bufferAttribute) {
+
+				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
+					buffer.push_back(bufferAttribute.bufferData[i][0]);
+				}
+			},
+			[&buffer](auto& bufferAttribute) {
+
+				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
+					for (int j = 0; j < bufferAttribute.attribLength; j++) {
+
+						buffer.push_back(glm::value_ptr(bufferAttribute.bufferData[i])[j * sizeof(T)]);
+					}
+				}
+			}
+		}, attributes[name]);
+	}
+
+	return buffer;
 }

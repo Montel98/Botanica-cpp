@@ -27,7 +27,7 @@ private:
 	std::vector<glm::vec2> generateSTs() const;
 	std::vector<glm::vec3> generateNormals() const;
 	std::vector<glm::vec3> generateVertices() const;
-	std::vector<int> generateIndices() const;
+	std::vector<glm::ivec1> generateIndices() const;
 
 public:
 	ParametricGeometry(const F &surfaceFunc, const GeometryConstraints &constraints);
@@ -124,28 +124,28 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateVertices() const {
 }
 
 template <typename F>
-std::vector<int> ParametricGeometry<F>::generateIndices() const {
+std::vector<glm::ivec1> ParametricGeometry<F>::generateIndices() const {
 
-	std::vector<int> newIndices;
+	std::vector<glm::ivec1> newIndices;
 
-	for (auto vStep = 0; vStep < limits.vSteps; vStep++) {
+	for (int vStep = 0; vStep < limits.vSteps; vStep++) {
 
-		for (auto uStep = 0; uStep < limits.uSteps; uStep++) {
+		for (int uStep = 0; uStep < limits.uSteps; uStep++) {
 
-			for (auto i = 0; i < 6; i++) {
+			for (int i = 0; i < 6; i++) {
 
-				float indexA = (vStep * limits.uSteps) + uStep;
-				float indexB = (vStep * limits.uSteps) + (uStep + 1);
-				float indexC = ((vStep + 1) * limits.uSteps) + (uStep + 1);
-				float indexD = ((vStep + 1) * limits.uSteps) + uStep;
+				int indexA = (vStep * limits.uSteps) + uStep;
+				int indexB = (vStep * limits.uSteps) + (uStep + 1);
+				int indexC = ((vStep + 1) * limits.uSteps) + (uStep + 1);
+				int indexD = ((vStep + 1) * limits.uSteps) + uStep;
 
-				newIndices.push_back(indexA);
-				newIndices.push_back(indexB);
-				newIndices.push_back(indexC);
+				newIndices.push_back(glm::ivec1(indexA));
+				newIndices.push_back(glm::ivec1(indexB));
+				newIndices.push_back(glm::ivec1(indexC));
 
-				newIndices.push_back(indexC);
-				newIndices.push_back(indexD);
-				newIndices.push_back(indexA);
+				newIndices.push_back(glm::ivec1(indexC));
+				newIndices.push_back(glm::ivec1(indexD));
+				newIndices.push_back(glm::ivec1(indexA));
 			}
 		}
 	}
@@ -156,9 +156,8 @@ std::vector<int> ParametricGeometry<F>::generateIndices() const {
 template <typename F>
 void ParametricGeometry<F>::generateGeometry() {
 
-	//bufferAttributes.setBufferAttributeDataVec3("aVertexPosition", std::move(generateVertices()));
 	bufferAttributes.setBufferAttributeData<glm::vec3>("aVertexPosition", generateVertices());
-	indexBuffer.bufferData = generateIndices();
+	indexBuffer.setBufferAttributeData<glm::ivec1>("aIndex", generateIndices());
 
 	if (usesNormals()) {
 		//std::vector<glm::vec3> normals = generateNormals();

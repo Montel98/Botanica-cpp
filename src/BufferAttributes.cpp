@@ -2,7 +2,6 @@
 #include <set>
 #include <exception>
 #include "Geometry.h"
-#include <glm/gtc/type_ptr.hpp>
 
 std::vector<std::string> BufferAttributes::getAttributeNames() const {
 	std::vector<std::string> attributeNames;
@@ -50,34 +49,6 @@ void BufferAttributes::mergeBufferAttributes(const BufferAttributes& other) {
 			std::visit(BufferTypeVisitor{}, attributes[name], otherAttrib.second);
 		}
 	}
-}
-
-std::vector<float> BufferAttributes::mergeAttributes() {
-
-	std::vector<float> buffer;
-
-	for (const std::string& name : getAttributeNames()) {
-
-		std::visit(overload{
-			[&buffer](BufferAttribute<glm::vec1>& bufferAttribute) {
-
-				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
-					buffer.push_back(bufferAttribute.bufferData[i][0]);
-				}
-			},
-			[&buffer](auto& bufferAttribute) {
-
-				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
-					for (int j = 0; j < bufferAttribute.attribLength; j++) {
-
-						buffer.push_back(glm::value_ptr(bufferAttribute.bufferData[i])[j * sizeof(float)]);
-					}
-				}
-			}
-		}, attributes[name]);
-	}
-
-	return buffer;
 }
 
 BufferAttributeVec& BufferAttributes::getBufferAttributeGeneric(const std::string& name) {

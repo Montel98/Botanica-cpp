@@ -11,11 +11,11 @@ void Renderer::renderEntity(Object3D entityObj, const Scene& scene, const DrawPa
 
 }
 
-void Renderer::initBufferAttributes(ShaderInfo shaderInfo, BufferAttributes& bufferAttributes) {
+void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes) {
 
 	for (const std::string& name : bufferAttributes.getAttributeNames()) {
 
-		const GLint location = glGetAttribLocation(shaderInfo.programId, name.c_str());
+		const GLint location = glGetAttribLocation(program, name.c_str());
 		const int stride = bufferAttributes.stride;
 
 		std::visit([location, stride](auto& bufferAttribute) {
@@ -37,23 +37,6 @@ void Renderer::initBufferAttributes(ShaderInfo shaderInfo, BufferAttributes& buf
 			glVertexAttribDivisor(location, 1);
 		}
 	}
-}
-
-GLuint* Renderer::initBuffer(BufferAttributes& bufferAttributes) {
-	GLuint* bufferObject;
-
-	glGenBuffers(1, bufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, bufferObject[0]);
-
-	glBufferData(GL_ARRAY_BUFFER, bufferAttributes.sizeBytes * sizeof(GL_FLOAT), NULL, GL_STATIC_DRAW);
-
-	std::vector<float> mergedAttributes = bufferAttributes.mergeAttributes();
-
-	int bufferSize = bufferAttributes.sizeBytes > 0 ? mergedAttributes.size() : bufferAttributes.sizeBytes;
-
-	glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize * sizeof(GL_FLOAT), &mergedAttributes);
-
-	return bufferObject;
 }
 
 void Renderer::updateUniforms(const Camera& camera, GLuint program, Object3D& object3D) {
@@ -130,4 +113,64 @@ GLuint Renderer::loadShader(GLenum shaderType, const std::string& source) {
 	}
 
 	return shader;
+}
+
+GLuint Renderer::initTexture(const Texture& texture) {
+	GLuint textureHandle;
+	int level = 0;
+	int border = 0;
+
+	glGenTextures(1, &textureHandle);
+	glBindTexture(GL_TEXTURE_2D, textureHandle);
+	glTexImage2D(
+		GL_TEXTURE_2D, 
+		level, 
+		GL_RGBA, 
+		texture.width, 
+		texture.height, 
+		border, 
+		GL_RGBA, 
+		GL_UNSIGNED_BYTE, 
+		(void*)(texture.bufferData.data())
+	);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return textureHandle;
+}
+
+void Renderer::initBuffers(Geometry& geometry, GLuint program) {
+	GLuint VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+	GLuint VBO = initBuffer<float>(geometry.bufferAttributes);
+	initBufferAttributes(program, geometry.bufferAttributes);
+
+	GLuint IBO = initBuffer<int>(geometry.indexBuffer);
+
+	glBindVertexArray(0);
+}
+
+void Renderer::bindTexture(GLuint program, Material& material) {
+	if (material.textureMap.textureId == -1) {
+		material.textureMap.textureId = initTexture(material.textureMap);
+	}
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, material.textureMap.textureId);
+	glUniform1i(glGetUniformLocation(program, material.textureMap.name.c_str()), 1);
+}
+
+void Renderer::bindShaderProgram(GLuint program, Shader shader, ShaderManager& shaderManager) {
+	ShaderInfo &shaderInfo = shaderManager.getShaderInfo(shader.name);
+	if (shaderInfo.programId == -1) {
+		shaderInfo.programId = initShaderProgram(shader.vertexSourcePath, shader.fragmentSourcePath);
+	}
+	glUseProgram(shaderInfo.programId);
+}
+
+void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
+
+	bindTexture(program, object3D.getMesh()._material);
 }

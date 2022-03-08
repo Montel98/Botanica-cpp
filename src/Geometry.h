@@ -27,7 +27,11 @@ public:
 	void useSTs();
 
 	BufferAttributes bufferAttributes;
-	BufferAttribute<int> indexBuffer;
+	BufferAttributes indexBuffer;
+
+	//BufferLocations bufferLocations;
+	std::string bufferName;
+	int bufferId;
 
 	virtual Geometry* clone() const;
 	virtual ~Geometry();

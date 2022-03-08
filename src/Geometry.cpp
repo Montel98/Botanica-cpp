@@ -4,15 +4,16 @@
 #include "Geometry.h"
 #include <iostream>
 
-class Buffer {
+/*class Buffer {
 private:
 	std::string BufferName;
-	unsigned int bufferID;
-};
+	unsigned int bufferId;
+};*/
 
 
-Geometry::Geometry() : useST(false), useNormal(false) {
+Geometry::Geometry() : useST(false), useNormal(false), bufferName("") {
 	bufferAttributes.addBufferAttribute<glm::vec3>("aVertexPosition");
+	indexBuffer.addBufferAttribute<glm::ivec1>("aIndex");
 }
 
 void Geometry::addMorphTarget(const std::string &targetName, std::vector<glm::vec3> morphVertices) {
