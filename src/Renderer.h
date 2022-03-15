@@ -7,7 +7,6 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Buffer.h"
-#include "Entity.h"
 #include <string>
 #include <glad/glad.h>
 
@@ -18,13 +17,11 @@ struct DrawPassState {
 
 class Renderer {
 private:
-	BufferManager bufferManager;
-	ShaderManager shaderManager;
 	std::vector<DrawPassState> drawPassStates;
 public:
 	Renderer();
 	void renderEntity(Object3D& entityObj, const Scene& scene, const DrawPassState& drawState);
-	void renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Entity>>& entities);
+	void renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Object3D>>& entityObjects);
 
 	void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes);
 	void updateUniforms(const Camera& camera, GLuint program, Object3D& object3D);
@@ -44,6 +41,11 @@ public:
 
 	void setBuffersAndAttributes(GLuint program, Object3D& object3D);
 	void updateBuffers(Geometry& geometry);
+
+	void clear(GLuint fbo);
+
+	BufferManager bufferManager;
+	ShaderManager shaderManager;
 };
 
 template<typename T>

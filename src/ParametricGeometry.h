@@ -95,7 +95,6 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateNormals() const {
 			}
 
 			newNormals.push_back(normal);
-			std::cout << normal.x << " " << normal.y << " " << normal.z;
 		}
 	}
 

@@ -46,7 +46,9 @@ StemNode LSystem::buildTree(const std::vector<OpCode>& lString, const LSystemPar
 
 		if (currentOp.symbol == '0') {
 
-			unsigned int stemId = entityManager.addEntity(std::make_unique<Stem>(Stem(entityManager, currentFrame.lParams, currentFrame.node)));
+			unsigned int stemId = entityManager.addEntity(std::make_unique<Stem>(
+				Stem(entityManager, currentFrame.lParams, currentFrame.node))
+			);
 			StemNode newNode{stemId, currentFrame.node};
 
 			if(rootVisited) {

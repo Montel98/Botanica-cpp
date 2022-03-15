@@ -9,6 +9,8 @@
 
 Renderer::Renderer() {
 	drawPassStates.push_back(DrawPassState{0, "Default"});
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_EQUAL);
 }
 
 void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawPassState& drawState) {
@@ -34,19 +36,24 @@ void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawP
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Entity>>& entities) {
+void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Object3D>>& entityObjects) {
 
 	for (int state = 0; state < drawPassStates.size(); state++) {
 		DrawPassState& drawState = drawPassStates[state];
 		glBindFramebuffer(GL_FRAMEBUFFER, drawState.fbo);
 
-		for (int entityIndex = 0; entityIndex < entities.size(); entityIndex++) {
-			Entity& entity = entities[entityIndex].get();
+		for (int i = 0; i < entityObjects.size(); i++) {
+			Object3D& worldObject = entityObjects[i].get();
 
-			if(entity.worldObject.getMesh().usesProgram(drawState.shaderName)) {
-				renderEntity(entity.worldObject, scene, drawState);
+			if(worldObject.getMesh().usesProgram(drawState.shaderName)) {
+				renderEntity(worldObject, scene, drawState);
 			}
 		}
+	}
+
+	for (int state = 0; state < drawPassStates.size(); state++) {
+		DrawPassState& drawState = drawPassStates[state];
+		clear(drawState.fbo);
 	}
 }
 
@@ -245,7 +252,7 @@ void Renderer::updateBuffers(Geometry& geometry) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer._ibo);
 
 	// Make a temp copy of index buffer data and add real buffer base position to offset
-	std::vector<glm::ivec1> newIndexBuffer = geometry.indexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData;
+	std::vector<int> newIndexBuffer = geometry.indexBuffer.mergeAttributes<int>();
 	
 	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
 
@@ -253,12 +260,30 @@ void Renderer::updateBuffers(Geometry& geometry) {
 		newIndexBuffer[i] += bufferInfo.indexBufferStart;
 	}
 
+	// Update indices
 	glBufferSubData(
 		GL_ELEMENT_ARRAY_BUFFER, 
-		0, 
+		bufferInfo.indexBufferStart, 
 		newIndexBuffer.size() * sizeof(GL_UNSIGNED_INT), 
 		&newIndexBuffer
 	);
 
+	std::vector<float> newVertexBuffer = geometry.bufferAttributes.mergeAttributes<float>();
+
+	// Update vertices
+	glBufferSubData(
+		GL_ELEMENT_ARRAY_BUFFER, 
+		bufferInfo.vertexBufferStart, 
+		newVertexBuffer.size() * sizeof(GL_UNSIGNED_INT), 
+		&newVertexBuffer
+	);
+
 	glBindVertexArray(0);
+}
+
+void Renderer::clear(GLuint fbo) {
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
