@@ -8,6 +8,6 @@ glm::mat4 Camera::getCameraMatrix() const {
 	return glm::lookAt(origin, target, vertical);
 }
 
-glm::mat4 Camera::getPerspectiveMatrix() const {
-	return glm::perspective(PI * 0.25, 0.0, zNear, zFar);
+glm::mat4 Camera::getPerspectiveMatrix(double aspectRatio) const {
+	return glm::perspective(PI * 0.25, aspectRatio, zNear, zFar);
 }

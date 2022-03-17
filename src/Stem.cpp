@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "StemBuilder.h"
 #include <memory>
+#include <map>
 #include <math.h>
 #include <glm/glm.hpp>
 #include <iostream>
@@ -34,7 +35,13 @@ Mesh Stem::generateMesh(const StemNode* prevStem) {
 		1.0
 	};
 
-	return Mesh(material, std::make_unique<Geometry>(generateGeometry(lParams, prevStem)));
+	Mesh mesh(material, std::make_unique<Geometry>(generateGeometry(lParams, prevStem)));
+
+	mesh.shaderPrograms.emplace(
+		std::make_pair("Default", Shader{"Test", "./src/shaders/stemVertex.glsl", "./src/shaders/stemFragment.glsl"})
+	);
+
+	return mesh;
 }
 
 Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* prevStem) {

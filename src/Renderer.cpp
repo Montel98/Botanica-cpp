@@ -6,6 +6,7 @@
 #include <variant>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
+#include <iostream>
 
 Renderer::Renderer() {
 	drawPassStates.push_back(DrawPassState{0, "Default"});
@@ -51,6 +52,7 @@ void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_
 		}
 	}
 
+	// Clear framebuffers for next frame
 	for (int state = 0; state < drawPassStates.size(); state++) {
 		DrawPassState& drawState = drawPassStates[state];
 		clear(drawState.fbo);
@@ -92,7 +94,7 @@ void Renderer::updateUniforms(const Camera& camera, GLuint program, Object3D& ob
 	GLuint perspectiveLoc = glGetUniformLocation(program, "perspective");
 
 	glm::mat4 cameraMatrix = camera.getCameraMatrix();
-	glm::mat4 perspectiveMatrix = camera.getPerspectiveMatrix();
+	glm::mat4 perspectiveMatrix = camera.getPerspectiveMatrix(1.0);
 
 	glUniformMatrix4fv(worldLoc, 1, false, glm::value_ptr(object3D.worldMatrix));
 	glUniformMatrix4fv(cameraLoc, 1, false, glm::value_ptr(cameraMatrix));
@@ -213,9 +215,14 @@ void Renderer::bindTexture(GLuint program, Material& material) {
 }
 
 GLuint Renderer::bindShaderProgram(Shader shader) {
+
+	if (!shaderManager.shaderExists(shader.name)) {
+		shaderManager.addCustomShader(shader);
+	}
 	ShaderInfo &shaderInfo = shaderManager.getShaderInfo(shader.name);
+
 	if (shaderInfo.programId == -1) {
-		shaderInfo.programId = initShaderProgram(shader.vertexSourcePath, shader.fragmentSourcePath);
+		shaderInfo.programId = initShaderProgram(shaderInfo.vertexSource, shaderInfo.fragmentSource);
 	}
 	glUseProgram(shaderInfo.programId);
 	return shaderInfo.programId;

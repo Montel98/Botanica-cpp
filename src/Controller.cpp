@@ -11,7 +11,12 @@ void Controller::updateStates() {
 		if (!entity.worldObject.isHidden) {
 			visibleObjects.push_back(std::ref(entity.worldObject));
 		}
+
+		entityStack.pop_back();
 	}
 
 	renderer.renderScene(scene, visibleObjects);
 }
+
+Controller::Controller(EntityManager& manager, Renderer& worldRenderer, Scene& worldScene) :
+entityManager(manager), renderer(worldRenderer), scene(worldScene) {};

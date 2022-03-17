@@ -6,9 +6,10 @@
 
 class Controller {
 private:
-	EntityManager entityManager;
-	Scene scene;
-	Renderer renderer;
+	EntityManager& entityManager;
+	Scene& scene;
+	Renderer& renderer;
 public:
 	void updateStates();
+	Controller(EntityManager& manager, Renderer& worldRenderer, Scene& worldScene);
 };
