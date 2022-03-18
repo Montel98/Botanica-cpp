@@ -24,17 +24,17 @@ void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawP
 
 	Buffer& buffer = bufferManager.getBufferById(geometry.bufferId);
 	glBindVertexArray(buffer._vao);
-
 	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
 
 	glDrawElements(
 		GL_TRIANGLES, 
 		bufferInfo.indexBufferLength, 
 		GL_UNSIGNED_INT, 
-		(void*) (bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT))
+		/*(void*) (bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT))*/0
 	);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
 }
 
 void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Object3D>>& entityObjects) {
@@ -55,7 +55,7 @@ void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_
 	// Clear framebuffers for next frame
 	for (int state = 0; state < drawPassStates.size(); state++) {
 		DrawPassState& drawState = drawPassStates[state];
-		clear(drawState.fbo);
+		//clear(drawState.fbo);
 	}
 }
 
@@ -64,7 +64,10 @@ void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttr
 	for (const std::string& name : bufferAttributes.getAttributeNames()) {
 
 		const GLint location = glGetAttribLocation(program, name.c_str());
-		const int stride = bufferAttributes.stride;
+
+		std::cout << name << "," << location << "\n";
+
+		const int stride = bufferAttributes.getStride();
 
 		std::visit([location, stride](auto& bufferAttribute) {
 
@@ -193,12 +196,14 @@ int Renderer::initBuffers(Geometry& geometry, GLuint program) {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-	GLuint VBO = initBuffer<float>(geometry.bufferAttributes);
+	GLuint VBO = initBuffer<float>(geometry.bufferAttributes, false);
 	initBufferAttributes(program, geometry.bufferAttributes);
 
-	GLuint IBO = initBuffer<int>(geometry.indexBuffer);
+	GLuint IBO = initBuffer<int>(geometry.indexBuffer, true);
 
 	int bufferId = bufferManager.addBuffer(VBO, IBO, VAO);
+	Buffer &buffer = bufferManager.getBufferById(bufferId);
+	buffer.addBufferGeometry(&geometry);
 
 	glBindVertexArray(0);
 

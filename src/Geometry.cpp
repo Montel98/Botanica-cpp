@@ -73,15 +73,21 @@ Geometry mergeGeometry(std::vector<std::reference_wrapper<Geometry>>& geometries
 		mergedGeometry.indexBuffer = firstGeometry.indexBuffer;
 	}
 
-	/*for(std::reference_wrapper<Geometry>& geometry : geometries) {
-
-		BufferAttributes& otherBufferAttributes = geometry.get().bufferAttributes;
-		mergedGeometry.bufferAttributes.mergeBufferAttributes(otherBufferAttributes);
-	}*/
-
 	for (int i = 1; i < geometries.size(); i++) {
 		std::reference_wrapper<Geometry>& geometry = geometries[i];
 		BufferAttributes& otherBufferAttributes = geometry.get().bufferAttributes;
+
+		// Make copy of index buffer of geometry to be merged and shift indices
+		BufferAttributes otherIndexBuffer = geometry.get().indexBuffer;
+		
+		for (glm::ivec1& index : otherIndexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData) {
+			int noElements = mergedGeometry.bufferAttributes.getLength() / mergedGeometry.bufferAttributes.getStride();
+			index += noElements;
+		}
+
+		mergedGeometry.indexBuffer.appendBufferAttributeData<glm::ivec1>("aIndex", otherIndexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData);
+
+		// Merge all other attributes
 		mergedGeometry.bufferAttributes.mergeBufferAttributes(otherBufferAttributes);
 	}
 

@@ -50,11 +50,10 @@ private:
 	template<typename T>
 	void addBufferAttribute(const std::string& name, std::map<std::string, BufferAttribute<T>>& attributes);
 
-	int length;
-
+	int length; // Total number of components in merged buffer
+	int stride; // Total length (in vector units) of one line of attributes
 public:
 
-	int stride; // Total length (in vector units) of one line of attributes
 	bool isInstanceBuffer;
 	int sizeBytes;
 
@@ -71,6 +70,9 @@ public:
 	void setBufferAttributeData(const std::string& name, std::vector<T> newBufferData);
 
 	template<typename T>
+	void appendBufferAttributeData(const std::string& name, const std::vector<T>& newBufferData);
+
+	template<typename T>
 	BufferAttribute<T>& getBufferAttribute(const std::string& name);
 
 	BufferAttributeVec& getBufferAttributeGeneric(const std::string& name);
@@ -82,6 +84,8 @@ public:
 	std::vector<T> mergeAttributes();
 
 	int getLength();
+	
+	int getStride();
 };
 
 template<typename T>
@@ -95,8 +99,15 @@ void BufferAttributes::addBufferAttribute(const std::string& name) {
 template<typename T>
 void BufferAttributes::setBufferAttributeData(const std::string& name, std::vector<T> newBufferData) {
 	BufferAttribute<T>& bufferAttribute = std::get<BufferAttribute<T>>(attributes[name]);
-	length += (bufferAttribute.bufferData.size() - newBufferData.size());
+	length += T::length() * (newBufferData.size() - bufferAttribute.bufferData.size());
 	bufferAttribute.bufferData = std::move(newBufferData);
+}
+
+template<typename T>
+void BufferAttributes::appendBufferAttributeData(const std::string &name, const std::vector<T>& newBufferData) {
+	BufferAttribute<T>& bufferAttribute = std::get<BufferAttribute<T>>(attributes[name]);
+	length += T::length() * newBufferData.size();
+	bufferAttribute.bufferData.insert(bufferAttribute.bufferData.end(), newBufferData.begin(), newBufferData.end());
 }
 
 template<typename T>

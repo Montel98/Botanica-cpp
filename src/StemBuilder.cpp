@@ -1,6 +1,7 @@
 #include "StemBuilder.h"
 #include <memory>
 #include <math.h>
+#include <iostream>
 
 #define BRANCH_LENGTH 0
 #define PI 3.14
@@ -37,7 +38,7 @@ StemTipRadiusStart::StemTipRadiusStart(float rStart, float rEnd, int branchLengt
 : StemRadius(rStart, rEnd, branchLength, shift) {}
 
 float StemTipRadiusStart::operator()(float u) const {
-	return baseRadius(0.0) * (float)(1.0 - pow(u, 2.0));
+	return baseRadius(0.0) * (float)(1.0 - (u * u));
 }
 
 StemTipRadiusStart* StemTipRadiusStart::clone() const {
@@ -48,7 +49,7 @@ StemTipRadiusEnd::StemTipRadiusEnd(float rStart, float rEnd, int branchLength, i
 : StemRadius(rStart, rEnd, branchLength, shift) {}
 
 float StemTipRadiusEnd::operator()(float u) const {
-	return baseRadius(1.0) * (float)(1.0 - pow(u, 2.0)); 
+	return baseRadius(1.0) * (float)(1.0 - (u * u)); 
 }
 
 StemTipRadiusEnd* StemTipRadiusEnd::clone() const {
@@ -66,16 +67,16 @@ glm::vec3 StemSurface::operator()(float u, float v) const {
 	glm::vec3 bezierPoint = _path.eval(u);
 	glm::vec3 bezierGradient = _path.derivative(u);
 
-	glm::vec3 crossSectionPoint = crossSection(v);
+	glm::vec3 crossSectionPoint = crossSection(u, v);
 
 	return bezierPoint + crossSectionPoint;
 }
 
-glm::vec3 StemSurface::crossSection(float v) const {
-	float radius = _radiusFunc->operator()(v);
-	glm::vec3 position = _axis.left * radius * cos(v) + _axis.up * radius * sin(v);
+glm::vec3 StemSurface::crossSection(float u, float v) const {
+	float radius = _radiusFunc->operator()(u);
+	glm::vec3 position = (_axis.left * radius * cos(v)) + (_axis.up * radius * sin(v));
 
-	return position * (0.9f + 0.1f * pow(cos(3.0f * v), 2.0f));
+	return position * (0.9f + (0.1f * pow(cos(3.0f * v), 2.0f)));
 }
 
 StemSurfaceMorphInfo::StemSurfaceMorphInfo(
@@ -104,7 +105,7 @@ ParametricGeometry<StemSurface> generateStemBody(
 
 	glm::vec3 normDir = glm::normalize(lParams.axis.forward);
 	glm::vec3 p0 = lParams.position;
-	glm::vec3 p1 = lParams.position + 0.03f * normDir;
+	glm::vec3 p1 = lParams.position + 0.3f * normDir;
 
 	BezierLinear stemBodyPath(p0, p1);
 	BezierLinear immatureStemBodyPath(p0, p0);
@@ -120,9 +121,9 @@ ParametricGeometry<StemSurface> generateStemBody(
 
 	StemSurfaceMorphInfo keyFrameInfo(
 		std::make_unique<StemBodyRadius>(startBodyRadiusFunc), 
-		std::make_unique<StemBodyRadius>(endBodyRadiusFunc), 
-		stemBodyPath,
-		immatureStemBodyPath
+		std::make_unique<StemBodyRadius>(endBodyRadiusFunc),
+		immatureStemBodyPath,
+		stemBodyPath
 	);
 
 	return StemBuilder::generateStemGeometry(std::move(keyFrameInfo), lParams.axis, constraints);
@@ -135,9 +136,9 @@ ParametricGeometry<StemSurface> generateStemTip(
 	// Define the stem tip path direction in 3D space
 	glm::vec3 normDir = glm::normalize(lParams.axis.forward);
 	glm::vec3 p0 = lParams.position;
-	glm::vec3 p1 = lParams.position + 0.03f * normDir;
-	glm::vec3 p2 = lParams.position + 0.042f * normDir;
-	glm::vec3 p3 = lParams.position + 0.012f * normDir;
+	glm::vec3 p1 = lParams.position + 0.3f * normDir;
+	glm::vec3 p2 = lParams.position + 0.42f * normDir;
+	glm::vec3 p3 = lParams.position + 0.12f * normDir;
 
 	BezierLinear stemTipPath(p1, p2);
 	BezierLinear immatureStemTipPath(p0, p3);
@@ -154,9 +155,9 @@ ParametricGeometry<StemSurface> generateStemTip(
 
 	StemSurfaceMorphInfo keyFrameInfo(
 		std::make_unique<StemTipRadiusStart>(startTipRadiusFunc), 
-		std::make_unique<StemTipRadiusEnd>(endTipRadiusFunc), 
-		stemTipPath,
-		immatureStemTipPath
+		std::make_unique<StemTipRadiusEnd>(endTipRadiusFunc),
+		immatureStemTipPath,
+		stemTipPath
 	);
 
 	return StemBuilder::generateStemGeometry(std::move(keyFrameInfo), lParams.axis, constraints);
@@ -168,6 +169,7 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	const GeometryConstraints& constraints) {
 
 	// Main geometry
+	std::cout << "end\n";
 	StemSurface endSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> endGeometry(endSurface, constraints);
 	endGeometry.useNormals();
@@ -175,17 +177,20 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	endGeometry.generateGeometry();
 
 	// Create the morph targets as seperate geometries first
-	StemSurface startSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathEnd, axis);
+	std::cout << "start\n";
+	StemSurface startSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusStart->clone()), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> startGeometry(startSurface, constraints);
 	startGeometry.useNormals();
 	startGeometry.generateGeometry();
 
+	std::cout << "immature start\n";
 	StemSurface immatureStartSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusStart->clone()), keyFrameInfo.pathStart, axis);
 	ParametricGeometry<StemSurface> immatureStartGeometry(immatureStartSurface, constraints);
 	immatureStartGeometry.useNormals();
 	immatureStartGeometry.generateGeometry();
 
-	StemSurface immatureEndSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusStart->clone()), keyFrameInfo.pathStart, axis);
+	std::cout << "immature end\n";
+	StemSurface immatureEndSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathStart, axis);
 	ParametricGeometry<StemSurface> immatureEndGeometry(immatureEndSurface, constraints);
 	immatureEndGeometry.useNormals();
 	immatureEndGeometry.generateGeometry();

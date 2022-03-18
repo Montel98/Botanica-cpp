@@ -48,7 +48,7 @@ namespace StemBuilder {
 		std::unique_ptr<StemRadius> _radiusFunc;
 		BezierLinear _path;
 		Axis _axis;
-		glm::vec3 crossSection(float v) const;
+		glm::vec3 crossSection(float u, float v) const;
 	public:
 		StemSurface(std::unique_ptr<StemRadius> radiusFunc, const BezierLinear& path, const Axis& axis);
 		StemSurface(const StemSurface& other);

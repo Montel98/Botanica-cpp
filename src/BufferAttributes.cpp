@@ -22,19 +22,15 @@ const char * BufferAttributeException::what() const noexcept {
 }
 
 class BufferTypeVisitor {
+private:
+	BufferAttributes& _bufferAttributes;
+	std::string _name;
 public:
-	template<typename T>
-	void operator()(T& a, const T& b) {
-		a.bufferData.insert(
-			a.bufferData.end(), 
-			b.bufferData.begin(), 
-			b.bufferData.end()
-		);
-	}
+	BufferTypeVisitor(BufferAttributes& bufferAttributes, const std::string& name) : _name(name), _bufferAttributes(bufferAttributes) {};
 
-	template<typename A, typename B>
-	void operator()(A& a, B& b) {
-		throw BufferAttributeException();
+	template<template<typename> typename B, typename T>
+	void operator()(const B<T>& b) {
+		_bufferAttributes.appendBufferAttributeData<T>(_name, b.bufferData);
 	}
 };
 
@@ -46,7 +42,7 @@ void BufferAttributes::mergeBufferAttributes(const BufferAttributes& other) {
 		const std::string& name = otherAttrib.first;
 
 		if (isAttributeNameUsed(name)) {
-			std::visit(BufferTypeVisitor{}, attributes[name], otherAttrib.second);
+			std::visit(BufferTypeVisitor(*this, name), /*BufferTypeVisitor{}, attributes[name],*/ otherAttrib.second);
 		}
 	}
 }
@@ -57,6 +53,10 @@ BufferAttributeVec& BufferAttributes::getBufferAttributeGeneric(const std::strin
 
 int BufferAttributes::getLength() {
 	return length;
+}
+
+int BufferAttributes::getStride() {
+	return stride;
 }
 
 BufferAttributes::BufferAttributes() : sizeBytes(0), length(0) {};

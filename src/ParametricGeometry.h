@@ -115,9 +115,13 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateVertices() const {
 
 			glm::vec3 vertex = surface(u, v);
 
+			std::cout << u << "," << v << " -> " << vertex.x << "," << vertex.y << "," << vertex.z << "\n";
+
 			newVertices.push_back(vertex);
 		}
 	}
+
+	std::cout << "\n";
 
 	return newVertices;
 }

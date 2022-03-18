@@ -1,7 +1,9 @@
 #include "Buffer.h"
 #include <utility>
+#include <iostream>
 
-Buffer::Buffer(int vbo, int ibo, int vao) : _vbo(vbo), _ibo(ibo), _vao(vao) {
+Buffer::Buffer(int vbo, int ibo, int vao) : 
+indexCount(0), vertexBufferLength(0), indexBufferLength(0), _vbo(vbo), _ibo(ibo), _vao(vao) {
 }
 
 bool Buffer::isEmpty() {
@@ -13,6 +15,8 @@ void Buffer::addBufferGeometry(Geometry* geometry) {
 	int geometryVertexLength = geometry->bufferAttributes.getLength();
 	int geometryIndexLength = geometry->indexBuffer.getLength();
 
+	//std::cout << geometryVertexLength << " MMM " << geometryIndexLength << "\n";
+
 	BufferRange bufferRange{
 		vertexBufferLength, 
 		geometryVertexLength, 
@@ -23,7 +27,7 @@ void Buffer::addBufferGeometry(Geometry* geometry) {
 	vertexBufferLength += geometryVertexLength;
 	indexBufferLength += geometryIndexLength;
 	indexCount += geometry->bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData.size();
-	geometries[geometry] = bufferRange;
+	geometries.emplace(std::make_pair(geometry, bufferRange));
 }
 
 void Buffer::removeBufferGeometry(Geometry* geometry) {
@@ -31,7 +35,7 @@ void Buffer::removeBufferGeometry(Geometry* geometry) {
 }
 
 BufferRange Buffer::getBufferInfo(Geometry* geometry) {
-	return BufferRange(geometries[geometry]);
+	return BufferRange(geometries.at(geometry));
 }
 
 bool Buffer::geometryInBuffer(Geometry* geometry) {

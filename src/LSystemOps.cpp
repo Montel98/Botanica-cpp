@@ -69,8 +69,8 @@ LSystemStackFrame StackPush::operator()(const LSystemStackFrame& frame, std::vec
 
 	frames.push_back(frame);
 	LSystemStackFrame newFrame = frame;
-	newFrame.lParams.radiusStart = 1.0;
-	newFrame.lParams.radiusEnd = 1.0;
+	newFrame.lParams.radiusStart = 0.1f;
+	newFrame.lParams.radiusEnd = 0.1f;
 	newFrame.lParams.connectParent = _connectParent;
 	newFrame.lParams.stringIndex++;
 	newFrame.lParams.count = 0;

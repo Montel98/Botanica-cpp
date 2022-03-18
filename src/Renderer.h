@@ -35,7 +35,7 @@ public:
 	GLuint initTexture(const Texture& texture);
 
 	template<typename T>
-	GLuint initBuffer(BufferAttributes& bufferAttributes);
+	GLuint initBuffer(BufferAttributes& bufferAttributes, bool isIndexBuffer);
 
 	int initBuffers(Geometry& geometry, GLuint program);
 
@@ -49,19 +49,23 @@ public:
 };
 
 template<typename T>
-GLuint Renderer::initBuffer(BufferAttributes& bufferAttributes) {
+GLuint Renderer::initBuffer(BufferAttributes& bufferAttributes, bool isIndexBuffer) {
 	GLuint bufferObject;
 
-	glGenBuffers(1, &bufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, bufferObject);
+	GLenum target = isIndexBuffer ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER; 
 
-	glBufferData(GL_ARRAY_BUFFER, bufferAttributes.sizeBytes * sizeof(T), NULL, GL_STATIC_DRAW);
+	glGenBuffers(1, &bufferObject);
+	glBindBuffer(target, bufferObject);
+
+	glBufferData(target, bufferAttributes.sizeBytes * sizeof(T), NULL, GL_STATIC_DRAW);
 
 	std::vector<T> mergedAttributes = bufferAttributes.mergeAttributes<T>();
 
-	int bufferSize = bufferAttributes.sizeBytes > 0 ? mergedAttributes.size() : bufferAttributes.sizeBytes;
+	int bufferSize = /*bufferAttributes.sizeBytes > 0 ? bufferAttributes.sizeBytes : */mergedAttributes.size();
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize * sizeof(T), &mergedAttributes);
+	//std::cout << "size::: " << bufferSize << ", " << bufferAttributes.getLength() << "\n";
+
+	glBufferSubData(target, 0, bufferSize * sizeof(T), &mergedAttributes);
 
 	return bufferObject;
 }
