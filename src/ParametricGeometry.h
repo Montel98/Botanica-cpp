@@ -131,25 +131,22 @@ std::vector<glm::ivec1> ParametricGeometry<F>::generateIndices() const {
 
 	std::vector<glm::ivec1> newIndices;
 
-	for (int vStep = 0; vStep < limits.vSteps; vStep++) {
+	for (int vStep = 0; vStep < limits.vSteps - 1; vStep++) {
 
-		for (int uStep = 0; uStep < limits.uSteps; uStep++) {
+		for (int uStep = 0; uStep < limits.uSteps - 1; uStep++) {
 
-			for (int i = 0; i < 6; i++) {
+			int indexA = (vStep * limits.uSteps) + uStep;
+			int indexB = (vStep * limits.uSteps) + (uStep + 1);
+			int indexC = ((vStep + 1) * limits.uSteps) + (uStep + 1);
+			int indexD = ((vStep + 1) * limits.uSteps) + uStep;
 
-				int indexA = (vStep * limits.uSteps) + uStep;
-				int indexB = (vStep * limits.uSteps) + (uStep + 1);
-				int indexC = ((vStep + 1) * limits.uSteps) + (uStep + 1);
-				int indexD = ((vStep + 1) * limits.uSteps) + uStep;
+			newIndices.push_back(glm::ivec1(indexA));
+			newIndices.push_back(glm::ivec1(indexB));
+			newIndices.push_back(glm::ivec1(indexC));
 
-				newIndices.push_back(glm::ivec1(indexA));
-				newIndices.push_back(glm::ivec1(indexB));
-				newIndices.push_back(glm::ivec1(indexC));
-
-				newIndices.push_back(glm::ivec1(indexC));
-				newIndices.push_back(glm::ivec1(indexD));
-				newIndices.push_back(glm::ivec1(indexA));
-			}
+			newIndices.push_back(glm::ivec1(indexC));
+			newIndices.push_back(glm::ivec1(indexD));
+			newIndices.push_back(glm::ivec1(indexA));
 		}
 	}
 

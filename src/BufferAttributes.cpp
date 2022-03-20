@@ -51,12 +51,12 @@ BufferAttributeVec& BufferAttributes::getBufferAttributeGeneric(const std::strin
 	return attributes[name];
 }
 
-int BufferAttributes::getLength() {
+int BufferAttributes::getLength() const {
 	return length;
 }
 
-int BufferAttributes::getStride() {
+int BufferAttributes::getStride() const {
 	return stride;
 }
 
-BufferAttributes::BufferAttributes() : sizeBytes(0), length(0) {};
+BufferAttributes::BufferAttributes() : sizeBytes(0), length(0), stride(0), isInstanceBuffer(false) {};

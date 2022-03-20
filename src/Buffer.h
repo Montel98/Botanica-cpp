@@ -36,6 +36,7 @@ private:
 	std::map<std::string, BufferId> aliases;
 
 public:
+	BufferManager();
 	BufferId addBuffer(std::string name, int vbo, int ibo, int vao);
 	BufferId addBuffer(int vbo, int ibo, int vao);
 	Buffer& getBufferById(BufferId id);

@@ -23,7 +23,7 @@ public:
 	void renderEntity(Object3D& entityObj, const Scene& scene, const DrawPassState& drawState);
 	void renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Object3D>>& entityObjects);
 
-	void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes);
+	void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, Buffer& buffer);
 	void updateUniforms(const Camera& camera, GLuint program, Object3D& object3D);
 	void updateModelUniforms(GLuint program, Object3D& object3D);
 
@@ -55,17 +55,32 @@ GLuint Renderer::initBuffer(BufferAttributes& bufferAttributes, bool isIndexBuff
 	GLenum target = isIndexBuffer ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER; 
 
 	glGenBuffers(1, &bufferObject);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glBindBuffer(target, bufferObject);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 
-	glBufferData(target, bufferAttributes.sizeBytes * sizeof(T), NULL, GL_STATIC_DRAW);
+	//glBufferData(target, bufferAttributes.sizeBytes * sizeof(T), NULL, GL_STATIC_DRAW);
 
 	std::vector<T> mergedAttributes = bufferAttributes.mergeAttributes<T>();
+
+	for (auto i : mergedAttributes) {
+		std::cout << i << std::endl;
+	}
 
 	int bufferSize = /*bufferAttributes.sizeBytes > 0 ? bufferAttributes.sizeBytes : */mergedAttributes.size();
 
 	//std::cout << "size::: " << bufferSize << ", " << bufferAttributes.getLength() << "\n";
 
-	glBufferSubData(target, 0, bufferSize * sizeof(T), &mergedAttributes);
+	std::cout << "size::: " << sizeof(T) << "," << bufferSize * sizeof(T) << "\n";
+
+	//glBufferSubData(target, 0, bufferSize * sizeof(T), &mergedAttributes.front());
+	glBufferData(target, bufferSize * sizeof(T), &mergedAttributes.front(), GL_STATIC_DRAW);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
+
+	//glBindBuffer(target, 0);
 
 	return bufferObject;
 }

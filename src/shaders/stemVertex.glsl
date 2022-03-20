@@ -7,5 +7,5 @@ uniform mat4 camera;
 uniform mat4 perspective;
 
 void main() {
-	gl_Position = perspective * camera * world * vec4(aVertexPosition, 1.0);
+	gl_Position = perspective * camera * vec4(aVertexPosition, 1.0);
 }

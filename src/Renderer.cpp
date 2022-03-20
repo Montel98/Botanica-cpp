@@ -15,25 +15,52 @@ Renderer::Renderer() {
 }
 
 void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawPassState& drawState) {
+
 	Mesh& mesh = entityObj.getMesh();
 	Geometry& geometry = *mesh._geometry;
 
 	GLuint program = bindShaderProgram(mesh.shaderPrograms[drawState.shaderName]);
+
 	updateUniforms(scene.camera, program, entityObj);
+
 	setBuffersAndAttributes(program, entityObj);
 
 	Buffer& buffer = bufferManager.getBufferById(geometry.bufferId);
 	glBindVertexArray(buffer._vao);
 	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
 
+	std::cout << "VAO: " << buffer._vao << " Len: " << bufferInfo.indexBufferLength << std::endl;
+
+	float vertexData[bufferInfo.indexBufferLength];
+
+	glGetBufferSubData(GL_ARRAY_BUFFER, 0, bufferInfo.vertexBufferLength * sizeof(float), vertexData);
+
+	for (int i = 0; i < bufferInfo.vertexBufferLength; i++) {
+		std::cout << vertexData[i] << ",";
+	}
+	std::cout << "\n";
+
+	unsigned int indexData[bufferInfo.indexBufferLength];
+
+	glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bufferInfo.indexBufferLength * sizeof(unsigned int), indexData);
+
+	for (int i = 0; i < bufferInfo.indexBufferLength; i++) {
+		std::cout << indexData[i] << ",";
+	}
+	std::cout << "\n";
+
 	glDrawElements(
 		GL_TRIANGLES, 
 		bufferInfo.indexBufferLength, 
-		GL_UNSIGNED_INT, 
+		GL_UNSIGNED_INT,
 		/*(void*) (bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT))*/0
 	);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	/*const auto e = glGetError();
+	std::cout << "Error: " << e << std::endl;
+	assert(e == GL_NO_ERROR);*/
+
+	//glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 }
 
@@ -41,7 +68,7 @@ void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_
 
 	for (int state = 0; state < drawPassStates.size(); state++) {
 		DrawPassState& drawState = drawPassStates[state];
-		glBindFramebuffer(GL_FRAMEBUFFER, drawState.fbo);
+		//glBindFramebuffer(GL_FRAMEBUFFER, drawState.fbo);
 
 		for (int i = 0; i < entityObjects.size(); i++) {
 			Object3D& worldObject = entityObjects[i].get();
@@ -55,55 +82,94 @@ void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_
 	// Clear framebuffers for next frame
 	for (int state = 0; state < drawPassStates.size(); state++) {
 		DrawPassState& drawState = drawPassStates[state];
-		//clear(drawState.fbo);
+		//clear(/*drawState.fbo*/0);
+		//glEnable(GL_DEPTH_TEST);
+		//glDepthFunc(GL_EQUAL);
 	}
 }
 
-void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes) {
+void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, Buffer& buffer) {
+
+	//glBindVertexArray(buffer._vao);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer._vbo);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
+
+	std::cout << "VAO: " << buffer._vao << "VBO: " << buffer._vbo << "\n";
 
 	for (const std::string& name : bufferAttributes.getAttributeNames()) {
 
-		const GLint location = glGetAttribLocation(program, name.c_str());
+		GLint location = glGetAttribLocation(program, name.c_str());
+		e = glGetError();
+		assert(e == GL_NO_ERROR);
 
 		std::cout << name << "," << location << "\n";
 
-		const int stride = bufferAttributes.getStride();
+		int stride = bufferAttributes.getStride();
 
 		std::visit([location, stride](auto& bufferAttribute) {
+
+			std::cout << "location" << location << "\n";
+			std::cout << "length: " << bufferAttribute.attribLength << "\n";
+			std::cout << "offset: " << bufferAttribute.offset << "\n";
+			std::cout << "stride: " << stride << "\n";
 
 			glVertexAttribPointer(
 				location,
 				bufferAttribute.attribLength,
 				GL_FLOAT,
-				false,
+				GL_FALSE,
 				stride * sizeof(GL_FLOAT),
 				(void*) (bufferAttribute.offset * sizeof(GL_FLOAT))
 			);
+			auto e = glGetError();
+			assert(e == GL_NO_ERROR);
 
 		}, bufferAttributes.getBufferAttributeGeneric(name));
 
 		glEnableVertexAttribArray(location);
+		e = glGetError();
+		assert(e == GL_NO_ERROR);
 
-		if (bufferAttributes.isInstanceBuffer) {
+		/*if (bufferAttributes.isInstanceBuffer) {
 			glVertexAttribDivisor(location, 1);
-		}
+			glGetError();
+			assert(e == GL_NO_ERROR);
+		}*/
 	}
+
+	//glBindVertexArray(0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Renderer::updateUniforms(const Camera& camera, GLuint program, Object3D& object3D) {
 
+	std::cout << "calling!!!!\n";
+
 	GLuint worldLoc = glGetUniformLocation(program, "world");
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
 	GLuint cameraLoc = glGetUniformLocation(program, "camera");
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 	GLuint perspectiveLoc = glGetUniformLocation(program, "perspective");
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 
 	glm::mat4 cameraMatrix = camera.getCameraMatrix();
 	glm::mat4 perspectiveMatrix = camera.getPerspectiveMatrix(1.0);
 
 	glUniformMatrix4fv(worldLoc, 1, false, glm::value_ptr(object3D.worldMatrix));
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glUniformMatrix4fv(cameraLoc, 1, false, glm::value_ptr(cameraMatrix));
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glUniformMatrix4fv(perspectiveLoc, 1, false, glm::value_ptr(perspectiveMatrix));
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 
-	updateModelUniforms(program, object3D);
+	//updateModelUniforms(program, object3D);
 }
 
 void Renderer::updateModelUniforms(GLuint program, Object3D& object3D) {
@@ -141,18 +207,47 @@ GLuint Renderer::initShaderProgram(const std::string& vsSource, const std::strin
 
 	GLuint shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glAttachShader(shaderProgram, fragmentShader);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glLinkProgram(shaderProgram);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
+
+	int success;
+    char infoLog[512];
+
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+
 	glUseProgram(shaderProgram);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+	std::cout << "shader: " << shaderProgram << "\n";
 
 	return shaderProgram;
 }
 
 GLuint Renderer::loadShader(GLenum shaderType, const std::string& source) {
 	GLuint shader = glCreateShader(shaderType);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
 	const GLchar* cSource = source.c_str();
 	glShaderSource(shader, 1, &cSource, NULL);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glCompileShader(shader);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 
 	int success;
 	char infoLog[512];
@@ -192,20 +287,29 @@ GLuint Renderer::initTexture(const Texture& texture) {
 }
 
 int Renderer::initBuffers(Geometry& geometry, GLuint program) {
+
 	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glBindVertexArray(VAO);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 
 	GLuint VBO = initBuffer<float>(geometry.bufferAttributes, false);
-	initBufferAttributes(program, geometry.bufferAttributes);
+	GLuint IBO = initBuffer<unsigned int>(geometry.indexBuffer, true);
 
-	GLuint IBO = initBuffer<int>(geometry.indexBuffer, true);
+	std::cout << "first: vao: " << VAO << " vbo: " << VBO << "\n";
 
 	int bufferId = bufferManager.addBuffer(VBO, IBO, VAO);
 	Buffer &buffer = bufferManager.getBufferById(bufferId);
 	buffer.addBufferGeometry(&geometry);
 
+	initBufferAttributes(program, geometry.bufferAttributes, buffer);
+
 	glBindVertexArray(0);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 
 	return bufferId;
 }
@@ -236,7 +340,7 @@ GLuint Renderer::bindShaderProgram(Shader shader) {
 void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 
 	Geometry& geometry = *(object3D.getMesh()._geometry);
-	bindTexture(program, object3D.getMesh()._material);
+	//bindTexture(program, object3D.getMesh()._material);
 
 	if (geometry.bufferId == -1) {
 
@@ -284,9 +388,9 @@ void Renderer::updateBuffers(Geometry& geometry) {
 
 	// Update vertices
 	glBufferSubData(
-		GL_ELEMENT_ARRAY_BUFFER, 
+		GL_ARRAY_BUFFER, 
 		bufferInfo.vertexBufferStart, 
-		newVertexBuffer.size() * sizeof(GL_UNSIGNED_INT), 
+		newVertexBuffer.size() * sizeof(GL_FLOAT), 
 		&newVertexBuffer
 	);
 
@@ -294,8 +398,14 @@ void Renderer::updateBuffers(Geometry& geometry) {
 }
 
 void Renderer::clear(GLuint fbo) {
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glClearDepth(1.0f);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 }

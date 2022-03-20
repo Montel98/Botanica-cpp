@@ -42,6 +42,8 @@ bool Buffer::geometryInBuffer(Geometry* geometry) {
 	return geometries.find(geometry) != geometries.end();
 }
 
+BufferManager::BufferManager() : bufferIdCount(0) {}
+
 BufferId BufferManager::addBuffer(std::string name, int vbo, int ibo, int vao) {
 	bufferIdCount++;
 	aliases[name] = bufferIdCount;
@@ -56,7 +58,7 @@ BufferId BufferManager::addBuffer(int vbo, int ibo, int vao) {
 }
 
 Buffer& BufferManager::getBufferById(BufferId id) {
-	return buffers[id];
+	return buffers.at(id);
 }
 
 BufferId BufferManager::getBufferIdByName(const std::string& alias) {

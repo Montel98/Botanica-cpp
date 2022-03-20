@@ -69,7 +69,7 @@ Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* pr
 
 	std::cout << "Stem Body\n";
 	ParametricGeometry<StemBuilder::StemSurface> stemBody = StemBuilder::generateStemBody(lParams, stemBodyConstraints);
-	std::cout << "Stem Tip\n";
+	/*std::cout << "Stem Tip\n";
 	ParametricGeometry<StemBuilder::StemSurface> stemTip = StemBuilder::generateStemTip(lParams, stemTipConstraints);
 
 	// Manually connect the top-row vertices of the previous stem body with the bottom-row vertices of the new stem
@@ -91,8 +91,8 @@ Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* pr
 			tip.getBufferAttribute<glm::vec3>("aNormalImmatureEnd").bufferData[uStepsTip*i] = bodyPrev.getBufferAttribute<glm::vec3>("aNormalImmatureEnd").bufferData[prevIndex + offset];
 			tip.getBufferAttribute<glm::vec3>("aVertexImmatureStart").bufferData[uStepsTip*i] = bodyPrev.getBufferAttribute<glm::vec3>("aVertexImmatureStart").bufferData[prevIndex + offset];
 		}
-	}
-	std::vector<std::reference_wrapper<Geometry>>geometries{std::ref(stemBody), std::ref(stemTip)};
+	}*/
+	std::vector<std::reference_wrapper<Geometry>>geometries{std::ref(stemBody)/*, std::ref(stemTip)*/};
 
 	return mergeGeometry(geometries);
 }

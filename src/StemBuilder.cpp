@@ -172,10 +172,11 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	std::cout << "end\n";
 	StemSurface endSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> endGeometry(endSurface, constraints);
-	endGeometry.useNormals();
-	endGeometry.useSTs();
+	//endGeometry.useNormals();
+	//endGeometry.useSTs();
 	endGeometry.generateGeometry();
 
+	/*
 	// Create the morph targets as seperate geometries first
 	std::cout << "start\n";
 	StemSurface startSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusStart->clone()), keyFrameInfo.pathEnd, axis);
@@ -211,7 +212,7 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 		std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData),
 		std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
 	);
-
+	*/
 	return endGeometry;
 }
 }

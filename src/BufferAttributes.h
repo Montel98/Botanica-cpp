@@ -47,9 +47,6 @@ private:
 
 	bool isAttributeNameUsed(const std::string &name) const;
 
-	template<typename T>
-	void addBufferAttribute(const std::string& name, std::map<std::string, BufferAttribute<T>>& attributes);
-
 	int length; // Total number of components in merged buffer
 	int stride; // Total length (in vector units) of one line of attributes
 public:
@@ -83,17 +80,19 @@ public:
 	template<typename T>
 	std::vector<T> mergeAttributes();
 
-	int getLength();
-	
-	int getStride();
+	int getLength() const;
+
+	int getStride() const;
 };
 
 template<typename T>
 void BufferAttributes::addBufferAttribute(const std::string& name) {
 
-	BufferAttribute<T> newAttribute{T::length(), stride, ++indexesUsed};
-	attributes[name] = BufferAttributeVec{newAttribute};
-	stride += T::length();
+	if (!isAttributeNameUsed(name)) {
+		BufferAttribute<T> newAttribute{T::length(), stride, ++indexesUsed};
+		attributes.insert(std::make_pair(name, BufferAttributeVec{newAttribute}));
+		stride += T::length();
+	}
 }
 
 template<typename T>
@@ -147,7 +146,7 @@ std::vector<T> BufferAttributes::mergeAttributes() {
 				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
 					for (int j = 0; j < bufferAttribute.attribLength; j++) {
 
-						buffer.push_back(glm::value_ptr(bufferAttribute.bufferData[i])[j * sizeof(T)]);
+						buffer.push_back(glm::value_ptr(bufferAttribute.bufferData[i])[j]);
 					}
 				}
 			}
