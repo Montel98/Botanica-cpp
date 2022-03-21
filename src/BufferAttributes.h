@@ -124,29 +124,34 @@ void BufferAttributes::removeBufferAttribute(const std::string &name) {
 template<typename T>
 std::vector<T> BufferAttributes::mergeAttributes() {
 
-	std::vector<T> buffer;
+	std::vector<T> buffer(getLength());
+
+	int bufferStride = getStride();
 
 	for (const std::string& name : getAttributeNames()) {
 
 		std::visit(overload{
-			[&buffer](BufferAttribute<glm::vec1>& bufferAttribute) {
+			[&buffer, &bufferStride](BufferAttribute<glm::vec1>& bufferAttribute) {
 
 				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
-					buffer.push_back(bufferAttribute.bufferData[i][0]);
+					buffer[(bufferStride * i) + bufferAttribute.offset] = bufferAttribute.bufferData[i][0];
+					//buffer.push_back(bufferAttribute.bufferData[i][0]);
 				}
 			},
-			[&buffer](BufferAttribute<glm::ivec1>& bufferAttribute) {
+			[&buffer, &bufferStride](BufferAttribute<glm::ivec1>& bufferAttribute) {
 
 				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
-					buffer.push_back(bufferAttribute.bufferData[i][0]);
+					//buffer.push_back(bufferAttribute.bufferData[i][0]);
+					buffer[(bufferStride * i) + bufferAttribute.offset] = bufferAttribute.bufferData[i][0];
 				}
 			},
-			[&buffer](auto& bufferAttribute) {
+			[&buffer, &bufferStride](auto& bufferAttribute) {
 
 				for(int i = 0; i < bufferAttribute.bufferData.size(); i++) {
 					for (int j = 0; j < bufferAttribute.attribLength; j++) {
 
-						buffer.push_back(glm::value_ptr(bufferAttribute.bufferData[i])[j]);
+						//buffer.push_back(glm::value_ptr(bufferAttribute.bufferData[i])[j]);
+						buffer[(bufferStride * i) + bufferAttribute.offset + j] = glm::value_ptr(bufferAttribute.bufferData[i])[j];
 					}
 				}
 			}

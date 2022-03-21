@@ -10,8 +10,9 @@
 
 Renderer::Renderer() {
 	drawPassStates.push_back(DrawPassState{0, "Default"});
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_EQUAL);
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_EQUAL);
+	glDisable(GL_CULL_FACE);
 }
 
 void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawPassState& drawState) {
@@ -31,7 +32,7 @@ void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawP
 
 	std::cout << "VAO: " << buffer._vao << " Len: " << bufferInfo.indexBufferLength << std::endl;
 
-	float vertexData[bufferInfo.indexBufferLength];
+	float vertexData[bufferInfo.vertexBufferLength];
 
 	glGetBufferSubData(GL_ARRAY_BUFFER, 0, bufferInfo.vertexBufferLength * sizeof(float), vertexData);
 
@@ -400,6 +401,7 @@ void Renderer::updateBuffers(Geometry& geometry) {
 void Renderer::clear(GLuint fbo) {
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	/*
 	auto e = glGetError();
 	assert(e == GL_NO_ERROR);
 	glClearDepth(1.0f);
@@ -407,5 +409,5 @@ void Renderer::clear(GLuint fbo) {
 	assert(e == GL_NO_ERROR);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	e = glGetError();
-	assert(e == GL_NO_ERROR);
+	assert(e == GL_NO_ERROR);*/
 }

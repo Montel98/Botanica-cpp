@@ -26,7 +26,8 @@ void Buffer::addBufferGeometry(Geometry* geometry) {
 
 	vertexBufferLength += geometryVertexLength;
 	indexBufferLength += geometryIndexLength;
-	indexCount += geometry->bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData.size();
+	//indexCount += geometry->bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData.size();
+	indexCount = geometry->bufferAttributes.getLength() / geometry->bufferAttributes.getStride();
 	geometries.emplace(std::make_pair(geometry, bufferRange));
 }
 
