@@ -23,11 +23,23 @@ public:
 	ShaderInfo(const std::string& vertexPath, const std::string& fragmentPath);
 };
 
-struct Shader {
+class Shader {
+public:
 	std::string name;
 	std::string vertexSourcePath;
 	std::string fragmentSourcePath;
 	std::map<std::string, UniformType> uniforms;
+
+	Shader(std::string shaderName, std::string vertexPath, std::string fragmentPath);
+
+	template<typename T>
+	void addUniform(const std::string& name, const T& uniform);
+
+	template<typename T>
+	T getUniform(const std::string& name);
+
+	template<typename T>
+	void setUniform(const std::string& name, const T& newValue);
 };
 
 class ShaderManager {
@@ -38,3 +50,18 @@ public:
 	bool shaderExists(const std::string& name) const;
 	ShaderInfo& getShaderInfo(const std::string& name);
 };
+
+template<typename T>
+void Shader::addUniform(const std::string& name, const T& uniform) {
+	uniforms.insert(std::make_pair(name, UniformType{uniform}));
+}
+
+template<typename T>
+T Shader::getUniform(const std::string& name) {
+	return std::get<T>(uniforms.at(name));
+}
+
+template<typename T>
+void Shader::setUniform(const std::string& name, const T& newValue) {
+	std::get<T>(uniforms.at(name)) = newValue;
+}

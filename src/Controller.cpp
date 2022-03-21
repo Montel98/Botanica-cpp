@@ -1,12 +1,14 @@
 #include "Controller.h"
 
-void Controller::updateStates() {
+void Controller::updateStates(WorldTime& worldTime) {
 	std::vector<EntityId> entityStack = scene.entities;
 	std::vector<std::reference_wrapper<Object3D>> visibleObjects;
 
+	worldTime.updateTime();
+
 	while(entityStack.size() > 0) {
 		Entity& entity = *entityManager.getEntityById(entityStack.back());
-		entity.act();
+		entity.act(worldTime);
 
 		if (!entity.worldObject.isHidden) {
 			visibleObjects.push_back(std::ref(entity.worldObject));

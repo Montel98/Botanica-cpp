@@ -33,3 +33,6 @@ std::string ShaderInfo::loadShaderSource(std::string path) const {
 
 	return ss.str();
 }
+
+Shader::Shader(std::string shaderName, std::string vertexPath, std::string fragmentPath) 
+: name(std::move(shaderName)), vertexSourcePath(std::move(vertexPath)), fragmentSourcePath(std::move(fragmentPath)) {}

@@ -184,17 +184,17 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	//startGeometry.useNormals();
 	startGeometry.generateGeometry();
 
-	/*std::cout << "immature start\n";
+	std::cout << "immature start\n";
 	StemSurface immatureStartSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusStart->clone()), keyFrameInfo.pathStart, axis);
 	ParametricGeometry<StemSurface> immatureStartGeometry(immatureStartSurface, constraints);
-	immatureStartGeometry.useNormals();
+	//immatureStartGeometry.useNormals();
 	immatureStartGeometry.generateGeometry();
 
 	std::cout << "immature end\n";
 	StemSurface immatureEndSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathStart, axis);
 	ParametricGeometry<StemSurface> immatureEndGeometry(immatureEndSurface, constraints);
-	immatureEndGeometry.useNormals();
-	immatureEndGeometry.generateGeometry();*/
+	//immatureEndGeometry.useNormals();
+	immatureEndGeometry.generateGeometry();
 
 	// Move the morph targets into the main geometry object
 	endGeometry.addMorphTarget(
@@ -202,17 +202,17 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 		std::move(startGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
 		//std::move(startGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
 	);
-	/*
+	
 	endGeometry.addMorphTarget(
-		"ImmatureStart",
-		std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData),
-		std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
+		"aImmatureStart",
+		std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
+		//std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
 	);
 	endGeometry.addMorphTarget(
-		"ImmatureEnd",
-		std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData),
-		std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
-	);*/
+		"aImmatureEnd",
+		std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
+		//std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
+	);
 	
 	return endGeometry;
 }

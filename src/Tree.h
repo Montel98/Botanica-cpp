@@ -8,5 +8,5 @@ private:
 public:
 	Tree();
 	Mesh initMesh();
-	void act() override;
+	void act(const WorldTime& worldTime) override;
 };

@@ -10,4 +10,4 @@ Mesh Tree::initMesh() {
 	return Mesh(material, std::make_unique<Geometry>());
 }
 
-void Tree::act() {};
+void Tree::act(const WorldTime& worldTime) {};

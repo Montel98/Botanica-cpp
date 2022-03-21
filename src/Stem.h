@@ -17,8 +17,13 @@ private:
 	Mesh generateMesh(const StemNode* prevStem);
 	Geometry generateGeometry(const LSystemParams &lParams, const StemNode* prevStem);
 public:
-	//Object3D worldObject;
+	static const int maxLength = 1.0;
+
 	LSystemParams lParams;
 	Stem(EntityManager &manager, const LSystemParams &lSystemParams, const StemNode* prevStem);
-	void act() override;
+	void act(const WorldTime& worldTime) override;
+	void grow(const WorldTime& worldTime);
+
+	float stemLength;
+	float growthRate;
 };

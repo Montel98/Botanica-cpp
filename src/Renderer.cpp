@@ -20,7 +20,7 @@ void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawP
 	Mesh& mesh = entityObj.getMesh();
 	Geometry& geometry = *mesh._geometry;
 
-	GLuint program = bindShaderProgram(mesh.shaderPrograms[drawState.shaderName]);
+	GLuint program = bindShaderProgram(mesh.shaderPrograms.at(drawState.shaderName));
 
 	updateUniforms(scene.camera, program, entityObj);
 
@@ -30,25 +30,25 @@ void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawP
 	glBindVertexArray(buffer._vao);
 	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
 
-	std::cout << "VAO: " << buffer._vao << " Len: " << bufferInfo.indexBufferLength << std::endl;
+	//std::cout << "VAO: " << buffer._vao << " Len: " << bufferInfo.indexBufferLength << std::endl;
 
 	float vertexData[bufferInfo.vertexBufferLength];
 
 	glGetBufferSubData(GL_ARRAY_BUFFER, 0, bufferInfo.vertexBufferLength * sizeof(float), vertexData);
 
-	for (int i = 0; i < bufferInfo.vertexBufferLength; i++) {
+	/*for (int i = 0; i < bufferInfo.vertexBufferLength; i++) {
 		std::cout << vertexData[i] << ",";
 	}
-	std::cout << "\n";
+	std::cout << "\n";*/
 
 	unsigned int indexData[bufferInfo.indexBufferLength];
 
 	glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bufferInfo.indexBufferLength * sizeof(unsigned int), indexData);
 
-	for (int i = 0; i < bufferInfo.indexBufferLength; i++) {
+	/*for (int i = 0; i < bufferInfo.indexBufferLength; i++) {
 		std::cout << indexData[i] << ",";
 	}
-	std::cout << "\n";
+	std::cout << "\n";*/
 
 	glDrawElements(
 		GL_TRIANGLES, 
@@ -96,7 +96,7 @@ void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttr
 	auto e = glGetError();
 	assert(e == GL_NO_ERROR);
 
-	std::cout << "VAO: " << buffer._vao << "VBO: " << buffer._vbo << "\n";
+	//std::cout << "VAO: " << buffer._vao << "VBO: " << buffer._vbo << "\n";
 
 	for (const std::string& name : bufferAttributes.getAttributeNames()) {
 
@@ -104,7 +104,7 @@ void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttr
 		e = glGetError();
 		assert(e == GL_NO_ERROR);
 
-		std::cout << name << "," << location << "\n";
+		//std::cout << name << "," << location << "\n";
 
 		int stride = bufferAttributes.getStride();
 
@@ -145,32 +145,30 @@ void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttr
 
 void Renderer::updateUniforms(const Camera& camera, GLuint program, Object3D& object3D) {
 
-	std::cout << "calling!!!!\n";
-
 	GLuint worldLoc = glGetUniformLocation(program, "world");
-	auto e = glGetError();
-	assert(e == GL_NO_ERROR);
+	//auto e = glGetError();
+	//assert(e == GL_NO_ERROR);
 	GLuint cameraLoc = glGetUniformLocation(program, "camera");
-	e = glGetError();
-	assert(e == GL_NO_ERROR);
+	//e = glGetError();
+	//assert(e == GL_NO_ERROR);
 	GLuint perspectiveLoc = glGetUniformLocation(program, "perspective");
-	e = glGetError();
-	assert(e == GL_NO_ERROR);
+	//e = glGetError();
+	//assert(e == GL_NO_ERROR);
 
 	glm::mat4 cameraMatrix = camera.getCameraMatrix();
 	glm::mat4 perspectiveMatrix = camera.getPerspectiveMatrix(1.0);
 
 	glUniformMatrix4fv(worldLoc, 1, false, glm::value_ptr(object3D.worldMatrix));
-	e = glGetError();
-	assert(e == GL_NO_ERROR);
+	//e = glGetError();
+	//assert(e == GL_NO_ERROR);
 	glUniformMatrix4fv(cameraLoc, 1, false, glm::value_ptr(cameraMatrix));
-	e = glGetError();
-	assert(e == GL_NO_ERROR);
+	//e = glGetError();
+	//assert(e == GL_NO_ERROR);
 	glUniformMatrix4fv(perspectiveLoc, 1, false, glm::value_ptr(perspectiveMatrix));
-	e = glGetError();
-	assert(e == GL_NO_ERROR);
+	//e = glGetError();
+	//assert(e == GL_NO_ERROR);
 
-	//updateModelUniforms(program, object3D);
+	updateModelUniforms(program, object3D);
 }
 
 void Renderer::updateModelUniforms(GLuint program, Object3D& object3D) {
@@ -178,23 +176,24 @@ void Renderer::updateModelUniforms(GLuint program, Object3D& object3D) {
 	for (const std::pair<std::string, Shader>& shader : object3D.getMesh().shaderPrograms) {
 		const std::string& shaderName = shader.first;
 
-		for (const std::pair<std::string, UniformType>& uniform : object3D.getMesh().shaderPrograms[shaderName].uniforms) {
+		for (const std::pair<std::string, UniformType>& uniform : object3D.getMesh().shaderPrograms.at(shaderName).uniforms) {
 			const std::string &uniformName = uniform.first;
+
 			std::visit(overload{
 				[program, &uniformName](const glm::vec1& uniformData) {
-					glUniform1fv(glGetAttribLocation(program, uniformName.c_str()), 1, &uniformData[0]);
+					glUniform1f(glGetUniformLocation(program, uniformName.c_str()), uniformData[0]);
 				},
 				[program, &uniformName](const glm::vec2& uniformData) {
-					glUniform2fv(glGetAttribLocation(program, uniformName.c_str()), 1, glm::value_ptr(uniformData));
+					glUniform2fv(glGetUniformLocation(program, uniformName.c_str()), 1, glm::value_ptr(uniformData));
 				},
 				[program, &uniformName](const glm::vec3& uniformData) {
-					glUniform3fv(glGetAttribLocation(program, uniformName.c_str()), 1, glm::value_ptr(uniformData));
+					glUniform3fv(glGetUniformLocation(program, uniformName.c_str()), 1, glm::value_ptr(uniformData));
 				},
 				[program, &uniformName](const glm::vec4& uniformData) {
-					glUniform4fv(glGetAttribLocation(program, uniformName.c_str()), 1, glm::value_ptr(uniformData));
+					glUniform4fv(glGetUniformLocation(program, uniformName.c_str()), 1, glm::value_ptr(uniformData));
 				},
 				[program, &uniformName](const glm::mat4& uniformData) {
-					glUniformMatrix4fv(glGetAttribLocation(program, uniformName.c_str()), 1, false, glm::value_ptr(uniformData));
+					glUniformMatrix4fv(glGetUniformLocation(program, uniformName.c_str()), 1, false, glm::value_ptr(uniformData));
 				},
 			}, uniform.second);
 		}
@@ -300,7 +299,7 @@ int Renderer::initBuffers(Geometry& geometry, GLuint program) {
 	GLuint VBO = initBuffer<float>(geometry.bufferAttributes, false);
 	GLuint IBO = initBuffer<unsigned int>(geometry.indexBuffer, true);
 
-	std::cout << "first: vao: " << VAO << " vbo: " << VBO << "\n";
+	//std::cout << "first: vao: " << VAO << " vbo: " << VBO << "\n";
 
 	int bufferId = bufferManager.addBuffer(VBO, IBO, VAO);
 	Buffer &buffer = bufferManager.getBufferById(bufferId);

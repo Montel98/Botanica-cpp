@@ -27,7 +27,8 @@ default:
 	g++ -g -std=c++2a -c src/Shader.cpp -o bin/Shader.o
 	g++ -g -std=c++2a -c src/Buffer.cpp -o bin/Buffer.o
 	g++ -g -std=c++2a -c src/Controller.cpp -o bin/Controller.o
+	g++ -g -std=c++2a -c src/WorldTime.cpp -o bin/WorldTime.o
 	g++ -g -std=c++2a -c src/test.cpp -o bin/Test.o
-	g++ -g -std=c++2a -c src/mesh_generator.cpp -o bin/mesh_generator.o
 
-	g++ -g -std=c++2a bin/mesh_generator.o bin/Test.o bin/Mesh.o bin/Entity.o bin/Leaf.o bin/FourierSeries.o bin/Geometry.o bin/ParametricGeometry.o bin/BufferAttributes.o bin/Texture.o bin/Material.o bin/BezierCubic.o bin/BezierLinear.o bin/Stem.o bin/StemBuilder.o bin/EntityManager.o bin/Object3D.o bin/Axis.o bin/LSystem.o bin/LSystemRules.o bin/LSystemOps.o bin/Tree.o bin/RandomLCG.o bin/Scene.o bin/Camera.o bin/Renderer.o bin/Shader.o bin/Buffer.o bin/Controller.o src/glad.o -lGL -lGLEW -lGLU -lglfw -ldl -o bin/OpenGLTest
+
+	g++ -g -std=c++2a bin/Test.o bin/Mesh.o bin/Entity.o bin/Leaf.o bin/FourierSeries.o bin/Geometry.o bin/ParametricGeometry.o bin/BufferAttributes.o bin/Texture.o bin/Material.o bin/BezierCubic.o bin/BezierLinear.o bin/Stem.o bin/StemBuilder.o bin/EntityManager.o bin/Object3D.o bin/Axis.o bin/LSystem.o bin/LSystemRules.o bin/LSystemOps.o bin/Tree.o bin/RandomLCG.o bin/Scene.o bin/Camera.o bin/Renderer.o bin/Shader.o bin/Buffer.o bin/Controller.o bin/WorldTime.o src/glad.o -lGL -lGLEW -lGLU -lglfw -ldl -o bin/OpenGLTest
