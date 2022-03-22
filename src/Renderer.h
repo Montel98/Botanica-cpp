@@ -61,22 +61,21 @@ GLuint Renderer::initBuffer(BufferAttributes& bufferAttributes, bool isIndexBuff
 	e = glGetError();
 	assert(e == GL_NO_ERROR);
 
-	//glBufferData(target, bufferAttributes.sizeBytes * sizeof(T), NULL, GL_STATIC_DRAW);
-
 	std::vector<T> mergedAttributes = bufferAttributes.mergeAttributes<T>();
 
 	for (auto i : mergedAttributes) {
 		std::cout << i << std::endl;
 	}
 
-	int bufferSize = /*bufferAttributes.sizeBytes > 0 ? bufferAttributes.sizeBytes : */mergedAttributes.size();
+	int bufferSize = bufferAttributes.sizeBytes > 0 ? bufferAttributes.sizeBytes : mergedAttributes.size() * sizeof(T);
 
 	//std::cout << "size::: " << bufferSize << ", " << bufferAttributes.getLength() << "\n";
 
 	std::cout << "size::: " << sizeof(T) << "," << bufferSize * sizeof(T) << "\n";
 
 	//glBufferSubData(target, 0, bufferSize * sizeof(T), &mergedAttributes.front());
-	glBufferData(target, bufferSize * sizeof(T), &mergedAttributes.front(), GL_STATIC_DRAW);
+	glBufferData(target, bufferSize, NULL, GL_STATIC_DRAW);
+	glBufferSubData(target, 0, mergedAttributes.size() * sizeof(T), &mergedAttributes.front());
 	e = glGetError();
 	assert(e == GL_NO_ERROR);
 

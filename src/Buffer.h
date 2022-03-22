@@ -27,6 +27,7 @@ public:
 	void removeBufferGeometry(Geometry* geometry);
 	BufferRange getBufferInfo(Geometry* geometry);
 	bool geometryInBuffer(Geometry* geometry);
+	int getIndexCount();
 };
 
 class BufferManager {

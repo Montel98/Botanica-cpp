@@ -9,10 +9,10 @@
 
 class Object3D {
 private:
-	Object3D* parent;
-	std::vector<Object3D*> children;
 	Mesh _mesh;
 public:
+	Object3D* parent;
+	std::vector<Object3D*> children;
 	Object3D(Mesh mesh);
 
 	bool isHidden;

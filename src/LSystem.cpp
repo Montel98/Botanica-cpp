@@ -51,7 +51,7 @@ StemNode LSystem::buildTree(const std::vector<OpCode>& lString, const LSystemPar
 			);
 			StemNode newNode{stemId, currentFrame.node};
 
-			if(rootVisited) {
+			if (rootVisited) {
 				currentFrame.node->next.push_back(std::make_unique<StemNode>(std::move(newNode)));
 				currentFrame.node->next.back()->prev = currentFrame.node;
 				currentFrame.node = currentFrame.node->next.back().get();

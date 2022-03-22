@@ -86,7 +86,7 @@ LSystemStackFrame StackPop::operator()(const LSystemStackFrame& frame, std::vect
 LSystemStackFrame GenStem::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
 	LSystemStackFrame newFrame = frame;
 	newFrame.lParams.count++;
-	newFrame.lParams.position = newFrame.lParams.position + 0.03f * newFrame.lParams.axis.forward;
+	newFrame.lParams.position += 0.3f * glm::normalize(newFrame.lParams.axis.forward);
 	newFrame.lParams.depth++;
 	newFrame.lParams.connectParent = true;
 	return newFrame;

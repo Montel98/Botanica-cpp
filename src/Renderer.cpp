@@ -34,27 +34,17 @@ void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawP
 
 	float vertexData[bufferInfo.vertexBufferLength];
 
-	glGetBufferSubData(GL_ARRAY_BUFFER, 0, bufferInfo.vertexBufferLength * sizeof(float), vertexData);
-
-	/*for (int i = 0; i < bufferInfo.vertexBufferLength; i++) {
-		std::cout << vertexData[i] << ",";
-	}
-	std::cout << "\n";*/
+	glGetBufferSubData(GL_ARRAY_BUFFER, bufferInfo.vertexBufferStart * sizeof(float), bufferInfo.vertexBufferLength * sizeof(float), vertexData);
 
 	unsigned int indexData[bufferInfo.indexBufferLength];
 
-	glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, bufferInfo.indexBufferLength * sizeof(unsigned int), indexData);
-
-	/*for (int i = 0; i < bufferInfo.indexBufferLength; i++) {
-		std::cout << indexData[i] << ",";
-	}
-	std::cout << "\n";*/
+	glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, bufferInfo.indexBufferStart * sizeof(unsigned int), bufferInfo.indexBufferLength * sizeof(unsigned int), indexData);
 
 	glDrawElements(
 		GL_TRIANGLES, 
 		bufferInfo.indexBufferLength, 
 		GL_UNSIGNED_INT,
-		/*(void*) (bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT))*/0
+		(void*) (bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT))
 	);
 
 	/*const auto e = glGetError();
@@ -173,10 +163,10 @@ void Renderer::updateUniforms(const Camera& camera, GLuint program, Object3D& ob
 
 void Renderer::updateModelUniforms(GLuint program, Object3D& object3D) {
 
-	for (const std::pair<std::string, Shader>& shader : object3D.getMesh().shaderPrograms) {
+	for (const std::pair<const std::string, Shader>& shader : object3D.getMesh().shaderPrograms) {
 		const std::string& shaderName = shader.first;
 
-		for (const std::pair<std::string, UniformType>& uniform : object3D.getMesh().shaderPrograms.at(shaderName).uniforms) {
+		for (const std::pair<const std::string, UniformType>& uniform : object3D.getMesh().shaderPrograms.at(shaderName).uniforms) {
 			const std::string &uniformName = uniform.first;
 
 			std::visit(overload{
@@ -301,7 +291,14 @@ int Renderer::initBuffers(Geometry& geometry, GLuint program) {
 
 	//std::cout << "first: vao: " << VAO << " vbo: " << VBO << "\n";
 
-	int bufferId = bufferManager.addBuffer(VBO, IBO, VAO);
+	int bufferId;
+
+	if (geometry.bufferName != "") {
+		bufferId = bufferManager.addBuffer(geometry.bufferName, VBO, IBO, VAO);
+	}
+	else {
+		bufferId = bufferManager.addBuffer(VBO, IBO, VAO);
+	}
 	Buffer &buffer = bufferManager.getBufferById(bufferId);
 	buffer.addBufferGeometry(&geometry);
 
@@ -344,7 +341,7 @@ void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 
 	if (geometry.bufferId == -1) {
 
-		if (geometry.bufferName != "") {
+		if (geometry.bufferName != "" && bufferManager.bufferExists(geometry.bufferName)) {
 
 			geometry.bufferId = bufferManager.getBufferIdByName(geometry.bufferName);
 			updateBuffers(geometry);
@@ -359,29 +356,31 @@ void Renderer::updateBuffers(Geometry& geometry) {
 
 	Buffer& buffer = bufferManager.getBufferById(geometry.bufferId);
 
-	if (!buffer.geometryInBuffer(&geometry)) {
-		buffer.addBufferGeometry(&geometry);
-	}
-
 	glBindVertexArray(buffer._vao);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer._vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer._ibo);
 
 	// Make a temp copy of index buffer data and add real buffer base position to offset
-	std::vector<int> newIndexBuffer = geometry.indexBuffer.mergeAttributes<int>();
-	
-	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
+	std::vector<unsigned int> newIndexBuffer = geometry.indexBuffer.mergeAttributes<unsigned int>();
+
+	int indexCount = buffer.getIndexCount();
 
 	for (int i = 0; i < newIndexBuffer.size(); i++) {
-		newIndexBuffer[i] += bufferInfo.indexBufferStart;
+		newIndexBuffer[i] += indexCount;
 	}
+
+	if (!buffer.geometryInBuffer(&geometry)) {
+		buffer.addBufferGeometry(&geometry);
+	}
+
+	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
 
 	// Update indices
 	glBufferSubData(
 		GL_ELEMENT_ARRAY_BUFFER, 
-		bufferInfo.indexBufferStart, 
+		bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT), 
 		newIndexBuffer.size() * sizeof(GL_UNSIGNED_INT), 
-		&newIndexBuffer
+		&newIndexBuffer.front()
 	);
 
 	std::vector<float> newVertexBuffer = geometry.bufferAttributes.mergeAttributes<float>();
@@ -389,9 +388,9 @@ void Renderer::updateBuffers(Geometry& geometry) {
 	// Update vertices
 	glBufferSubData(
 		GL_ARRAY_BUFFER, 
-		bufferInfo.vertexBufferStart, 
+		bufferInfo.vertexBufferStart * sizeof(GL_FLOAT), 
 		newVertexBuffer.size() * sizeof(GL_FLOAT), 
-		&newVertexBuffer
+		&newVertexBuffer.front()
 	);
 
 	glBindVertexArray(0);
