@@ -1,6 +1,6 @@
 #include "Object3D.h"
 
-Object3D::Object3D(Mesh mesh) : localMatrix(1.0), worldMatrix(1.0), isHidden(false), _mesh(std::move(mesh)) {
+Object3D::Object3D(Mesh mesh) : localMatrix(1.0), worldMatrix(1.0), isHidden(false), _mesh(std::move(mesh)), parent(nullptr) {
 }
 
 void Object3D::addChild(Object3D* child) {

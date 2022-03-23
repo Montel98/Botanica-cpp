@@ -57,6 +57,8 @@ void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawP
 
 void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Object3D>>& entityObjects) {
 
+	clear(0);
+
 	for (int state = 0; state < drawPassStates.size(); state++) {
 		DrawPassState& drawState = drawPassStates[state];
 		//glBindFramebuffer(GL_FRAMEBUFFER, drawState.fbo);
@@ -71,12 +73,12 @@ void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_
 	}
 
 	// Clear framebuffers for next frame
-	for (int state = 0; state < drawPassStates.size(); state++) {
+	/*for (int state = 0; state < drawPassStates.size(); state++) {
 		DrawPassState& drawState = drawPassStates[state];
-		//clear(/*drawState.fbo*/0);
+		clear(0);
 		//glEnable(GL_DEPTH_TEST);
 		//glDepthFunc(GL_EQUAL);
-	}
+	}*/
 }
 
 void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, Buffer& buffer) {
@@ -399,6 +401,9 @@ void Renderer::updateBuffers(Geometry& geometry) {
 void Renderer::clear(GLuint fbo) {
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	/*
 	auto e = glGetError();
 	assert(e == GL_NO_ERROR);

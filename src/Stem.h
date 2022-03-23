@@ -23,6 +23,7 @@ public:
 	Stem(EntityManager &manager, const LSystemParams &lSystemParams, const StemNode* prevStem);
 	void act(const WorldTime& worldTime) override;
 	void grow(const WorldTime& worldTime);
+	bool isMaxLength() const;
 
 	float stemLength;
 	float growthRate;

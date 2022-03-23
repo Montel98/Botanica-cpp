@@ -4,13 +4,6 @@
 #include "Geometry.h"
 #include <iostream>
 
-/*class Buffer {
-private:
-	std::string BufferName;
-	unsigned int bufferId;
-};*/
-
-
 Geometry::Geometry() : useST(false), useNormal(false), bufferName(""), bufferId(-1) {
 	bufferAttributes.addBufferAttribute<glm::vec3>("aVertexPosition");
 	indexBuffer.addBufferAttribute<glm::ivec1>("aIndex");
@@ -74,22 +67,39 @@ Geometry mergeGeometry(std::vector<std::reference_wrapper<Geometry>>& geometries
 	}
 
 	for (int i = 1; i < geometries.size(); i++) {
-		std::reference_wrapper<Geometry>& geometry = geometries[i];
-		BufferAttributes& otherBufferAttributes = geometry.get().bufferAttributes;
-
-		// Make copy of index buffer of geometry to be merged and shift indices
-		BufferAttributes otherIndexBuffer = geometry.get().indexBuffer;
-		
-		for (glm::ivec1& index : otherIndexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData) {
-			int noElements = mergedGeometry.bufferAttributes.getLength() / mergedGeometry.bufferAttributes.getStride();
-			index += noElements;
-		}
-
-		mergedGeometry.indexBuffer.appendBufferAttributeData<glm::ivec1>("aIndex", otherIndexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData);
-
-		// Merge all other attributes
-		mergedGeometry.bufferAttributes.mergeBufferAttributes(otherBufferAttributes);
+		mergedGeometry.addGeometry(geometries[i].get());
 	}
 
 	return mergedGeometry;
+}
+
+void Geometry::addGeometry(Geometry& other) {
+		BufferAttributes& otherBufferAttributes = other.bufferAttributes;
+
+		// Make copy of index buffer of geometry to be merged and shift indices
+		BufferAttributes otherIndexBuffer = other.indexBuffer;
+		
+		for (glm::ivec1& index : otherIndexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData) {
+			int noElements = this->bufferAttributes.getLength() / this->bufferAttributes.getStride();
+			index += noElements;
+		}
+
+		this->indexBuffer.appendBufferAttributeData<glm::ivec1>("aIndex", otherIndexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData);
+
+		// Merge all other attributes
+		this->bufferAttributes.mergeBufferAttributes(otherBufferAttributes);
+}
+
+Geometry Geometry::sliceGeometry(unsigned int start, unsigned int length) {
+	Geometry slicedGeometry(*this);
+	slicedGeometry.bufferId = -1;
+	slicedGeometry.bufferName = "";
+	slicedGeometry.bufferAttributes.sliceBufferAttributes(start, length);
+	slicedGeometry.indexBuffer.sliceBufferAttributes(6 * start, 6 * length);
+
+	return slicedGeometry;
+}
+
+void Geometry::addGeometryEvent(int vertexStart, int vertexLength, int indexStart, int indexLength) {
+	modificationEvents.push_back(GeometryEvent{vertexStart, vertexLength, indexStart, indexLength});
 }

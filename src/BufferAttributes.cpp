@@ -38,12 +38,25 @@ public:
 // Only appends if attribute already exists and attribute types of the same name are equal
 void BufferAttributes::mergeBufferAttributes(const BufferAttributes& other) {
 
-	for (const std::pair<std::string, BufferAttributeVec>& otherAttrib : other.attributes) {
+	for (const std::pair<const std::string, BufferAttributeVec>& otherAttrib : other.attributes) {
 		const std::string& name = otherAttrib.first;
 
 		if (isAttributeNameUsed(name)) {
 			std::visit(BufferTypeVisitor(*this, name), /*BufferTypeVisitor{}, attributes[name],*/ otherAttrib.second);
 		}
+	}
+}
+
+
+// Removes elements from every attribute within a specified interval
+void BufferAttributes::sliceBufferAttributes(unsigned int start, unsigned int length) {
+	int& noElements = this->length;
+
+	for (std::pair<const std::string, BufferAttributeVec>& bufferAttribute : attributes) {
+		std::visit([&noElements, start, length](auto& attrib) {
+			attrib.bufferData.erase(attrib.bufferData.begin() + start, attrib.bufferData.begin() + start + length);
+			noElements -= attrib.attribLength * length;
+		}, bufferAttribute.second);
 	}
 }
 

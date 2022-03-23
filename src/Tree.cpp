@@ -6,7 +6,10 @@
 #include <memory>
 #include <vector>
 
-Tree::Tree(EntityManager& manager) : Entity(Object3D(initMesh())), root(buildTree(manager)) {};
+Tree::Tree(EntityManager& entityManager) 
+: Entity(Object3D(initMesh())), root(buildTree(manager)), manager(entityManager), age(0.0f), growthRate(0.1f) {
+	terminalStems.push_back(TerminalStem{&root, false});
+}
 
 Mesh Tree::initMesh() {
 	Material material;
@@ -43,11 +46,53 @@ StemNode Tree::buildTree(EntityManager& manager) {
 
     LSystem lSystem;
     StemNode root = lSystem.buildTree(startString, lParams, startString.size(), manager);
+    //manager.getEntityById(root.current).worldObject.hide();
 
     manager.addEntityToScene(root.current);
-    manager.addEntityToScene(root.next[0]->current);
 
     return root;
 }
 
-void Tree::act(const WorldTime& worldTime) {};
+void Tree::generateNewStems(EntityManager& manager) {
+
+	for (int i = 0; i < terminalStems.size(); i++) {
+
+		Stem& stem = *manager.getEntityById<Stem>(terminalStems[i].node->current);
+
+		if (stem.isMaxLength() && terminalStems[i].node->next.size() > 0) {
+
+			if (!terminalStems[i].isVisited) {
+				terminalStems[i].isVisited = true;
+
+				if (isEndStem(terminalStems[i].node)) {
+					std::cout << "yesss" << std::endl;
+					mergeToGeometry(stem);
+					stem.worldObject.hide();
+					terminalStems.erase(terminalStems.begin() + i);
+				}
+
+				for (int nextStem = 0; nextStem < terminalStems[i].node->next.size(); nextStem++) {
+					manager.addEntityToScene(terminalStems[i].node->next[nextStem]->current);
+				}
+			}
+		}
+	}
+}
+
+void Tree::mergeToGeometry(Stem& stem) {
+	Geometry postGrowthGeometry = stem.worldObject.getMesh()._geometry->sliceGeometry(0, 8);
+	worldObject.getMesh()._geometry->addGeometry(postGrowthGeometry);
+	//worldObject.getMesh()._geometry->
+}
+
+void Tree::act(const WorldTime& worldTime) {
+	generateNewStems(manager);
+}
+
+bool Tree::isEndStem(StemNode* node) {
+
+	/*for (int i = 0;  i < node.nextStems.size(); i++) {
+	}*/
+
+	return true;
+}

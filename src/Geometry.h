@@ -6,6 +6,11 @@
 
 #include "BufferAttributes.h"
 
+struct GeometryEvent {
+	int vertexStart, vertexLength;
+	int indexStart, indexLength;
+};
+
 class Geometry {
 private:
 	bool useST, useNormal;
@@ -18,6 +23,9 @@ public:
 		std::vector<glm::vec3> morphVertices, 
 		std::vector<glm::vec3> morphNormals
 	);
+
+	void addGeometry(Geometry& other);
+	Geometry sliceGeometry(unsigned int start, unsigned int length);
 
 	bool usesNormals();
 	bool usesSTs();
@@ -33,7 +41,8 @@ public:
 	std::string bufferName;
 	int bufferId;
 
-	bool geometryModified;
+	std::vector<GeometryEvent> modificationEvents;
+	void addGeometryEvent(int vertexStart, int vertexLength, int indexStart, int indexLength);
 
 	virtual Geometry* clone() const;
 	virtual ~Geometry();

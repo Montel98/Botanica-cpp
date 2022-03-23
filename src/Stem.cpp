@@ -102,3 +102,7 @@ void Stem::grow(const WorldTime& worldTime) {
 
 	stemLength = newLength;
 }
+
+bool Stem::isMaxLength() const {
+	return stemLength == maxLength;
+}

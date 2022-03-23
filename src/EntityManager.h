@@ -17,11 +17,16 @@ private:
 	Scene& _scene;
 public:
 	EntityManager(BufferManager& bufferManager, Scene& scene);
-	Entity* getEntityById(EntityId id);
+	Entity& getEntityById(EntityId id);
 	bool entityExists(EntityId id) const;
 	EntityId addEntity(std::unique_ptr<Entity> newEntity);
 	void addEntityToScene(EntityId id);
 	void removeEntityFromScene(EntityId id);
 	void removeEntity(EntityId id);
 	std::vector<EntityId>& getActiveEntities();
+
+	template<typename T>
+	T* getEntityById(EntityId id) const {
+		return static_cast<T*>(entities.at(id).get());
+	}
 };

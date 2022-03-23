@@ -10,7 +10,7 @@ void Controller::updateStates(WorldTime& worldTime) {
 
 	for (int i = 0; i < entities.size(); i++) {
 
-		Entity& entity = *entityManager.getEntityById(entities[i]);
+		Entity& entity = entityManager.getEntityById(entities[i]);
 		entity.act(worldTime);
 
 		if (!entity.worldObject.isHidden) {

@@ -80,6 +80,8 @@ public:
 	template<typename T>
 	std::vector<T> mergeAttributes();
 
+	void sliceBufferAttributes(unsigned int start, unsigned int length);
+
 	int getLength() const;
 
 	int getStride() const;
