@@ -27,4 +27,5 @@ public:
 
 	float stemLength;
 	float growthRate;
+	LSystemParams lParams;
 };

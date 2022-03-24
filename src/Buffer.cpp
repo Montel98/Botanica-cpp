@@ -18,10 +18,6 @@ void Buffer::addBufferGeometry(Geometry* geometry) {
 	//std::cout << geometryVertexLength << " MMM " << geometryIndexLength << "\n";
 
 	BufferRange bufferRange{vertexBufferLength, 0, indexBufferLength, 0, 0};
-
-	//this->vertexBufferLength += geometryVertexLength;
-	//this->indexBufferLength += geometryIndexLength;
-	//this->indexCount += geometry->bufferAttributes.getNoElements();
 	geometries.emplace(std::make_pair(geometry, bufferRange));
 	updateBufferGeometry(geometry);
 }

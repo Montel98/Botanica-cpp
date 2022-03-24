@@ -105,7 +105,7 @@ ParametricGeometry<StemSurface> generateStemBody(
 
 	glm::vec3 normDir = glm::normalize(lParams.axis.forward);
 	glm::vec3 p0 = lParams.position;
-	glm::vec3 p1 = lParams.position + 0.3f * normDir;
+	glm::vec3 p1 = lParams.position + 0.03f * normDir;
 
 	BezierLinear stemBodyPath(p0, p1);
 	BezierLinear immatureStemBodyPath(p0, p0);
@@ -136,9 +136,9 @@ ParametricGeometry<StemSurface> generateStemTip(
 	// Define the stem tip path direction in 3D space
 	glm::vec3 normDir = glm::normalize(lParams.axis.forward);
 	glm::vec3 p0 = lParams.position;
-	glm::vec3 p1 = lParams.position + 0.3f * normDir;
-	glm::vec3 p2 = lParams.position + 0.42f * normDir;
-	glm::vec3 p3 = lParams.position + 0.12f * normDir;
+	glm::vec3 p1 = lParams.position + 0.03f * normDir;
+	glm::vec3 p2 = lParams.position + 0.042f * normDir;
+	glm::vec3 p3 = lParams.position + 0.012f * normDir;
 
 	BezierLinear stemTipPath(p1, p2);
 	BezierLinear immatureStemTipPath(p0, p3);
@@ -172,7 +172,6 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	std::cout << "end\n";
 	StemSurface endSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> endGeometry(endSurface, constraints);
-	//endGeometry.useNormals();
 	//endGeometry.useSTs();
 	endGeometry.generateGeometry();
 
@@ -181,37 +180,31 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	std::cout << "start\n";
 	StemSurface startSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusStart->clone()), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> startGeometry(startSurface, constraints);
-	//startGeometry.useNormals();
 	startGeometry.generateGeometry();
 
 	std::cout << "immature start\n";
 	StemSurface immatureStartSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusStart->clone()), keyFrameInfo.pathStart, axis);
 	ParametricGeometry<StemSurface> immatureStartGeometry(immatureStartSurface, constraints);
-	//immatureStartGeometry.useNormals();
 	immatureStartGeometry.generateGeometry();
 
 	std::cout << "immature end\n";
 	StemSurface immatureEndSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathStart, axis);
 	ParametricGeometry<StemSurface> immatureEndGeometry(immatureEndSurface, constraints);
-	//immatureEndGeometry.useNormals();
 	immatureEndGeometry.generateGeometry();
 
 	// Move the morph targets into the main geometry object
 	endGeometry.addMorphTarget(
 		"aMatureStart", 
 		std::move(startGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
-		//std::move(startGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
 	);
 	
 	endGeometry.addMorphTarget(
 		"aImmatureStart",
 		std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
-		//std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
 	);
 	endGeometry.addMorphTarget(
 		"aImmatureEnd",
 		std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
-		//std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aNormal").bufferData)
 	);
 	
 	return endGeometry;

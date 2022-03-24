@@ -5,6 +5,8 @@
 #include "Stem.h"
 #include <vector>
 
+using Generator = std::linear_congruential_engine<unsigned int, 16807, 0, 2147483647>;
+
 struct TerminalStem {
 	StemNode* node;
 	bool isVisited;
@@ -20,13 +22,13 @@ private:
 	void generateNewStems(EntityManager& manager);
 	void grow();
 	void mergeToGeometry(Stem& stem);
-	StemNode buildTree(EntityManager& manager);
+	StemNode buildTree(EntityManager& manager, Generator& gen);
 	Mesh initMesh();
 	bool isEndStem(StemNode* node);
 	//void addTerminalStem();
 
 	float age, growthRate;
 public:
-	Tree(EntityManager& entityManager);
+	Tree(EntityManager& entityManager, Generator& gen);
 	void act(const WorldTime& worldTime) override;
 };

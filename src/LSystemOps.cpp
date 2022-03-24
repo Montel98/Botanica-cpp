@@ -69,8 +69,8 @@ LSystemStackFrame StackPush::operator()(const LSystemStackFrame& frame, std::vec
 
 	frames.push_back(frame);
 	LSystemStackFrame newFrame = frame;
-	newFrame.lParams.radiusStart = 0.1f;
-	newFrame.lParams.radiusEnd = 0.1f;
+	newFrame.lParams.radiusStart = 0.01f;
+	newFrame.lParams.radiusEnd = 0.01f;
 	newFrame.lParams.connectParent = _connectParent;
 	newFrame.lParams.stringIndex++;
 	newFrame.lParams.count = 0;
@@ -86,7 +86,7 @@ LSystemStackFrame StackPop::operator()(const LSystemStackFrame& frame, std::vect
 LSystemStackFrame GenStem::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
 	LSystemStackFrame newFrame = frame;
 	newFrame.lParams.count++;
-	newFrame.lParams.position += 0.3f * glm::normalize(newFrame.lParams.axis.forward);
+	newFrame.lParams.position += 0.03f * glm::normalize(newFrame.lParams.axis.forward);
 	newFrame.lParams.depth++;
 	newFrame.lParams.connectParent = true;
 	return newFrame;

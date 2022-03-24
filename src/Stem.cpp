@@ -12,7 +12,7 @@
 #define PI 3.1415
 
 Stem::Stem(EntityManager& manager, const LSystemParams& lSystemParams, const StemNode* prevStem) 
-: Entity(Object3D(generateMesh(lSystemParams, prevStem))), entityManager(manager), stemLength(0.0f), growthRate(0.3f) {};
+: Entity(Object3D(generateMesh(lSystemParams, prevStem))), entityManager(manager), stemLength(0.0f), growthRate(0.3f), lParams(lSystemParams) {};
 
 Mesh Stem::generateMesh(const LSystemParams& lParams, const StemNode* prevStem) {
 	//return prevStem->worldObject.getMesh();

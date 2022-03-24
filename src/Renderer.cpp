@@ -83,7 +83,7 @@ void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_
 
 void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, Buffer& buffer) {
 
-	//glBindVertexArray(buffer._vao);
+	glBindVertexArray(buffer._vao);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer._vbo);
 	auto e = glGetError();
 	assert(e == GL_NO_ERROR);
@@ -362,6 +362,7 @@ void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 	}
 
 	if (geometry.modificationEvents.size() > 0) {
+		std::cout << "modified!!!\n";
 		updateBuffers(geometry);
 	}
 }
@@ -399,7 +400,7 @@ void Renderer::updateBuffers(Geometry& geometry) {
 	// Update indices
 	glBufferSubData(
 		GL_ELEMENT_ARRAY_BUFFER, 
-		bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT), 
+		(bufferInfo.indexBufferStart + (event.indexStart * geometry.indexBuffer.getStride())) * sizeof(GL_UNSIGNED_INT), 
 		newIndexBuffer.size() * sizeof(GL_UNSIGNED_INT), 
 		&newIndexBuffer.front()
 	);
@@ -411,7 +412,7 @@ void Renderer::updateBuffers(Geometry& geometry) {
 	// Update vertices
 	glBufferSubData(
 		GL_ARRAY_BUFFER, 
-		bufferInfo.vertexBufferStart * sizeof(GL_FLOAT), 
+		(bufferInfo.vertexBufferStart + (event.vertexStart * geometry.bufferAttributes.getStride())) * sizeof(GL_FLOAT), 
 		newVertexBuffer.size() * sizeof(GL_FLOAT), 
 		&newVertexBuffer.front()
 	);

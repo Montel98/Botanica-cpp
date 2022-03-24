@@ -50,12 +50,12 @@ void BufferAttributes::mergeBufferAttributes(const BufferAttributes& other) {
 
 // Removes elements from every attribute within a specified interval
 void BufferAttributes::sliceBufferAttributes(unsigned int start, unsigned int length) {
-	int& noElements = this->length;
+	int& bufferLength = this->length;
 
 	for (std::pair<const std::string, BufferAttributeVec>& bufferAttribute : attributes) {
-		std::visit([&noElements, start, length](auto& attrib) {
+		std::visit([&bufferLength, start, length](auto& attrib) {
 			attrib.bufferData.erase(attrib.bufferData.begin() + start, attrib.bufferData.begin() + start + length);
-			noElements -= attrib.attribLength * length;
+			bufferLength -= attrib.attribLength * length;
 		}, bufferAttribute.second);
 	}
 }
