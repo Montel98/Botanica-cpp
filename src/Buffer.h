@@ -8,6 +8,7 @@ using BufferId = unsigned int;
 struct BufferRange {
 	int vertexBufferStart, vertexBufferLength;
 	int indexBufferStart, indexBufferLength;
+	int indexCount;
 };
 
 class Buffer {
@@ -24,6 +25,7 @@ public:
 	Buffer() = default;
 	bool isEmpty();
 	void addBufferGeometry(Geometry* geometry);
+	void updateBufferGeometry(Geometry* geometry);
 	void removeBufferGeometry(Geometry* geometry);
 	BufferRange getBufferInfo(Geometry* geometry);
 	bool geometryInBuffer(Geometry* geometry);

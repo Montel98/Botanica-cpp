@@ -61,7 +61,7 @@ GLuint Renderer::initBuffer(BufferAttributes& bufferAttributes, bool isIndexBuff
 	e = glGetError();
 	assert(e == GL_NO_ERROR);
 
-	std::vector<T> mergedAttributes = bufferAttributes.mergeAttributes<T>();
+	std::vector<T> mergedAttributes = bufferAttributes.mergeAttributes<T>(0, bufferAttributes.getNoElements());
 
 	for (auto i : mergedAttributes) {
 		std::cout << i << std::endl;

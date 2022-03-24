@@ -28,7 +28,7 @@ private:
 public:
 	BufferTypeVisitor(BufferAttributes& bufferAttributes, const std::string& name) : _name(name), _bufferAttributes(bufferAttributes) {};
 
-	template<template<typename> typename B, typename T>
+	template<template <typename> typename B, typename T>
 	void operator()(const B<T>& b) {
 		_bufferAttributes.appendBufferAttributeData<T>(_name, b.bufferData);
 	}
@@ -42,7 +42,7 @@ void BufferAttributes::mergeBufferAttributes(const BufferAttributes& other) {
 		const std::string& name = otherAttrib.first;
 
 		if (isAttributeNameUsed(name)) {
-			std::visit(BufferTypeVisitor(*this, name), /*BufferTypeVisitor{}, attributes[name],*/ otherAttrib.second);
+			std::visit(BufferTypeVisitor(*this, name), otherAttrib.second);
 		}
 	}
 }
@@ -70,6 +70,10 @@ int BufferAttributes::getLength() const {
 
 int BufferAttributes::getStride() const {
 	return stride;
+}
+
+int BufferAttributes::getNoElements() const {
+	return length / stride;
 }
 
 BufferAttributes::BufferAttributes() : sizeBytes(0), length(0), stride(0), isInstanceBuffer(false) {};

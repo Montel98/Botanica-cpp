@@ -102,10 +102,10 @@ void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttr
 
 		std::visit([location, stride](auto& bufferAttribute) {
 
-			std::cout << "location" << location << "\n";
+			/*std::cout << "location" << location << "\n";
 			std::cout << "length: " << bufferAttribute.attribLength << "\n";
 			std::cout << "offset: " << bufferAttribute.offset << "\n";
-			std::cout << "stride: " << stride << "\n";
+			std::cout << "stride: " << stride << "\n";*/
 
 			glVertexAttribPointer(
 				location,
@@ -343,14 +343,26 @@ void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 
 	if (geometry.bufferId == -1) {
 
+		geometry.modificationEvents.clear();
+
 		if (geometry.bufferName != "" && bufferManager.bufferExists(geometry.bufferName)) {
 
 			geometry.bufferId = bufferManager.getBufferIdByName(geometry.bufferName);
-			updateBuffers(geometry);
+
+			geometry.addGeometryEvent(
+				0, 
+				geometry.bufferAttributes.getNoElements(),
+				0,
+				geometry.indexBuffer.getNoElements()
+			);
 		}
 		else {
 			geometry.bufferId = initBuffers(geometry, program);
 		}
+	}
+
+	if (geometry.modificationEvents.size() > 0) {
+		updateBuffers(geometry);
 	}
 }
 
@@ -362,8 +374,12 @@ void Renderer::updateBuffers(Geometry& geometry) {
 	glBindBuffer(GL_ARRAY_BUFFER, buffer._vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer._ibo);
 
+	GeometryEvent& event = geometry.modificationEvents.back();
+
 	// Make a temp copy of index buffer data and add real buffer base position to offset
-	std::vector<unsigned int> newIndexBuffer = geometry.indexBuffer.mergeAttributes<unsigned int>();
+	std::vector<unsigned int> newIndexBuffer = geometry.indexBuffer.mergeAttributes<unsigned int>(
+		event.indexStart, event.indexLength
+	);
 
 	int indexCount = buffer.getIndexCount();
 
@@ -373,6 +389,9 @@ void Renderer::updateBuffers(Geometry& geometry) {
 
 	if (!buffer.geometryInBuffer(&geometry)) {
 		buffer.addBufferGeometry(&geometry);
+	}
+	else {
+		buffer.updateBufferGeometry(&geometry);
 	}
 
 	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
@@ -385,7 +404,9 @@ void Renderer::updateBuffers(Geometry& geometry) {
 		&newIndexBuffer.front()
 	);
 
-	std::vector<float> newVertexBuffer = geometry.bufferAttributes.mergeAttributes<float>();
+	std::vector<float> newVertexBuffer = geometry.bufferAttributes.mergeAttributes<float>(
+		event.vertexStart, event.vertexLength
+	);
 
 	// Update vertices
 	glBufferSubData(
@@ -394,6 +415,8 @@ void Renderer::updateBuffers(Geometry& geometry) {
 		newVertexBuffer.size() * sizeof(GL_FLOAT), 
 		&newVertexBuffer.front()
 	);
+
+	geometry.modificationEvents.pop_back();
 
 	glBindVertexArray(0);
 }

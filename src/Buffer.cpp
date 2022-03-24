@@ -17,18 +17,25 @@ void Buffer::addBufferGeometry(Geometry* geometry) {
 
 	//std::cout << geometryVertexLength << " MMM " << geometryIndexLength << "\n";
 
-	BufferRange bufferRange{
-		vertexBufferLength, 
-		geometryVertexLength, 
-		indexBufferLength, 
-		geometryIndexLength
-	};
+	BufferRange bufferRange{vertexBufferLength, 0, indexBufferLength, 0, 0};
 
-	vertexBufferLength += geometryVertexLength;
-	indexBufferLength += geometryIndexLength;
-	//indexCount += geometry->bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData.size();
-	indexCount += geometry->bufferAttributes.getLength() / geometry->bufferAttributes.getStride();
+	//this->vertexBufferLength += geometryVertexLength;
+	//this->indexBufferLength += geometryIndexLength;
+	//this->indexCount += geometry->bufferAttributes.getNoElements();
 	geometries.emplace(std::make_pair(geometry, bufferRange));
+	updateBufferGeometry(geometry);
+}
+
+void Buffer::updateBufferGeometry(Geometry* geometry) {
+	BufferRange& bufferRange = geometries.at(geometry);
+
+	this->vertexBufferLength += geometry->bufferAttributes.getLength() - bufferRange.vertexBufferLength;
+	this->indexBufferLength += geometry->indexBuffer.getLength() - bufferRange.indexBufferLength;
+	this->indexCount += geometry->bufferAttributes.getNoElements() - bufferRange.indexCount;
+
+	bufferRange.vertexBufferLength = geometry->bufferAttributes.getLength();
+	bufferRange.indexBufferLength = geometry->indexBuffer.getLength();
+	bufferRange.indexCount = geometry->bufferAttributes.getNoElements();
 }
 
 void Buffer::removeBufferGeometry(Geometry* geometry) {

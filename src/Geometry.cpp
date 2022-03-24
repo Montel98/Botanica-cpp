@@ -74,6 +74,10 @@ Geometry mergeGeometry(std::vector<std::reference_wrapper<Geometry>>& geometries
 }
 
 void Geometry::addGeometry(Geometry& other) {
+
+		int vertexStart = bufferAttributes.getLength();
+		int indexStart = indexBuffer.getLength();
+
 		BufferAttributes& otherBufferAttributes = other.bufferAttributes;
 
 		// Make copy of index buffer of geometry to be merged and shift indices
@@ -88,6 +92,11 @@ void Geometry::addGeometry(Geometry& other) {
 
 		// Merge all other attributes
 		this->bufferAttributes.mergeBufferAttributes(otherBufferAttributes);
+
+		int vertexLength = bufferAttributes.getLength() - vertexStart;
+		int indexLength = indexBuffer.getLength() - indexStart;
+
+		addGeometryEvent(vertexStart, vertexLength, indexStart, indexLength);
 }
 
 Geometry Geometry::sliceGeometry(unsigned int start, unsigned int length) {

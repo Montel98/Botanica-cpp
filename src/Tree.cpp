@@ -66,7 +66,7 @@ void Tree::generateNewStems(EntityManager& manager) {
 
 				if (isEndStem(terminalStems[i].node)) {
 					std::cout << "yesss" << std::endl;
-					mergeToGeometry(stem);
+					//mergeToGeometry(stem);
 					stem.worldObject.hide();
 					terminalStems.erase(terminalStems.begin() + i);
 				}
@@ -82,7 +82,6 @@ void Tree::generateNewStems(EntityManager& manager) {
 void Tree::mergeToGeometry(Stem& stem) {
 	Geometry postGrowthGeometry = stem.worldObject.getMesh()._geometry->sliceGeometry(0, 8);
 	worldObject.getMesh()._geometry->addGeometry(postGrowthGeometry);
-	//worldObject.getMesh()._geometry->
 }
 
 void Tree::act(const WorldTime& worldTime) {
