@@ -10,7 +10,9 @@
 
 Renderer::Renderer() {
 	drawPassStates.push_back(DrawPassState{0, "Default"});
-	//glEnable(GL_DEPTH_TEST);
+
+	// Configure depth testing flag
+	glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_EQUAL);
 	glDisable(GL_CULL_FACE);
 }
@@ -96,16 +98,16 @@ void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttr
 		e = glGetError();
 		assert(e == GL_NO_ERROR);
 
-		//std::cout << name << "," << location << "\n";
+		std::cout << name << "," << location << "\n";
 
 		int stride = bufferAttributes.getStride();
 
 		std::visit([location, stride](auto& bufferAttribute) {
 
-			/*std::cout << "location" << location << "\n";
+			std::cout << "location" << location << "\n";
 			std::cout << "length: " << bufferAttribute.attribLength << "\n";
 			std::cout << "offset: " << bufferAttribute.offset << "\n";
-			std::cout << "stride: " << stride << "\n";*/
+			std::cout << "stride: " << stride << "\n";
 
 			glVertexAttribPointer(
 				location,
@@ -377,17 +379,6 @@ void Renderer::updateBuffers(Geometry& geometry) {
 
 	GeometryEvent& event = geometry.modificationEvents.back();
 
-	// Make a temp copy of index buffer data and add real buffer base position to offset
-	std::vector<unsigned int> newIndexBuffer = geometry.indexBuffer.mergeAttributes<unsigned int>(
-		event.indexStart, event.indexLength
-	);
-
-	int indexCount = buffer.getIndexCount();
-
-	for (int i = 0; i < newIndexBuffer.size(); i++) {
-		newIndexBuffer[i] += indexCount;
-	}
-
 	if (!buffer.geometryInBuffer(&geometry)) {
 		buffer.addBufferGeometry(&geometry);
 	}
@@ -396,6 +387,20 @@ void Renderer::updateBuffers(Geometry& geometry) {
 	}
 
 	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
+
+	// Make a temp copy of index buffer data
+	std::vector<unsigned int> newIndexBuffer = geometry.indexBuffer.mergeAttributes<unsigned int>(
+		event.indexStart, event.indexLength
+	);
+
+	// Shift index buffer positions by total index count if mulitple geometries exist
+	if (buffer.getGeometryCount() > 1) {
+		int indexCount = buffer.getIndexCount() - bufferInfo.indexCount;
+
+		for (int i = 0; i < newIndexBuffer.size(); i++) {
+			newIndexBuffer[i] += indexCount;
+		}
+	}
 
 	// Update indices
 	glBufferSubData(
@@ -425,16 +430,6 @@ void Renderer::updateBuffers(Geometry& geometry) {
 void Renderer::clear(GLuint fbo) {
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClearDepth(1.0f);
+	//glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	/*
-	auto e = glGetError();
-	assert(e == GL_NO_ERROR);
-	glClearDepth(1.0f);
-	e = glGetError();
-	assert(e == GL_NO_ERROR);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	e = glGetError();
-	assert(e == GL_NO_ERROR);*/
 }

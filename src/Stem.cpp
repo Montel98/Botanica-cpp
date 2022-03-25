@@ -15,23 +15,9 @@ Stem::Stem(EntityManager& manager, const LSystemParams& lSystemParams, const Ste
 : Entity(Object3D(generateMesh(lSystemParams, prevStem))), entityManager(manager), stemLength(0.0f), growthRate(0.3f), lParams(lSystemParams) {};
 
 Mesh Stem::generateMesh(const LSystemParams& lParams, const StemNode* prevStem) {
-	//return prevStem->worldObject.getMesh();
-	//Geometry geometry;
 	Material material;
 
 	Mesh mesh(material, std::make_unique<Geometry>(generateGeometry(lParams, prevStem)));
-
-	/*std::cout << "VERTICES:\n";
-
-	for (const glm::vec3& v : mesh._geometry->bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData) {
-		std::cout << v.x << "," << v.y << "," << v.z << "\n";
-	}
-
-	std::cout << "INDICES:\n";
-
-	for (const glm::ivec1& v : mesh._geometry->indexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData) {
-		std::cout << v.x << "\n";
-	}*/
 
 	mesh.shaderPrograms.emplace(
 		std::make_pair("Default", Shader("Test", "./src/shaders/stemVertex.glsl", "./src/shaders/stemFragment.glsl"))
@@ -52,9 +38,7 @@ Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* pr
 	GeometryConstraints stemBodyConstraints = {0.0, 1.0, 0.0, 2.0 * PI, uStepsBody, vSteps};
 	GeometryConstraints stemTipConstraints = {0.0, 1.0, 0.0, 2.0 * PI, uStepsTip, vSteps};
 
-	std::cout << "Stem Body\n";
 	ParametricGeometry<StemBuilder::StemSurface> stemBody = StemBuilder::generateStemBody(lParams, stemBodyConstraints);
-	std::cout << "Stem Tip\n";
 	ParametricGeometry<StemBuilder::StemSurface> stemTip = StemBuilder::generateStemTip(lParams, stemTipConstraints);
 
 	// Manually connect the top-row vertices of the previous stem body with the bottom-row vertices of the new stem
@@ -82,8 +66,8 @@ Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* pr
 
 	Geometry mergedGeometry = mergeGeometry(geometries);
 	mergedGeometry.bufferName = "stemBuffer";
-	mergedGeometry.bufferAttributes.sizeBytes = 65536;
-	mergedGeometry.indexBuffer.sizeBytes = 655356;
+	mergedGeometry.bufferAttributes.sizeBytes = 524288;
+	mergedGeometry.indexBuffer.sizeBytes = 524288;
 
 	return mergedGeometry;
 }

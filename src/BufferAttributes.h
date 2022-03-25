@@ -140,20 +140,20 @@ std::vector<T> BufferAttributes::mergeAttributes(unsigned int indexStart, unsign
 			[&buffer, &bufferStride, &indexStart, &indexLength](BufferAttribute<glm::vec1>& bufferAttribute) {
 
 				for(/*int i = 0; i < bufferAttribute.bufferData.size();*/int i = indexStart; i < indexStart + indexLength; i++) {
-					buffer[(bufferStride * i) + bufferAttribute.offset] = bufferAttribute.bufferData[i][0];
+					buffer[(bufferStride * (i - indexStart)) + bufferAttribute.offset] = bufferAttribute.bufferData[i][0];
 				}
 			},
 			[&buffer, &bufferStride, &indexStart, &indexLength](BufferAttribute<glm::ivec1>& bufferAttribute) {
 
 				for(/*int i = 0; i < bufferAttribute.bufferData.size();*/int i = indexStart; i < indexStart + indexLength; i++) {
-					buffer[(bufferStride * i) + bufferAttribute.offset] = bufferAttribute.bufferData[i][0];
+					buffer[(bufferStride * (i - indexStart)) + bufferAttribute.offset] = bufferAttribute.bufferData[i][0];
 				}
 			},
 			[&buffer, &bufferStride, &indexStart, &indexLength](auto& bufferAttribute) {
 
 				for(/*int i = 0; i < bufferAttribute.bufferData.size();*/int i = indexStart; i < indexStart + indexLength; i++) {
 					for (int j = 0; j < bufferAttribute.attribLength; j++) {
-						buffer[(bufferStride * i) + bufferAttribute.offset + j] = glm::value_ptr(bufferAttribute.bufferData[i])[j];
+						buffer[(bufferStride * (i - indexStart)) + bufferAttribute.offset + j] = glm::value_ptr(bufferAttribute.bufferData[i])[j];
 					}
 				}
 			}

@@ -60,8 +60,8 @@ LSystemStackFrame RotateRoll::operator()(const LSystemStackFrame& frame, std::ve
 
 LSystemStackFrame RotatePlane::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
 	LSystemStackFrame newFrame = frame;
-	newFrame.lParams.axis.rotateFrameHorizontal(_horizontalAngle);
 	newFrame.lParams.axis.rotateFrameVertical(_verticalAngle);
+	newFrame.lParams.axis.rotateFrameHorizontal(_horizontalAngle);
 	return newFrame;
 }
 

@@ -4,11 +4,11 @@
 std::vector<OpCode> LSystem::buildString(std::vector<OpCode> startString, int depth, std::linear_congruential_engine<unsigned int, 16807, 0, 2147483647>& gen) {
 	std::vector<OpCode> finalString = startString;
 
-	for (auto currentDepth = 0; currentDepth < depth; currentDepth++) {
+	for (int currentDepth = 0; currentDepth < depth; currentDepth++) {
 		std::vector<OpCode> currentString;
 
-		for (auto i = 0; i < finalString.size(); i++) {
-			OpCode& currentOp = startString[i];
+		for (int i = 0; i < finalString.size(); i++) {
+			OpCode& currentOp = finalString[i];
 
 			if (rules.hasRule(currentOp.symbol)) {
 
@@ -50,6 +50,8 @@ StemNode LSystem::buildTree(const std::vector<OpCode>& lString, const LSystemPar
 				Stem(entityManager, currentFrame.lParams, currentFrame.node))
 			);
 			StemNode newNode{stemId, currentFrame.node};
+
+			std::cout << "StemID: " << stemId << "Dir: " << currentFrame.lParams.axis.forward.x << "," << currentFrame.lParams.axis.forward.y << "," << currentFrame.lParams.axis.forward.z << "\n";
 
 			if (rootVisited) {
 				currentFrame.node->next.push_back(std::make_unique<StemNode>(std::move(newNode)));

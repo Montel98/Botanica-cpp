@@ -55,3 +55,20 @@ std::vector<OpCode> TreeString::getLString(Generator& gen) {
 
 	return startString;
 }
+
+/*std::vector<OpCode> TreeString::getLString(Generator& gen) {
+	std::vector<OpCode> startString;
+
+	//startString.push_back(ROT_P(randomNormal(0.0f, PI / 32.0f, gen), randomNormal(0.0f, PI / 32.0f, gen)));
+	startString.push_back(GEN_STEM());
+	startString.push_back(S_PUSH(false));
+	startString.push_back(ROT_P(PI / 2.0f, -PI / 2.0f));
+	startString.push_back(GEN_STEM());
+	startString.push_back(GEN_STEM());
+	startString.push_back(GEN_STEM());
+	startString.push_back(S_POP());
+	startString.push_back(GEN_STEM());
+	startString.push_back(GEN_STEM());
+
+	return startString;
+}*/

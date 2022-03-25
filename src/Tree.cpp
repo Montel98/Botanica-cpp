@@ -20,6 +20,7 @@ Mesh Tree::initMesh() {
 	std::unique_ptr<Geometry> treeGeometry = std::make_unique<Geometry>();
 	treeGeometry->indexBuffer.sizeBytes = 65536;
 	treeGeometry->bufferAttributes.sizeBytes = 65536;
+	treeGeometry->bufferAttributes.addBufferAttribute<glm::vec3>("aMatureStart");
 
 	Mesh mesh(material, std::move(treeGeometry));
 
@@ -39,7 +40,18 @@ StemNode Tree::buildTree(EntityManager& manager, Generator& gen) {
         startString.push_back(GEN_STEM());
     }*/
 
-    std::vector<OpCode> startString = TreeString::getLString(gen);
+    LSystem lSystem;
+
+    //std::vector<OpCode> startString = TreeString::getLString(gen);
+    std::vector<OpCode> finalString = lSystem.buildString(
+    	TreeString::getLString(gen),
+    	3,
+    	gen
+    );
+
+    for (OpCode& opcode : finalString) {
+    	std::cout << opcode.symbol << "\n";
+    }
 
     glm::vec3 forward(0.0f, 0.0f, 1.0f);
     glm::vec3 up(0.0f, -1.0f, 0.0f);
@@ -57,8 +69,7 @@ StemNode Tree::buildTree(EntityManager& manager, Generator& gen) {
         0.01
     };
 
-    LSystem lSystem;
-    StemNode root = lSystem.buildTree(startString, lParams, startString.size(), manager);
+    StemNode root = lSystem.buildTree(finalString, lParams, finalString.size(), manager);
     //manager.getEntityById(root.current).worldObject.hide();
 
     manager.addEntityToScene(root.current);
@@ -67,6 +78,9 @@ StemNode Tree::buildTree(EntityManager& manager, Generator& gen) {
 }
 
 void Tree::generateNewStems(EntityManager& manager) {
+
+	std::vector<StemNode*> stemsToAdd;
+	std::vector<int> stemsToRemove;
 
 	for (int i = 0; i < terminalStems.size(); i++) {
 
@@ -78,17 +92,28 @@ void Tree::generateNewStems(EntityManager& manager) {
 				terminalStems[i].isVisited = true;
 
 				if (isEndStem(terminalStems[i].node)) {
-					std::cout << "yesss" << std::endl;
 					mergeToGeometry(stem);
 					stem.worldObject.hide();
-					terminalStems.erase(terminalStems.begin() + i);
+					stemsToRemove.push_back(i);
 				}
 
 				for (int nextStem = 0; nextStem < terminalStems[i].node->next.size(); nextStem++) {
-					manager.addEntityToScene(terminalStems[i].node->next[nextStem]->current);
+					//manager.addEntityToScene(terminalStems[i].node->next[nextStem]->current);
+					stemsToAdd.push_back(terminalStems[i].node->next[nextStem].get());
 				}
 			}
 		}
+	}
+
+	// Add new stems
+	for (int i = 0; i < stemsToAdd.size(); i++) {
+		manager.addEntityToScene(stemsToAdd[i]->current);
+		terminalStems.push_back(TerminalStem{stemsToAdd[i], false});
+	}
+
+	// Remove fully grown terminal stems
+	for (int i = 0; i < stemsToRemove.size(); i++) {
+		terminalStems.erase(terminalStems.begin() + stemsToRemove[i] - i);
 	}
 }
 
@@ -102,6 +127,19 @@ void Tree::mergeToGeometry(Stem& stem) {
 	stemBody.bufferAttributes.removeBufferAttribute<glm::vec3>("aImmatureStart");
 	stemBody.bufferAttributes.removeBufferAttribute<glm::vec3>("aImmatureEnd");
 	worldObject.getMesh()._geometry->addGeometry(stemBody);
+
+	std::cout << "Added: aVertexPosition:";
+	for (glm::vec3& v : worldObject.getMesh()._geometry->bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData) {
+		std::cout << v.x << "," << v.y << "," << v.z << "\n";
+	}
+	std::cout << "Added: aMatureStart:";
+	for (glm::vec3& v : worldObject.getMesh()._geometry->bufferAttributes.getBufferAttribute<glm::vec3>("aMatureStart").bufferData) {
+		std::cout << v.x << "," << v.y << "," << v.z << "\n";
+	}
+	std::cout << "Added: aIndex:";
+	for (glm::ivec1& v : worldObject.getMesh()._geometry->indexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData) {
+		std::cout << v.x << "\n";
+	}
 }
 
 void Tree::act(const WorldTime& worldTime) {

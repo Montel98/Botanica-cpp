@@ -9,7 +9,7 @@ glm::mat4 Camera::getCameraMatrix() const {
 	//std::cout << "target: " << target.x << "," << target.y << "," << target.z << "\n";
 	//std::cout << "vertical: " << vertical.x << "," << vertical.y << "," << vertical.z << "\n";
 	//return glm::lookAt(origin, target, vertical);
-	return glm::lookAt(glm::vec3(-0.02, -1.0, 0.15), glm::vec3(-0.02, 0.0, 0.15),  glm::vec3(0.0, 0.0, 1.0));
+	return glm::lookAt(glm::vec3(-0.02, -1.5, 0.15), glm::vec3(-0.02, 0.0, 0.15),  glm::vec3(0.0, 0.0, 1.0));
 }
 
 glm::mat4 Camera::getPerspectiveMatrix(double aspectRatio) const {

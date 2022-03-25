@@ -30,6 +30,7 @@ public:
 	BufferRange getBufferInfo(Geometry* geometry);
 	bool geometryInBuffer(Geometry* geometry);
 	int getIndexCount();
+	int getGeometryCount();
 };
 
 class BufferManager {

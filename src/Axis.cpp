@@ -23,6 +23,6 @@ void Axis::rotateFrameVertical(float angle) {
 void Axis::rotateFrameRoll(float angle) {
 	glm::vec3 upTemp = up;
 	float w = angle + 0.5 * PI;
-	up = glm::normalize(left * cos(angle) + up * sin(angle));
-	left = glm::normalize(left * cos(w) + up * sin(w));
+	up = glm::normalize(left * cos(angle) + upTemp * sin(angle));
+	left = glm::normalize(left * cos(w) + upTemp * sin(w));
 }
