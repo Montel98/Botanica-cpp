@@ -12,10 +12,10 @@ StemRadius::StemRadius(float rStart, float rEnd, int branchLength, int shift)
 : radiusStart(rStart), radiusEnd(rEnd), noStems(branchLength), _shift(shift) {
 
 	if (radiusEnd == radiusStart) {
-		decayRate = 0.0;
+		decayRate = 0.0f;
 	}
 	else {
-		decayRate = (-1.0 / noStems) * log((0.9 * radiusEnd) / (radiusStart - radiusEnd));
+		decayRate = (-1.0f / noStems) * log((0.9f * radiusEnd) / (radiusStart - radiusEnd));
 	}
 }
 
@@ -38,7 +38,7 @@ StemTipRadiusStart::StemTipRadiusStart(float rStart, float rEnd, int branchLengt
 : StemRadius(rStart, rEnd, branchLength, shift) {}
 
 float StemTipRadiusStart::operator()(float u) const {
-	return baseRadius(0.0) * (float)(1.0 - (u * u));
+	return baseRadius(0.0f) * (float)(1.0f - (u * u));
 }
 
 StemTipRadiusStart* StemTipRadiusStart::clone() const {
@@ -49,7 +49,7 @@ StemTipRadiusEnd::StemTipRadiusEnd(float rStart, float rEnd, int branchLength, i
 : StemRadius(rStart, rEnd, branchLength, shift) {}
 
 float StemTipRadiusEnd::operator()(float u) const {
-	return baseRadius(1.0) * (float)(1.0 - (u * u)); 
+	return baseRadius(1.0f) * (float)(1.0f - (u * u)); 
 }
 
 StemTipRadiusEnd* StemTipRadiusEnd::clone() const {
@@ -110,12 +110,12 @@ ParametricGeometry<StemSurface> generateStemBody(
 	BezierLinear stemBodyPath(p0, p1);
 	BezierLinear immatureStemBodyPath(p0, p0);
 
-	StemBodyRadius startBodyRadiusFunc(0.001f, 0.001f, BRANCH_LENGTH, 0);
+	StemBodyRadius startBodyRadiusFunc(0.001f, 0.001f, /*BRANCH_LENGTH*/lParams.branchLength, 0);
 
 	StemBodyRadius endBodyRadiusFunc(
 		lParams.radiusStart,
 		lParams.radiusEnd,
-		BRANCH_LENGTH,
+		/*BRANCH_LENGTH*/lParams.branchLength,
 		lParams.count
 	);
 
@@ -144,12 +144,12 @@ ParametricGeometry<StemSurface> generateStemTip(
 	BezierLinear immatureStemTipPath(p0, p3);
 
 	// Define the parametric functions for radius over length of tip
-	StemTipRadiusStart startTipRadiusFunc(0.001f, 0.001f, BRANCH_LENGTH, 0);
+	StemTipRadiusStart startTipRadiusFunc(0.001f, 0.001f, /*BRANCH_LENGTH*/lParams.branchLength, 0);
 
 	StemTipRadiusEnd endTipRadiusFunc(
 		lParams.radiusStart,
 		lParams.radiusEnd,
-		BRANCH_LENGTH,
+		/*BRANCH_LENGTH*/lParams.branchLength,
 		lParams.count
 	);
 

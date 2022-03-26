@@ -20,7 +20,7 @@ private:
 	StemNode root;
 	std::vector<TerminalStem> terminalStems;
 	void generateNewStems(EntityManager& manager);
-	void grow();
+	float grow(const WorldTime& worldTime) const;
 	void mergeToGeometry(Stem& stem);
 	StemNode buildTree(EntityManager& manager, Generator& gen);
 	Mesh initMesh();

@@ -17,8 +17,8 @@ public:
 
 	bool isHidden;
 
-	void addChild(Object3D* child);
-	void removeChild(Object3D* child);
+	void addChild(Object3D& child);
+	void removeChild(Object3D& child);
 
 	void hide();
 

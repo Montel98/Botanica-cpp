@@ -1,5 +1,6 @@
 #include "Controller.h"
 #include <glm/glm.hpp>
+#include <deque>
 
 void Controller::updateStates(WorldTime& worldTime) {
 	//std::vector<EntityId> entityStack = scene.entities;
@@ -18,12 +19,16 @@ void Controller::updateStates(WorldTime& worldTime) {
 		}
 	}
 
-	std::vector<Object3D*> worldObjects = scene.entities;
+	std::deque<Object3D*> worldObjects(scene.entities.begin(), scene.entities.end());
 
 	// Breadth first updating of object positions
+
+	int i = 0;
 	while (worldObjects.size() > 0) {
 
-		Object3D* current = worldObjects.back();
+		//std::cout << i << "\n";
+
+		Object3D* current = worldObjects.front();
 
 		if (current->parent) {
 			current->worldMatrix = current->localMatrix * current->parent->worldMatrix;
@@ -36,7 +41,8 @@ void Controller::updateStates(WorldTime& worldTime) {
 			worldObjects.push_back(current->children[i]);
 		}
 
-		worldObjects.pop_back();
+		worldObjects.pop_front();
+		//i++;
 	}
 
 	renderer.renderScene(scene, visibleObjects);

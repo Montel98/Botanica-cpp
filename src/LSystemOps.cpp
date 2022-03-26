@@ -1,4 +1,5 @@
 #include "LSystemOps.h"
+#include "StemBuilder.h"
 
 RotateHorizontal::RotateHorizontal(float angle) : horizontalAngle(angle) {};
 RotateVertical::RotateVertical(float angle) : verticalAngle(angle) {};
@@ -40,50 +41,62 @@ NoOp* NoOp::clone() const {
 
 StackPush::StackPush(bool connectParent) : _connectParent(connectParent) {};
 
-LSystemStackFrame RotateHorizontal::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+LSystemStackFrame RotateHorizontal::operator()(const std::vector<OpCode>& lString, const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
 	LSystemStackFrame newFrame = frame;
 	newFrame.lParams.axis.rotateFrameHorizontal(horizontalAngle);
 	return newFrame;
 }
 
-LSystemStackFrame RotateVertical::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+LSystemStackFrame RotateVertical::operator()(const std::vector<OpCode>& lString, const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
 	LSystemStackFrame newFrame = frame;
 	newFrame.lParams.axis.rotateFrameVertical(verticalAngle);
 	return newFrame;
 }
 
-LSystemStackFrame RotateRoll::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+LSystemStackFrame RotateRoll::operator()(const std::vector<OpCode>& lString, const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
 	LSystemStackFrame newFrame = frame;
 	newFrame.lParams.axis.rotateFrameRoll(rollAngle);
 	return newFrame;
 }
 
-LSystemStackFrame RotatePlane::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+LSystemStackFrame RotatePlane::operator()(const std::vector<OpCode>& lString, const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
 	LSystemStackFrame newFrame = frame;
 	newFrame.lParams.axis.rotateFrameVertical(_verticalAngle);
 	newFrame.lParams.axis.rotateFrameHorizontal(_horizontalAngle);
 	return newFrame;
 }
 
-LSystemStackFrame StackPush::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+LSystemStackFrame StackPush::operator()(const std::vector<OpCode>& lString, const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+
+	StemBuilder::StemBodyRadius radiusFunc(
+		frame.lParams.radiusStart,
+		frame.lParams.radiusEnd,
+		frame.lParams.branchLength,
+		frame.lParams.count
+	);
 
 	frames.push_back(frame);
 	LSystemStackFrame newFrame = frame;
-	newFrame.lParams.radiusStart = 0.01f;
-	newFrame.lParams.radiusEnd = 0.01f;
+	newFrame.lParams.radiusStart = 1.2f * radiusFunc(newFrame.lParams.count);
+	newFrame.lParams.radiusEnd = 0.3f * radiusFunc(newFrame.lParams.branchLength - 1);
 	newFrame.lParams.connectParent = _connectParent;
-	newFrame.lParams.stringIndex++;
+	//newFrame.lParams.stringIndex++;
 	newFrame.lParams.count = 0;
+	newFrame.lParams.branchLength = LSystemOps::getNoSegmentsInRange(
+		lString,
+		newFrame.lParams.stringIndex + 1,
+		LSystemOps::skipBranch(lString, newFrame.lParams.stringIndex) + 1
+	);
 	return newFrame;
 }
 
-LSystemStackFrame StackPop::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+LSystemStackFrame StackPop::operator()(const std::vector<OpCode>& lString, const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
 	LSystemStackFrame newFrame = frames.back();
 	frames.pop_back();
 	return newFrame;
 }
 
-LSystemStackFrame GenStem::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
+LSystemStackFrame GenStem::operator()(const std::vector<OpCode>& lString, const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) {
 	LSystemStackFrame newFrame = frame;
 	newFrame.lParams.count++;
 	newFrame.lParams.position += 0.03f * glm::normalize(newFrame.lParams.axis.forward);
@@ -92,7 +105,7 @@ LSystemStackFrame GenStem::operator()(const LSystemStackFrame& frame, std::vecto
 	return newFrame;
 }
 
-LSystemStackFrame NoOp::operator()(const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) { 
+LSystemStackFrame NoOp::operator()(const std::vector<OpCode>& lString, const LSystemStackFrame& frame, std::vector<LSystemStackFrame>& frames) { 
 	return frame;
 }
 
@@ -142,4 +155,45 @@ OpCode BRANCH_1() {
 
 OpCode BRANCH_2() {
 	return OpCode('2', std::make_unique<NoOp>());
+}
+
+
+namespace LSystemOps {
+
+	int getNoSegmentsInRange(const std::vector<OpCode>& lString, int startIndex, int endIndex) {
+
+		int segmentCount = 0;
+
+		for (int index = startIndex; index < endIndex; index++) {
+
+			if (lString[index].symbol == '[') {
+				index = LSystemOps::skipBranch(lString, index);
+				continue;
+			}
+
+			if (lString[index].symbol == '0') {
+				segmentCount++;
+			}
+		}
+
+		return segmentCount;
+	}
+
+	int skipBranch(const std::vector<OpCode>& lString, int index) {
+
+		int parenthesisCount = 1;
+
+		while (parenthesisCount != 0 && index + 1 < lString.size()) {
+			index++;
+
+			if (lString[index].symbol == '[') {
+				parenthesisCount++;
+			}
+			else if (lString[index].symbol == ']') {
+				parenthesisCount--;
+			}
+		}
+
+		return index;
+	}
 }

@@ -42,6 +42,8 @@ StemNode LSystem::buildTree(const std::vector<OpCode>& lString, const LSystemPar
 
 	for (int index = params.stringIndex; index <= endIndex; index++) {
 
+		currentFrame.lParams.stringIndex = index;
+
 		const OpCode& currentOp = lString[index];
 
 		if (currentOp.symbol == '0') {
@@ -50,8 +52,6 @@ StemNode LSystem::buildTree(const std::vector<OpCode>& lString, const LSystemPar
 				Stem(entityManager, currentFrame.lParams, currentFrame.node))
 			);
 			StemNode newNode{stemId, currentFrame.node};
-
-			std::cout << "StemID: " << stemId << "Dir: " << currentFrame.lParams.axis.forward.x << "," << currentFrame.lParams.axis.forward.y << "," << currentFrame.lParams.axis.forward.z << "\n";
 
 			if (rootVisited) {
 				currentFrame.node->next.push_back(std::make_unique<StemNode>(std::move(newNode)));
@@ -65,7 +65,7 @@ StemNode LSystem::buildTree(const std::vector<OpCode>& lString, const LSystemPar
 			}
 		}
 
-		currentFrame = currentOp.params->operator()(currentFrame, stackFrame);
+		currentFrame = currentOp.params->operator()(lString, currentFrame, stackFrame);
 	}
 
 	return root;

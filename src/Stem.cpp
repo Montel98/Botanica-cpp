@@ -12,7 +12,8 @@
 #define PI 3.1415
 
 Stem::Stem(EntityManager& manager, const LSystemParams& lSystemParams, const StemNode* prevStem) 
-: Entity(Object3D(generateMesh(lSystemParams, prevStem))), entityManager(manager), stemLength(0.0f), growthRate(0.3f), lParams(lSystemParams) {};
+: Entity(Object3D(generateMesh(lSystemParams, prevStem))), entityManager(manager), stemLength(0.0f), 
+stemGirth(0.0f), growthRate(0.3f), lParams(lSystemParams) {};
 
 Mesh Stem::generateMesh(const LSystemParams& lParams, const StemNode* prevStem) {
 	Material material;
@@ -23,6 +24,7 @@ Mesh Stem::generateMesh(const LSystemParams& lParams, const StemNode* prevStem) 
 		std::make_pair("Default", Shader("Test", "./src/shaders/stemVertex.glsl", "./src/shaders/stemFragment.glsl"))
 	);
 	mesh.shaderPrograms.at("Default").addUniform<glm::vec1>("stemLength", glm::vec1(0.0f));
+	mesh.shaderPrograms.at("Default").addUniform<glm::vec1>("stemGirth", glm::vec1(0.0f));
 
 	return mesh;
 }
@@ -31,7 +33,7 @@ Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* pr
 
 	int uStepsBody = 2;
 	int uStepsTip = 3;
-	int vSteps = 4;
+	int vSteps = 16;
 
 	int offset = uStepsBody - 1;
 
@@ -66,25 +68,30 @@ Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* pr
 
 	Geometry mergedGeometry = mergeGeometry(geometries);
 	mergedGeometry.bufferName = "stemBuffer";
-	mergedGeometry.bufferAttributes.sizeBytes = 524288;
-	mergedGeometry.indexBuffer.sizeBytes = 524288;
+	mergedGeometry.bufferAttributes.sizeBytes = 1048576;//524288;
+	mergedGeometry.indexBuffer.sizeBytes = 1048576;//524288;
 
 	return mergedGeometry;
 }
 
 void Stem::act(const WorldTime& worldTime) {
-	grow(worldTime);
+	stemLength = grow(worldTime);
 	worldObject.getMesh().shaderPrograms.at("Default").setUniform<glm::vec1>("stemLength", glm::vec1(stemLength));
 }
 
-void Stem::grow(const WorldTime& worldTime) {
+float Stem::grow(const WorldTime& worldTime) const {
 	float newLength = stemLength + growthRate * (float)(worldTime.dt()) / 1000.0f;
 
 	if (newLength >= Stem::maxLength) {
-		newLength = Stem::maxLength;
+		newLength = maxLength;
 	}
 
-	stemLength = newLength;
+	return newLength;
+}
+
+void Stem::updateGirth(float newGirth) {
+	stemGirth = newGirth;
+	worldObject.getMesh().shaderPrograms.at("Default").setUniform<glm::vec1>("stemGirth", glm::vec1(stemGirth));
 }
 
 bool Stem::isMaxLength() const {

@@ -13,7 +13,7 @@ namespace StemBuilder {
 		float radiusStart, radiusEnd;
 		int noStems;
 		int _shift;
-		int decayRate;
+		float decayRate;
 	protected:
 		float baseRadius(float u) const;
 	public:

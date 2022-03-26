@@ -9,10 +9,11 @@ uniform mat4 world;
 uniform mat4 camera;
 uniform mat4 perspective;
 uniform float stemLength;
+uniform float stemGirth;
 
 void main() {
-	vec3 immatureGirth = aImmatureStart + stemLength * (aImmatureEnd - aImmatureStart);
-	vec3 matureGirth = aMatureStart + stemLength * (aVertexPosition - aMatureStart);
+	vec3 immatureGirth = aImmatureStart + stemGirth * (aImmatureEnd - aImmatureStart);
+	vec3 matureGirth = aMatureStart + stemGirth * (aVertexPosition - aMatureStart);
 
 	gl_Position = perspective * camera * vec4(immatureGirth + stemLength * (matureGirth - immatureGirth), 1.0);
 }

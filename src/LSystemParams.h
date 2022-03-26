@@ -19,6 +19,7 @@ struct LSystemParams {
 	int stringIndex;
 	float radiusStart;
 	float radiusEnd;
+	int branchLength;
 };
 
 struct LSystemStackFrame {
