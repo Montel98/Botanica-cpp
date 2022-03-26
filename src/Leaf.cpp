@@ -58,7 +58,7 @@ ParametricGeometry<LeafProfileStart> Leaf::generateGeometry() const {
 
 	// Generate leaf geometry
 	ParametricGeometry<LeafProfileStart> leafGeometryStart(profileStart, constraints);
-	leafGeometryStart.useNormals();
+	leafGeometryStart.useNormals(false);
 	leafGeometryStart.useSTs();
 	leafGeometryStart.generateGeometry();
 

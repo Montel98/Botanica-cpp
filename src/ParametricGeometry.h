@@ -20,7 +20,6 @@ template <typename F>
 class ParametricGeometry : public Geometry {
 private:
 	F surface;
-	GeometryConstraints limits;
 	STMapping mapping;
 	float deltaU, deltaV;
 
@@ -36,8 +35,9 @@ public:
 
 	// Concatenates all vertex attributes and populates the vertex + index buffer
 	void generateGeometry();
-
 	void useSTMapping(const STMapping &mappingST);
+
+	GeometryConstraints limits;
 };
 
 template <typename F>
@@ -88,7 +88,7 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateNormals() const {
 			glm::vec3 du = surface(u + epsilon, v) - vertex;
 			glm::vec3 dv = surface(u, v + epsilon) - vertex;
 
-			glm::vec3 normal = cross(dv, du);
+			glm::vec3 normal = normalsInverted() ? cross(du, dv) : cross(dv, du);
 
 			if (glm::vec3(0,0,0) != normal) {
 				normal = glm::normalize(normal);

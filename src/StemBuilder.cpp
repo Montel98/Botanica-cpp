@@ -115,7 +115,7 @@ ParametricGeometry<StemSurface> generateStemBody(
 	StemBodyRadius endBodyRadiusFunc(
 		lParams.radiusStart,
 		lParams.radiusEnd,
-		/*BRANCH_LENGTH*/lParams.branchLength,
+		lParams.branchLength,
 		lParams.count
 	);
 
@@ -127,6 +127,38 @@ ParametricGeometry<StemSurface> generateStemBody(
 	);
 
 	return StemBuilder::generateStemGeometry(std::move(keyFrameInfo), lParams.axis, constraints);
+}
+
+ParametricGeometry<StemSurface> generateStemBody(
+	const LSystemParams & lParams, 
+	const GeometryConstraints& constraints,
+	Geometry& prev) {
+
+	ParametricGeometry<StemSurface> geometry = StemBuilder::generateStemBody(lParams, constraints);
+	connectStemBodyToPrev(geometry, prev, constraints);
+	return geometry;
+}
+
+// Manually connect the top-row vertices of the previous stem body with the bottom-row vertices of the new stem
+void connectStemBodyToPrev(
+	Geometry& current,
+	Geometry& prev,
+	const GeometryConstraints& constraints) {
+
+	int uSteps = constraints.uSteps;
+	int offset = uSteps - 1;
+
+	BufferAttributes& body = current.bufferAttributes;
+	BufferAttributes& bodyPrev = prev.bufferAttributes;
+
+	for (int i = 0; i < constraints.vSteps; i++) {
+
+		body.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData[(uSteps * i) + offset];
+		//body.getBufferAttribute<glm::vec3>("aNormal").bufferData[uStepsBody*i] = bodyPrev.getBufferAttribute<glm::vec3>("aNormal").bufferData[prevIndex + offset];
+		body.getBufferAttribute<glm::vec3>("aMatureStart").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aMatureStart").bufferData[(uSteps * i) + offset];
+		body.getBufferAttribute<glm::vec3>("aImmatureStart").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aImmatureStart").bufferData[(uSteps * i) + offset];
+		body.getBufferAttribute<glm::vec3>("aImmatureEnd").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aImmatureEnd").bufferData[(uSteps * i) + offset];
+	}
 }
 
 ParametricGeometry<StemSurface> generateStemTip(
@@ -149,7 +181,7 @@ ParametricGeometry<StemSurface> generateStemTip(
 	StemTipRadiusEnd endTipRadiusFunc(
 		lParams.radiusStart,
 		lParams.radiusEnd,
-		/*BRANCH_LENGTH*/lParams.branchLength,
+		lParams.branchLength,
 		lParams.count
 	);
 

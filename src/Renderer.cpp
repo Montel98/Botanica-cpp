@@ -98,16 +98,16 @@ void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttr
 		e = glGetError();
 		assert(e == GL_NO_ERROR);
 
-		std::cout << name << "," << location << "\n";
+		//std::cout << name << "," << location << "\n";
 
 		int stride = bufferAttributes.getStride();
 
 		std::visit([location, stride](auto& bufferAttribute) {
 
-			std::cout << "location" << location << "\n";
+			/*std::cout << "location" << location << "\n";
 			std::cout << "length: " << bufferAttribute.attribLength << "\n";
 			std::cout << "offset: " << bufferAttribute.offset << "\n";
-			std::cout << "stride: " << stride << "\n";
+			std::cout << "stride: " << stride << "\n";*/
 
 			glVertexAttribPointer(
 				location,
@@ -364,7 +364,7 @@ void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 	}
 
 	if (geometry.modificationEvents.size() > 0) {
-		std::cout << "modified!!!\n";
+		//std::cout << "modified!!!\n";
 		updateBuffers(geometry);
 	}
 }

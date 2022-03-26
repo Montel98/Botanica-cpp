@@ -82,6 +82,18 @@ namespace StemBuilder {
 		const GeometryConstraints& constraints
 	);
 
+	ParametricGeometry<StemSurface> generateStemBody(
+		const LSystemParams & lParams, 
+		const GeometryConstraints& constraints,
+		Geometry& prev
+	);
+
+	void connectStemBodyToPrev(
+		Geometry& current,
+		Geometry& prev,
+		const GeometryConstraints& constraints
+	);
+
 	ParametricGeometry<StemSurface> generateStemGeometry(
 		const StemSurfaceMorphInfo& keyFrameInfo, 
 		const Axis& axis,

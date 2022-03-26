@@ -88,7 +88,8 @@ void Tree::generateNewStems(EntityManager& manager) {
 				terminalStems[i].isVisited = true;
 
 				if (isEndStem(terminalStems[i].node)) {
-					mergeToGeometry(stem);
+					//mergeToGeometry(stem);
+					mergeToGeometry(terminalStems[i].node);
 					stem.worldObject.hide();
 					stemsToRemove.push_back(i);
 				}
@@ -113,13 +114,21 @@ void Tree::generateNewStems(EntityManager& manager) {
 	}
 }
 
-void Tree::mergeToGeometry(Stem& stem) {
+void Tree::mergeToGeometry(/*Stem& stem*/StemNode* stemNode) {
 	int uStepsBody = 2;
-	int vSteps = 15;
+	int vSteps = 4;
+
+	Stem& stem = *manager.getEntityById<Stem>(stemNode->current);
 
 	GeometryConstraints stemBodyConstraints = {0.0, 1.0, 0.0, 2.0 * PI, uStepsBody, vSteps};
 
-	ParametricGeometry<StemBuilder::StemSurface> stemBody = StemBuilder::generateStemBody(stem.lParams, stemBodyConstraints);
+	ParametricGeometry<StemBuilder::StemSurface> stemBody = (stem.lParams.connectParent && stemNode->prev) ? 
+		StemBuilder::generateStemBody(
+			stem.lParams, 
+			stemBodyConstraints, 
+			*manager.getEntityById(stemNode->prev->current).worldObject.getMesh()._geometry) :
+		StemBuilder::generateStemBody(stem.lParams, stemBodyConstraints);
+
 	stemBody.bufferAttributes.removeBufferAttribute<glm::vec3>("aImmatureStart");
 	stemBody.bufferAttributes.removeBufferAttribute<glm::vec3>("aImmatureEnd");
 	worldObject.getMesh()._geometry->addGeometry(stemBody);

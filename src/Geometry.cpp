@@ -29,11 +29,15 @@ void Geometry::addMorphTarget(
 	bufferAttributes.setBufferAttributeData<glm::vec3>(normalName, morphNormals);
 }
 
-bool Geometry::usesNormals() {
+bool Geometry::usesNormals() const {
 	return useNormal;
 }
 
-bool Geometry::usesSTs() {
+bool Geometry::normalsInverted() const {
+	return invertedNormals;
+}
+
+bool Geometry::usesSTs() const {
 	return useST;
 }
 
@@ -42,8 +46,9 @@ void Geometry::useSTs() {
 	bufferAttributes.addBufferAttribute<glm::vec2>("aTexCoord");
 }
 
-void Geometry::useNormals() {
+void Geometry::useNormals(bool inverted) {
 	useNormal = true;
+	invertedNormals = inverted;
 	bufferAttributes.addBufferAttribute<glm::vec3>("aNormal");
 }
 

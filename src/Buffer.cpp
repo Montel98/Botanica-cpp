@@ -32,8 +32,6 @@ void Buffer::updateBufferGeometry(Geometry* geometry) {
 	bufferRange.vertexBufferLength = geometry->bufferAttributes.getLength();
 	bufferRange.indexBufferLength = geometry->indexBuffer.getLength();
 	bufferRange.indexCount = geometry->bufferAttributes.getNoElements();
-
-	std::cout << "\n";
 }
 
 void Buffer::removeBufferGeometry(Geometry* geometry) {

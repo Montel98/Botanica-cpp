@@ -21,7 +21,7 @@ private:
 	std::vector<TerminalStem> terminalStems;
 	void generateNewStems(EntityManager& manager);
 	float grow(const WorldTime& worldTime) const;
-	void mergeToGeometry(Stem& stem);
+	void mergeToGeometry(/*Stem& stem*/StemNode* node);
 	StemNode buildTree(EntityManager& manager, Generator& gen);
 	Mesh initMesh();
 	bool isEndStem(StemNode* node);

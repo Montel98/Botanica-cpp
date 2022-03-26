@@ -14,6 +14,7 @@ struct GeometryEvent {
 class Geometry {
 private:
 	bool useST, useNormal;
+	bool invertedNormals;
 public:
 	Geometry();
 
@@ -27,10 +28,11 @@ public:
 	void addGeometry(Geometry& other);
 	Geometry sliceGeometry(unsigned int start, unsigned int length);
 
-	bool usesNormals();
-	bool usesSTs();
+	bool usesNormals() const;
+	bool normalsInverted() const;
+	bool usesSTs() const;
 
-	void useNormals();
+	void useNormals(bool inverted);
 	void useSTs();
 
 	void updateGeometry();
