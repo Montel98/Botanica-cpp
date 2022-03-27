@@ -33,7 +33,7 @@ Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* pr
 
 	int uStepsBody = 2;
 	int uStepsTip = 3;
-	int vSteps = 4;
+	int vSteps = 16;
 
 	GeometryConstraints stemBodyConstraints = {0.0, 1.0, 0.0, 2.0 * PI, uStepsBody, vSteps};
 	GeometryConstraints stemTipConstraints = {0.0, 1.0, 0.0, 2.0 * PI, uStepsTip, vSteps};
@@ -52,8 +52,8 @@ Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* pr
 
 	Geometry mergedGeometry = mergeGeometry(geometries);
 	mergedGeometry.bufferName = "stemBuffer";
-	mergedGeometry.bufferAttributes.sizeBytes = 1048576;//524288;
-	mergedGeometry.indexBuffer.sizeBytes = 1048576;//524288;
+	mergedGeometry.bufferAttributes.sizeBytes = 2*1048576;//524288;
+	mergedGeometry.indexBuffer.sizeBytes = 2*1048576;//524288;
 
 	return mergedGeometry;
 }

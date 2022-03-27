@@ -153,11 +153,13 @@ void connectStemBodyToPrev(
 
 	for (int i = 0; i < constraints.vSteps; i++) {
 
-		body.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData[(uSteps * i) + offset];
-		//body.getBufferAttribute<glm::vec3>("aNormal").bufferData[uStepsBody*i] = bodyPrev.getBufferAttribute<glm::vec3>("aNormal").bufferData[prevIndex + offset];
-		body.getBufferAttribute<glm::vec3>("aMatureStart").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aMatureStart").bufferData[(uSteps * i) + offset];
-		body.getBufferAttribute<glm::vec3>("aImmatureStart").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aImmatureStart").bufferData[(uSteps * i) + offset];
-		body.getBufferAttribute<glm::vec3>("aImmatureEnd").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aImmatureEnd").bufferData[(uSteps * i) + offset];
+		int prevIndex = (uSteps * i) + offset;
+
+		body.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData[prevIndex];
+		body.getBufferAttribute<glm::vec3>("aNormal").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aNormal").bufferData[prevIndex];
+		body.getBufferAttribute<glm::vec3>("aMatureStart").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aMatureStart").bufferData[prevIndex];
+		body.getBufferAttribute<glm::vec3>("aImmatureStart").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aMatureStart").bufferData[prevIndex];
+		body.getBufferAttribute<glm::vec3>("aImmatureEnd").bufferData[uSteps*i] = bodyPrev.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData[prevIndex];
 	}
 }
 
@@ -176,7 +178,7 @@ ParametricGeometry<StemSurface> generateStemTip(
 	BezierLinear immatureStemTipPath(p0, p3);
 
 	// Define the parametric functions for radius over length of tip
-	StemTipRadiusStart startTipRadiusFunc(0.001f, 0.001f, /*BRANCH_LENGTH*/lParams.branchLength, 0);
+	StemTipRadiusStart startTipRadiusFunc(0.001f, 0.001f, lParams.branchLength, 0);
 
 	StemTipRadiusEnd endTipRadiusFunc(
 		lParams.radiusStart,
@@ -203,6 +205,7 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	// Main geometry
 	StemSurface endSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> endGeometry(endSurface, constraints);
+	endGeometry.useNormals(false);
 	//endGeometry.useSTs();
 	endGeometry.generateGeometry();
 

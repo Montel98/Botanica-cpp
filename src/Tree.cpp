@@ -18,8 +18,9 @@ Tree::Tree(EntityManager& entityManager, Generator& gen)
 Mesh Tree::initMesh() {
 	Material material;
 	std::unique_ptr<Geometry> treeGeometry = std::make_unique<Geometry>();
-	treeGeometry->indexBuffer.sizeBytes = 1048576;//65536;
-	treeGeometry->bufferAttributes.sizeBytes = 1048576;//65536;
+	treeGeometry->indexBuffer.sizeBytes = 2*1048576;//65536;
+	treeGeometry->bufferAttributes.sizeBytes = 2*1048576;//65536;
+	treeGeometry->useNormals(false);
 	treeGeometry->bufferAttributes.addBufferAttribute<glm::vec3>("aMatureStart");
 
 	Mesh mesh(material, std::move(treeGeometry));
@@ -29,8 +30,7 @@ Mesh Tree::initMesh() {
 	);
 
 	mesh.shaderPrograms.at("Default").addUniform<glm::vec1>("treeGirth", glm::vec1(0.0f));
-
-	//return Mesh(material, std::move(treeGeometry));
+	
 	return mesh;
 }
 
@@ -40,7 +40,7 @@ StemNode Tree::buildTree(EntityManager& manager, Generator& gen) {
 
     std::vector<OpCode> finalString = lSystem.buildString(
     	TreeString::getLString(gen),
-    	3,
+    	4,
     	gen
     );
 
@@ -85,14 +85,11 @@ void Tree::generateNewStems(EntityManager& manager) {
 		if (stem.isMaxLength() && terminalStems[i].node->next.size() > 0) {
 
 			if (!terminalStems[i].isVisited) {
-				terminalStems[i].isVisited = true;
 
-				if (isEndStem(terminalStems[i].node)) {
-					//mergeToGeometry(stem);
-					mergeToGeometry(terminalStems[i].node);
-					stem.worldObject.hide();
-					stemsToRemove.push_back(i);
-				}
+				terminalStems[i].isVisited = true;
+				mergeToGeometry(terminalStems[i].node);
+				stem.worldObject.hide();
+				stemsToRemove.push_back(i);
 
 				for (int nextStem = 0; nextStem < terminalStems[i].node->next.size(); nextStem++) {
 					stemsToAdd.push_back(terminalStems[i].node->next[nextStem].get());
@@ -114,9 +111,9 @@ void Tree::generateNewStems(EntityManager& manager) {
 	}
 }
 
-void Tree::mergeToGeometry(/*Stem& stem*/StemNode* stemNode) {
+void Tree::mergeToGeometry(StemNode* stemNode) {
 	int uStepsBody = 2;
-	int vSteps = 4;
+	int vSteps = 16;
 
 	Stem& stem = *manager.getEntityById<Stem>(stemNode->current);
 
@@ -148,12 +145,4 @@ float Tree::grow(const WorldTime& worldTime) const {
 	}
 
 	return newAge;
-}
-
-bool Tree::isEndStem(StemNode* node) {
-
-	/*for (int i = 0;  i < node.nextStems.size(); i++) {
-	}*/
-
-	return true;
 }

@@ -2,8 +2,11 @@
 
 layout(location = 0) in vec3 aVertexPosition;
 layout(location = 1) in vec3 aMatureStart;
-layout(location = 2) in vec3 aImmatureStart;
-layout(location = 3) in vec3 aImmatureEnd;
+layout(location = 2) in vec3 aNormal;
+layout(location = 3) in vec3 aImmatureStart;
+layout(location = 4) in vec3 aImmatureEnd;
+
+out vec3 vNormal;
 
 uniform mat4 world;
 uniform mat4 camera;
@@ -16,4 +19,5 @@ void main() {
 	vec3 matureGirth = aMatureStart + stemGirth * (aVertexPosition - aMatureStart);
 
 	gl_Position = perspective * camera * vec4(immatureGirth + stemLength * (matureGirth - immatureGirth), 1.0);
+	vNormal = aNormal;
 }
