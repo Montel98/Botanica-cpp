@@ -24,7 +24,7 @@ public:
 
 	void show();
 
-	Mesh &getMesh();
+	Mesh& getMesh();
 
 	glm::mat4 localMatrix;
 	glm::mat4 worldMatrix;

@@ -156,17 +156,17 @@ std::vector<glm::ivec1> ParametricGeometry<F>::generateIndices() const {
 template <typename F>
 void ParametricGeometry<F>::generateGeometry() {
 
-	bufferAttributes.setBufferAttributeData<glm::vec3>("aVertexPosition", generateVertices());
+	vertexBuffer.setBufferAttributeData<glm::vec3>("aVertexPosition", generateVertices());
 	indexBuffer.setBufferAttributeData<glm::ivec1>("aIndex", generateIndices());
 
 	if (usesNormals()) {
 		//std::vector<glm::vec3> normals = generateNormals();
-		bufferAttributes.setBufferAttributeData<glm::vec3>("aNormal", generateNormals());
+		vertexBuffer.setBufferAttributeData<glm::vec3>("aNormal", generateNormals());
 	}
 
 	if (usesSTs()) {
 		//std::vector<glm::vec2> STs = generateSTs();
-		bufferAttributes.setBufferAttributeData<glm::vec2>("aTexCoord", generateSTs());
+		vertexBuffer.setBufferAttributeData<glm::vec2>("aTexCoord", generateSTs());
 	}
 }
 

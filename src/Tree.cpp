@@ -11,7 +11,9 @@
 #define PI 3.14
 
 Tree::Tree(EntityManager& entityManager, Generator& gen) 
-: Entity(Object3D(initMesh())), root(buildTree(manager, gen)), manager(entityManager), age(0.0f), growthRate(0.01f) {
+: Entity(Object3D(initMesh())), root(buildTree(manager, gen)), 
+manager(entityManager), age(0.0f), growthRate(0.01f) {
+
 	terminalStems.push_back(TerminalStem{&root, false});
 }
 
@@ -19,14 +21,17 @@ Mesh Tree::initMesh() {
 	Material material;
 	std::unique_ptr<Geometry> treeGeometry = std::make_unique<Geometry>();
 	treeGeometry->indexBuffer.sizeBytes = 2*1048576;//65536;
-	treeGeometry->bufferAttributes.sizeBytes = 2*1048576;//65536;
+	treeGeometry->vertexBuffer.sizeBytes = 2*1048576;//65536;
 	treeGeometry->useNormals(false);
-	treeGeometry->bufferAttributes.addBufferAttribute<glm::vec3>("aMatureStart");
+	treeGeometry->vertexBuffer.addBufferAttribute<glm::vec3>("aMatureStart");
 
 	Mesh mesh(material, std::move(treeGeometry));
 
 	mesh.shaderPrograms.emplace(
-		std::make_pair("Default", Shader("Bla", "./src/shaders/treeVertex.glsl", "./src/shaders/treeFragment.glsl"))
+		std::make_pair(
+			"Default", 
+			Shader("TreeShader", "./src/shaders/treeVertex.glsl", "./src/shaders/treeFragment.glsl")
+		)
 	);
 
 	mesh.shaderPrograms.at("Default").addUniform<glm::vec1>("treeGirth", glm::vec1(0.0f));
@@ -126,8 +131,8 @@ void Tree::mergeToGeometry(StemNode* stemNode) {
 			*manager.getEntityById(stemNode->prev->current).worldObject.getMesh()._geometry) :
 		StemBuilder::generateStemBody(stem.lParams, stemBodyConstraints);
 
-	stemBody.bufferAttributes.removeBufferAttribute<glm::vec3>("aImmatureStart");
-	stemBody.bufferAttributes.removeBufferAttribute<glm::vec3>("aImmatureEnd");
+	stemBody.vertexBuffer.removeBufferAttribute<glm::vec3>("aImmatureStart");
+	stemBody.vertexBuffer.removeBufferAttribute<glm::vec3>("aImmatureEnd");
 	worldObject.getMesh()._geometry->addGeometry(stemBody);
 }
 

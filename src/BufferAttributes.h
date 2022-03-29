@@ -7,14 +7,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <variant>
 #include <vector>
+#include "Overload.h"
 
-template<class... Ts> 
-struct overload : Ts... {
-	using Ts::operator()...;
-};
-
-template<class... Ts>
-overload(Ts...) -> overload<Ts...>;
+template <typename T>
+constexpr int noElements = sizeof(T) / sizeof(float);
 
 class BufferAttributeException : public std::exception {
 public:
@@ -37,6 +33,16 @@ using BufferAttributeVec = std::variant
 	BufferAttribute<glm::vec3>,
 	BufferAttribute<glm::vec4>,
 	BufferAttribute<glm::mat4>
+>;
+
+using BufferAttributeElement = std::variant
+<
+	glm::ivec1,
+	glm::vec1,
+	glm::vec2,
+	glm::vec3,
+	glm::vec4,
+	glm::mat4
 >;
 
 class BufferAttributes {
@@ -70,6 +76,9 @@ public:
 	void appendBufferAttributeData(const std::string& name, const std::vector<T>& newBufferData);
 
 	template<typename T>
+	void appendBufferAttributeData(const std::string& name, T newBufferData);
+
+	template<typename T>
 	BufferAttribute<T>& getBufferAttribute(const std::string& name);
 
 	BufferAttributeVec& getBufferAttributeGeneric(const std::string& name);
@@ -91,26 +100,35 @@ public:
 
 template<typename T>
 void BufferAttributes::addBufferAttribute(const std::string& name) {
-
 	if (!isAttributeNameUsed(name)) {
-		BufferAttribute<T> newAttribute{T::length(), stride, ++indexesUsed};
+		BufferAttribute<T> newAttribute{noElements<T>, stride, ++indexesUsed};
 		attributes.insert(std::make_pair(name, BufferAttributeVec{newAttribute}));
-		stride += T::length();
+		stride += noElements<T>;
 	}
 }
 
+// Replaces previous contents attribute buffer store with new data 
 template<typename T>
 void BufferAttributes::setBufferAttributeData(const std::string& name, std::vector<T> newBufferData) {
 	BufferAttribute<T>& bufferAttribute = std::get<BufferAttribute<T>>(attributes[name]);
-	length += T::length() * (newBufferData.size() - bufferAttribute.bufferData.size());
+	length += noElements<T> * (newBufferData.size() - bufferAttribute.bufferData.size());
 	bufferAttribute.bufferData = std::move(newBufferData);
 }
 
+// Adds multiple elements of specified type to end of attribute buffer store
 template<typename T>
 void BufferAttributes::appendBufferAttributeData(const std::string &name, const std::vector<T>& newBufferData) {
 	BufferAttribute<T>& bufferAttribute = std::get<BufferAttribute<T>>(attributes[name]);
-	length += T::length() * newBufferData.size();
+	length += noElements<T> * newBufferData.size();
 	bufferAttribute.bufferData.insert(bufferAttribute.bufferData.end(), newBufferData.begin(), newBufferData.end());
+}
+
+// Adds 1 element of specified type to end of attribute buffer store
+template<typename T>
+void BufferAttributes::appendBufferAttributeData(const std::string &name, T newBufferData) {
+	BufferAttribute<T>& bufferAttribute = std::get<BufferAttribute<T>>(attributes[name]);
+	length += noElements<T>;
+	bufferAttribute.bufferData.push_back(std::move(newBufferData));
 }
 
 template<typename T>
@@ -121,7 +139,7 @@ BufferAttribute<T>& BufferAttributes::getBufferAttribute(const std::string& name
 template<typename T>
 void BufferAttributes::removeBufferAttribute(const std::string &name) {
 	length -= std::get<BufferAttribute<T>>(attributes[name]).bufferData.size();
-	stride -= T::length();
+	stride -= noElements<T>;
 	attributes.erase(name);
 }
 

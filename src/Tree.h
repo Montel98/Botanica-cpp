@@ -3,6 +3,7 @@
 #include "EntityManager.h"
 #include "LSystemParams.h"
 #include "Stem.h"
+#include "Leaf.h"
 #include <vector>
 
 using Generator = std::linear_congruential_engine<unsigned int, 16807, 0, 2147483647>;
@@ -28,6 +29,7 @@ private:
 	//void addTerminalStem();
 
 	float age, growthRate;
+	Leaves leaves;
 public:
 	Tree(EntityManager& entityManager, Generator& gen);
 	void act(const WorldTime& worldTime) override;

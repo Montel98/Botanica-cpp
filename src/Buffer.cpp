@@ -12,7 +12,7 @@ bool Buffer::isEmpty() {
 
 void Buffer::addBufferGeometry(Geometry* geometry) {
 
-	int geometryVertexLength = geometry->bufferAttributes.getLength();
+	int geometryVertexLength = geometry->vertexBuffer.getLength();
 	int geometryIndexLength = geometry->indexBuffer.getLength();
 
 	//std::cout << geometryVertexLength << " MMM " << geometryIndexLength << "\n";
@@ -25,13 +25,13 @@ void Buffer::addBufferGeometry(Geometry* geometry) {
 void Buffer::updateBufferGeometry(Geometry* geometry) {
 	BufferRange& bufferRange = geometries.at(geometry);
 
-	this->vertexBufferLength += geometry->bufferAttributes.getLength() - bufferRange.vertexBufferLength;
+	this->vertexBufferLength += geometry->vertexBuffer.getLength() - bufferRange.vertexBufferLength;
 	this->indexBufferLength += geometry->indexBuffer.getLength() - bufferRange.indexBufferLength;
-	this->indexCount += geometry->bufferAttributes.getNoElements() - bufferRange.indexCount;
+	this->indexCount += geometry->vertexBuffer.getNoElements() - bufferRange.indexCount;
 
-	bufferRange.vertexBufferLength = geometry->bufferAttributes.getLength();
+	bufferRange.vertexBufferLength = geometry->vertexBuffer.getLength();
 	bufferRange.indexBufferLength = geometry->indexBuffer.getLength();
-	bufferRange.indexCount = geometry->bufferAttributes.getNoElements();
+	bufferRange.indexCount = geometry->vertexBuffer.getNoElements();
 }
 
 void Buffer::removeBufferGeometry(Geometry* geometry) {

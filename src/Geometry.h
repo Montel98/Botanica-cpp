@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "BufferAttributes.h"
+#include "InstanceBuffer.h"
 
 struct GeometryEvent {
 	int vertexStart, vertexLength;
@@ -34,11 +35,13 @@ public:
 
 	void useNormals(bool inverted);
 	void useSTs();
+	void useInstancing();
 
 	void updateGeometry();
 
-	BufferAttributes bufferAttributes;
+	BufferAttributes vertexBuffer;
 	BufferAttributes indexBuffer;
+	std::optional<InstanceBuffer> instanceBuffer;
 
 	std::string bufferName;
 	int bufferId;

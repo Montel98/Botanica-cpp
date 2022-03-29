@@ -5,13 +5,13 @@
 #include <iostream>
 
 Geometry::Geometry() : useST(false), useNormal(false), bufferName(""), bufferId(-1) {
-	bufferAttributes.addBufferAttribute<glm::vec3>("aVertexPosition");
+	vertexBuffer.addBufferAttribute<glm::vec3>("aVertexPosition");
 	indexBuffer.addBufferAttribute<glm::ivec1>("aIndex");
 }
 
 void Geometry::addMorphTarget(const std::string &targetName, std::vector<glm::vec3> morphVertices) {
-	bufferAttributes.addBufferAttribute<glm::vec3>(targetName);
-	bufferAttributes.setBufferAttributeData<glm::vec3>(targetName, morphVertices);
+	vertexBuffer.addBufferAttribute<glm::vec3>(targetName);
+	vertexBuffer.setBufferAttributeData<glm::vec3>(targetName, morphVertices);
 }
 
 void Geometry::addMorphTarget(
@@ -22,11 +22,11 @@ void Geometry::addMorphTarget(
 	std::string vertexName = "aVertex" + targetName;
 	std::string normalName = "aNormal" + targetName;
 
-	bufferAttributes.addBufferAttribute<glm::vec3>(vertexName);
-	bufferAttributes.setBufferAttributeData<glm::vec3>(vertexName, morphVertices);
+	vertexBuffer.addBufferAttribute<glm::vec3>(vertexName);
+	vertexBuffer.setBufferAttributeData<glm::vec3>(vertexName, morphVertices);
 
-	bufferAttributes.addBufferAttribute<glm::vec3>(normalName);
-	bufferAttributes.setBufferAttributeData<glm::vec3>(normalName, morphNormals);
+	vertexBuffer.addBufferAttribute<glm::vec3>(normalName);
+	vertexBuffer.setBufferAttributeData<glm::vec3>(normalName, morphNormals);
 }
 
 bool Geometry::usesNormals() const {
@@ -43,13 +43,13 @@ bool Geometry::usesSTs() const {
 
 void Geometry::useSTs() {
 	useST = true;
-	bufferAttributes.addBufferAttribute<glm::vec2>("aTexCoord");
+	vertexBuffer.addBufferAttribute<glm::vec2>("aTexCoord");
 }
 
 void Geometry::useNormals(bool inverted) {
 	useNormal = true;
 	invertedNormals = inverted;
-	bufferAttributes.addBufferAttribute<glm::vec3>("aNormal");
+	vertexBuffer.addBufferAttribute<glm::vec3>("aNormal");
 }
 
 Geometry* Geometry::clone() const {
@@ -67,7 +67,7 @@ Geometry mergeGeometry(std::vector<std::reference_wrapper<Geometry>>& geometries
 
 	if (geometries.size() > 0) {
 		Geometry& firstGeometry = geometries[0].get();
-		mergedGeometry.bufferAttributes = firstGeometry.bufferAttributes;
+		mergedGeometry.vertexBuffer = firstGeometry.vertexBuffer;
 		mergedGeometry.indexBuffer = firstGeometry.indexBuffer;
 	}
 
@@ -80,25 +80,25 @@ Geometry mergeGeometry(std::vector<std::reference_wrapper<Geometry>>& geometries
 
 void Geometry::addGeometry(Geometry& other) {
 
-		int vertexStart = bufferAttributes.getNoElements();
+		int vertexStart = vertexBuffer.getNoElements();
 		int indexStart = indexBuffer.getNoElements();
 
-		BufferAttributes& otherBufferAttributes = other.bufferAttributes;
+		BufferAttributes& otherBufferAttributes = other.vertexBuffer;
 
 		// Make copy of index buffer of geometry to be merged and shift indices
 		BufferAttributes otherIndexBuffer = other.indexBuffer;
 		
 		for (glm::ivec1& index : otherIndexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData) {
-			int noElements = this->bufferAttributes.getLength() / this->bufferAttributes.getStride();
+			int noElements = this->vertexBuffer.getLength() / this->vertexBuffer.getStride();
 			index += noElements;
 		}
 
 		this->indexBuffer.appendBufferAttributeData<glm::ivec1>("aIndex", otherIndexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData);
 
 		// Merge all other attributes
-		this->bufferAttributes.mergeBufferAttributes(otherBufferAttributes);
+		this->vertexBuffer.mergeBufferAttributes(otherBufferAttributes);
 
-		int vertexLength = bufferAttributes.getNoElements() - vertexStart;
+		int vertexLength = vertexBuffer.getNoElements() - vertexStart;
 		int indexLength = indexBuffer.getNoElements() - indexStart;
 
 		addGeometryEvent(vertexStart, vertexLength, indexStart, indexLength);
@@ -108,7 +108,7 @@ Geometry Geometry::sliceGeometry(unsigned int start, unsigned int length) {
 	Geometry slicedGeometry(*this);
 	slicedGeometry.bufferId = -1;
 	slicedGeometry.bufferName = "";
-	slicedGeometry.bufferAttributes.sliceBufferAttributes(start, length);
+	slicedGeometry.vertexBuffer.sliceBufferAttributes(start, length);
 	slicedGeometry.indexBuffer.sliceBufferAttributes(6 * start, 6 * (length - 1));
 
 	return slicedGeometry;
@@ -116,4 +116,14 @@ Geometry Geometry::sliceGeometry(unsigned int start, unsigned int length) {
 
 void Geometry::addGeometryEvent(int vertexStart, int vertexLength, int indexStart, int indexLength) {
 	modificationEvents.push_back(GeometryEvent{vertexStart, vertexLength, indexStart, indexLength});
+}
+
+void Geometry::useInstancing() {
+	if (!instanceBuffer) {
+		std::cout << "ACTIVATE INSTANCING\n";
+		instanceBuffer = InstanceBuffer();
+	}
+	else {
+		std::cout << "INSTANCING ALREADY IN USE\n";
+	}
 }

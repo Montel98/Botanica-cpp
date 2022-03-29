@@ -148,8 +148,8 @@ void connectStemBodyToPrev(
 	int uSteps = constraints.uSteps;
 	int offset = uSteps - 1;
 
-	BufferAttributes& body = current.bufferAttributes;
-	BufferAttributes& bodyPrev = prev.bufferAttributes;
+	BufferAttributes& body = current.vertexBuffer;
+	BufferAttributes& bodyPrev = prev.vertexBuffer;
 
 	for (int i = 0; i < constraints.vSteps; i++) {
 
@@ -226,16 +226,16 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	// Move the morph targets into the main geometry object
 	endGeometry.addMorphTarget(
 		"aMatureStart", 
-		std::move(startGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
+		std::move(startGeometry.vertexBuffer.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
 	);
 	
 	endGeometry.addMorphTarget(
 		"aImmatureStart",
-		std::move(immatureStartGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
+		std::move(immatureStartGeometry.vertexBuffer.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
 	);
 	endGeometry.addMorphTarget(
 		"aImmatureEnd",
-		std::move(immatureEndGeometry.bufferAttributes.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
+		std::move(immatureEndGeometry.vertexBuffer.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
 	);
 	
 	return endGeometry;

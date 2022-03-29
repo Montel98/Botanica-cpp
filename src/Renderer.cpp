@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "BufferAttributes.h"
+#include "Overload.h"
 #include <string>
 #include <iostream>
 #include <variant>
@@ -32,28 +33,24 @@ void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawP
 	glBindVertexArray(buffer._vao);
 	BufferRange bufferInfo = buffer.getBufferInfo(&geometry);
 
-	//std::cout << "VAO: " << buffer._vao << " Len: " << bufferInfo.indexBufferLength << std::endl;
+	if (!geometry.instanceBuffer) {
+		glDrawElements(
+			GL_TRIANGLES, 
+			bufferInfo.indexBufferLength, 
+			GL_UNSIGNED_INT,
+			(void*) (bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT))
+		);
+	}
+	else {
+		glDrawElementsInstanced(
+			GL_TRIANGLES, 
+			bufferInfo.indexBufferLength, 
+			GL_UNSIGNED_INT,
+			(void*) (bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT)),
+			geometry.instanceBuffer->getInstanceCount()
+		);
+	}
 
-	float vertexData[bufferInfo.vertexBufferLength];
-
-	glGetBufferSubData(GL_ARRAY_BUFFER, bufferInfo.vertexBufferStart * sizeof(float), bufferInfo.vertexBufferLength * sizeof(float), vertexData);
-
-	unsigned int indexData[bufferInfo.indexBufferLength];
-
-	glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, bufferInfo.indexBufferStart * sizeof(unsigned int), bufferInfo.indexBufferLength * sizeof(unsigned int), indexData);
-
-	glDrawElements(
-		GL_TRIANGLES, 
-		bufferInfo.indexBufferLength, 
-		GL_UNSIGNED_INT,
-		(void*) (bufferInfo.indexBufferStart * sizeof(GL_UNSIGNED_INT))
-	);
-
-	/*const auto e = glGetError();
-	std::cout << "Error: " << e << std::endl;
-	assert(e == GL_NO_ERROR);*/
-
-	//glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 }
 
@@ -82,15 +79,12 @@ void Renderer::renderScene(const Scene& scene, const std::vector<std::reference_
 		//glDepthFunc(GL_EQUAL);
 	}*/
 }
+void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, GLuint vao, GLuint vbo, bool isInstanced) {
 
-void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, Buffer& buffer) {
-
-	glBindVertexArray(buffer._vao);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer._vbo);
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	auto e = glGetError();
 	assert(e == GL_NO_ERROR);
-
-	//std::cout << "VAO: " << buffer._vao << "VBO: " << buffer._vbo << "\n";
 
 	for (const std::string& name : bufferAttributes.getAttributeNames()) {
 
@@ -102,40 +96,62 @@ void Renderer::initBufferAttributes(GLuint program, BufferAttributes& bufferAttr
 
 		int stride = bufferAttributes.getStride();
 
-		std::visit([location, stride](auto& bufferAttribute) {
-
-			std::cout << "location" << location << "\n";
-			std::cout << "length: " << bufferAttribute.attribLength << "\n";
-			std::cout << "offset: " << bufferAttribute.offset << "\n";
-			std::cout << "stride: " << stride << "\n";
-
-			glVertexAttribPointer(
-				location,
-				bufferAttribute.attribLength,
-				GL_FLOAT,
-				GL_FALSE,
-				stride * sizeof(GL_FLOAT),
-				(void*) (bufferAttribute.offset * sizeof(GL_FLOAT))
-			);
-			auto e = glGetError();
-			assert(e == GL_NO_ERROR);
+		std::visit(overload{
+			[this, location, stride, isInstanced](auto& bufferAttribute) {
+				initBufferAttribute(
+					location, 
+					bufferAttribute.attribLength, 
+					stride * sizeof(GL_FLOAT), 
+					bufferAttribute.offset * sizeof(GL_FLOAT), isInstanced);
+			},
+			[this, location, stride, isInstanced](BufferAttribute<glm::mat4>& bufferAttribute) {
+				for (int i = 0; i < 4; i++) {
+					initBufferAttribute(
+						location + i, 
+						4, 
+						stride * sizeof(GL_FLOAT),
+						(bufferAttribute.offset + (4 * i)) * sizeof(GL_FLOAT), isInstanced);
+				}
+			},
 
 		}, bufferAttributes.getBufferAttributeGeneric(name));
-
-		glEnableVertexAttribArray(location);
-		e = glGetError();
-		assert(e == GL_NO_ERROR);
-
-		/*if (bufferAttributes.isInstanceBuffer) {
-			glVertexAttribDivisor(location, 1);
-			glGetError();
-			assert(e == GL_NO_ERROR);
-		}*/
 	}
 
 	//glBindVertexArray(0);
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
+void Renderer::initBufferAttribute(int location, int attributeLength, int stride, int offset, bool isInstanced) {
+
+	glVertexAttribPointer(
+		location,
+		attributeLength,
+		GL_FLOAT,
+		GL_FALSE,
+		stride,
+		(void*) (offset)
+	);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
+
+	glEnableVertexAttribArray(location);
+
+	if (isInstanced) {
+		glVertexAttribDivisor(location, 1);
+	}
+}
+
+/*void Renderer::initInstanceBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, GLuint vao, GLuint vbo) {
+	initBufferAttributes(program, bufferAttributes, vao, vbo);
+
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	for (const std::string& name : bufferAttributes.getAttributeNames()) {
+		GLint location = glGetAttribLocation(program, name.c_str());
+		glVertexAttribDivisor(location, 1);
+	}
+}*/
 
 void Renderer::updateUniforms(const Camera& camera, GLuint program, Object3D& object3D) {
 
@@ -290,23 +306,26 @@ int Renderer::initBuffers(Geometry& geometry, GLuint program) {
 	e = glGetError();
 	assert(e == GL_NO_ERROR);
 
-	GLuint VBO = initBuffer<float>(geometry.bufferAttributes, false);
-	GLuint IBO = initBuffer<unsigned int>(geometry.indexBuffer, true);
-
-	//std::cout << "first: vao: " << VAO << " vbo: " << VBO << "\n";
+	GLuint VBO = initBuffer<float>(geometry.vertexBuffer, false);
+	GLuint EBO = initBuffer<unsigned int>(geometry.indexBuffer, true);
 
 	int bufferId;
 
 	if (geometry.bufferName != "") {
-		bufferId = bufferManager.addBuffer(geometry.bufferName, VBO, IBO, VAO);
+		bufferId = bufferManager.addBuffer(geometry.bufferName, VBO, EBO, VAO);
 	}
 	else {
-		bufferId = bufferManager.addBuffer(VBO, IBO, VAO);
+		bufferId = bufferManager.addBuffer(VBO, EBO, VAO);
 	}
 	Buffer &buffer = bufferManager.getBufferById(bufferId);
 	buffer.addBufferGeometry(&geometry);
 
-	initBufferAttributes(program, geometry.bufferAttributes, buffer);
+	initBufferAttributes(program, geometry.vertexBuffer, buffer._vao, buffer._vbo, false);
+
+	if (geometry.instanceBuffer) {
+		GLuint IBO = initBuffer<float>(geometry.instanceBuffer->instanceAttributes, false);
+		initBufferAttributes(program, geometry.instanceBuffer->instanceAttributes, buffer._vao, IBO, true);
+	}
 
 	glBindVertexArray(0);
 	e = glGetError();
@@ -353,7 +372,7 @@ void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 
 			geometry.addGeometryEvent(
 				0, 
-				geometry.bufferAttributes.getNoElements(),
+				geometry.vertexBuffer.getNoElements(),
 				0,
 				geometry.indexBuffer.getNoElements()
 			);
@@ -410,14 +429,14 @@ void Renderer::updateBuffers(Geometry& geometry) {
 		&newIndexBuffer.front()
 	);
 
-	std::vector<float> newVertexBuffer = geometry.bufferAttributes.mergeAttributes<float>(
+	std::vector<float> newVertexBuffer = geometry.vertexBuffer.mergeAttributes<float>(
 		event.vertexStart, event.vertexLength
 	);
 
 	// Update vertices
 	glBufferSubData(
 		GL_ARRAY_BUFFER, 
-		(bufferInfo.vertexBufferStart + (event.vertexStart * geometry.bufferAttributes.getStride())) * sizeof(GL_FLOAT), 
+		(bufferInfo.vertexBufferStart + (event.vertexStart * geometry.vertexBuffer.getStride())) * sizeof(GL_FLOAT), 
 		newVertexBuffer.size() * sizeof(GL_FLOAT), 
 		&newVertexBuffer.front()
 	);
@@ -425,6 +444,21 @@ void Renderer::updateBuffers(Geometry& geometry) {
 	geometry.modificationEvents.pop_back();
 
 	glBindVertexArray(0);
+}
+
+// Rewrites entire instance buffer for now
+void Renderer::updateInstanceBuffers(BufferAttributes& instanceBufferAttributes) {
+
+	std::vector<float> newInstanceBuffer = instanceBufferAttributes.mergeAttributes<float>(
+		0, instanceBufferAttributes.getNoElements()
+	);
+
+	glBufferSubData(
+		GL_ARRAY_BUFFER,
+		0,
+		newInstanceBuffer.size() * sizeof(GL_FLOAT),
+		&newInstanceBuffer.front()
+	);
 }
 
 void Renderer::clear(GLuint fbo) {

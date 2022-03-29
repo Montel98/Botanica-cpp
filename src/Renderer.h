@@ -18,12 +18,17 @@ struct DrawPassState {
 class Renderer {
 private:
 	std::vector<DrawPassState> drawPassStates;
+
 public:
 	Renderer();
 	void renderEntity(Object3D& entityObj, const Scene& scene, const DrawPassState& drawState);
 	void renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Object3D>>& entityObjects);
 
-	void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, Buffer& buffer);
+	void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, GLuint vao, GLuint vbo, bool isInstanced);
+	void initBufferAttribute(int location, int attributeLength, int stride, int offset, bool isInstanced);
+	//void initInstanceBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, GLuint vao, GLuint vbo);
+	
+	//void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, Buffer& buffer, bool isInstanced);
 	void updateUniforms(const Camera& camera, GLuint program, Object3D& object3D);
 	void updateModelUniforms(GLuint program, Object3D& object3D);
 
@@ -41,6 +46,7 @@ public:
 
 	void setBuffersAndAttributes(GLuint program, Object3D& object3D);
 	void updateBuffers(Geometry& geometry);
+	void updateInstanceBuffers(BufferAttributes& instanceBufferAttributes);
 
 	void clear(GLuint fbo);
 

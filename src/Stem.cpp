@@ -52,7 +52,7 @@ Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* pr
 
 	Geometry mergedGeometry = mergeGeometry(geometries);
 	mergedGeometry.bufferName = "stemBuffer";
-	mergedGeometry.bufferAttributes.sizeBytes = 2*1048576;//524288;
+	mergedGeometry.vertexBuffer.sizeBytes = 2*1048576;//524288;
 	mergedGeometry.indexBuffer.sizeBytes = 2*1048576;//524288;
 
 	return mergedGeometry;

@@ -47,7 +47,6 @@ void BufferAttributes::mergeBufferAttributes(const BufferAttributes& other) {
 	}
 }
 
-
 // Removes elements from every attribute within a specified interval
 void BufferAttributes::sliceBufferAttributes(unsigned int start, unsigned int length) {
 	int& bufferLength = this->length;

@@ -5,10 +5,9 @@
 #include "Shader.h"
 #include <memory>
 #include <string>
+#include <optional>
 
 class Mesh {
-private:
-	bool isInstanced;
 public:
 	Material _material;
 	std::unique_ptr<Geometry> _geometry;
@@ -18,4 +17,5 @@ public:
 	Mesh(const Mesh&);
 
 	bool usesProgram(const std::string programName);
+	//void useInstancing();
 };
