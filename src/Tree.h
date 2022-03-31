@@ -5,6 +5,7 @@
 #include "Stem.h"
 #include "Leaf.h"
 #include <vector>
+#include <deque>
 
 using Generator = std::linear_congruential_engine<unsigned int, 16807, 0, 2147483647>;
 
@@ -20,16 +21,20 @@ private:
 
 	StemNode root;
 	std::vector<TerminalStem> terminalStems;
+	std::vector<EntityId> stems;
+	EntityId leavesId;
+
 	void generateNewStems(EntityManager& manager);
+	void updateStems();
+	std::vector<EntityId> buildStemList(StemNode& root);
 	float grow(const WorldTime& worldTime) const;
-	void mergeToGeometry(/*Stem& stem*/StemNode* node);
+	void mergeToGeometry(StemNode* node);
 	StemNode buildTree(EntityManager& manager, Generator& gen);
 	Mesh initMesh();
 	bool isEndStem(StemNode* node);
 	//void addTerminalStem();
 
 	float age, growthRate;
-	Leaves leaves;
 public:
 	Tree(EntityManager& entityManager, Generator& gen);
 	void act(const WorldTime& worldTime) override;

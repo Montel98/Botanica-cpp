@@ -89,7 +89,7 @@ void Geometry::addGeometry(Geometry& other) {
 		BufferAttributes otherIndexBuffer = other.indexBuffer;
 		
 		for (glm::ivec1& index : otherIndexBuffer.getBufferAttribute<glm::ivec1>("aIndex").bufferData) {
-			int noElements = this->vertexBuffer.getLength() / this->vertexBuffer.getStride();
+			int noElements = this->vertexBuffer.getNoElements();
 			index += noElements;
 		}
 
@@ -120,10 +120,6 @@ void Geometry::addGeometryEvent(int vertexStart, int vertexLength, int indexStar
 
 void Geometry::useInstancing() {
 	if (!instanceBuffer) {
-		std::cout << "ACTIVATE INSTANCING\n";
 		instanceBuffer = InstanceBuffer();
-	}
-	else {
-		std::cout << "INSTANCING ALREADY IN USE\n";
 	}
 }

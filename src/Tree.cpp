@@ -7,6 +7,8 @@
 #include "StemBuilder.h"
 #include <memory>
 #include <vector>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #define PI 3.14
 
@@ -15,6 +17,9 @@ Tree::Tree(EntityManager& entityManager, Generator& gen)
 manager(entityManager), age(0.0f), growthRate(0.01f) {
 
 	terminalStems.push_back(TerminalStem{&root, false});
+	leavesId = entityManager.addEntity(std::make_unique<Leaves>());
+	entityManager.addEntityToScene(leavesId);
+	stems = buildStemList(root);
 }
 
 Mesh Tree::initMesh() {
@@ -85,7 +90,6 @@ void Tree::generateNewStems(EntityManager& manager) {
 	for (int i = 0; i < terminalStems.size(); i++) {
 
 		Stem& stem = *manager.getEntityById<Stem>(terminalStems[i].node->current);
-		stem.updateGirth(age);
 
 		if (stem.isMaxLength() && terminalStems[i].node->next.size() > 0) {
 
@@ -108,11 +112,23 @@ void Tree::generateNewStems(EntityManager& manager) {
 		manager.addEntityToScene(stemsToAdd[i]->current);
 		//worldObject.addChild(manager.getEntityById(stemsToAdd[i]->current).worldObject);
 		terminalStems.push_back(TerminalStem{stemsToAdd[i], false});
+		Leaves& leaves = *manager.getEntityById<Leaves>(leavesId);
+		manager.getEntityById<Stem>(terminalStems.back().node->current)->addLeaves(leaves, 2);
+		//LSystemParams& lParams = manager.getEntityById<Stem>(terminalStems.back().node->current)->lParams;
+		//manager.getEntityById<Leaves>(leavesId)->addLeaves(lParams, 2);
 	}
 
 	// Remove fully grown terminal stems
 	for (int i = 0; i < stemsToRemove.size(); i++) {
 		terminalStems.erase(terminalStems.begin() + stemsToRemove[i] - i);
+	}
+}
+
+void Tree::updateStems() {
+	for (int i = 0; i < stems.size(); i++) {
+		Stem& stem = *manager.getEntityById<Stem>(stems[i]);
+		stem.updateGirth(age);
+		stem.updateLeaves(*manager.getEntityById<Leaves>(leavesId));
 	}
 }
 
@@ -140,6 +156,7 @@ void Tree::act(const WorldTime& worldTime) {
 	age = grow(worldTime);
 	worldObject.getMesh().shaderPrograms.at("Default").setUniform<glm::vec1>("treeGirth", glm::vec1(age));
 	generateNewStems(manager);
+	updateStems();
 }
 
 float Tree::grow(const WorldTime& worldTime) const {
@@ -150,4 +167,21 @@ float Tree::grow(const WorldTime& worldTime) const {
 	}
 
 	return newAge;
+}
+
+std::vector<EntityId> Tree::buildStemList(StemNode& root) {
+	std::deque<StemNode*> stemNodes;
+	std::vector<EntityId> stemList;
+	stemNodes.push_back(&root);
+
+	while(stemNodes.size() > 0) {
+		StemNode* stemNode = stemNodes.front();
+
+		for (int i = 0; i < stemNode->next.size(); i++) {
+			stemNodes.push_back(stemNode->next[i].get());
+		}
+		stemList.push_back(stemNode->current);
+		stemNodes.pop_front();
+	}
+	return stemList;
 }

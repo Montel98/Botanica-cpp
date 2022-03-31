@@ -1,6 +1,6 @@
 #include "InstanceBuffer.h"
 
-InstanceBuffer::InstanceBuffer(){
+InstanceBuffer::InstanceBuffer() : ibo(-1) {
 	instanceAttributes.addBufferAttribute<glm::mat4>("aPose");
 }
 

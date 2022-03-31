@@ -7,6 +7,7 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Buffer.h"
+#include "InstanceBuffer.h"
 #include <string>
 #include <glad/glad.h>
 
@@ -46,7 +47,7 @@ public:
 
 	void setBuffersAndAttributes(GLuint program, Object3D& object3D);
 	void updateBuffers(Geometry& geometry);
-	void updateInstanceBuffers(BufferAttributes& instanceBufferAttributes);
+	void updateInstanceBuffer(InstanceBuffer& instanceBuffer);
 
 	void clear(GLuint fbo);
 
@@ -69,17 +70,8 @@ GLuint Renderer::initBuffer(BufferAttributes& bufferAttributes, bool isIndexBuff
 
 	std::vector<T> mergedAttributes = bufferAttributes.mergeAttributes<T>(0, bufferAttributes.getNoElements());
 
-	/*for (auto i : mergedAttributes) {
-		std::cout << i << std::endl;
-	}*/
-
 	int bufferSize = bufferAttributes.sizeBytes > 0 ? bufferAttributes.sizeBytes : mergedAttributes.size() * sizeof(T);
 
-	//std::cout << "size::: " << bufferSize << ", " << bufferAttributes.getLength() << "\n";
-
-	//std::cout << "size::: " << sizeof(T) << "," << bufferSize * sizeof(T) << "\n";
-
-	//glBufferSubData(target, 0, bufferSize * sizeof(T), &mergedAttributes.front());
 	glBufferData(target, bufferSize, NULL, GL_STATIC_DRAW);
 	glBufferSubData(target, 0, mergedAttributes.size() * sizeof(T), &mergedAttributes.front());
 	e = glGetError();

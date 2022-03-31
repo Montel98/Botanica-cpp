@@ -4,7 +4,7 @@
 #include "glm/glm.hpp"
 #include "ParametricGeometry.h"
 #include "Axis.h"
-#include "LSystem.h"
+#include "LSystemParams.h"
 
 namespace StemBuilder {
 

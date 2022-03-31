@@ -1,8 +1,8 @@
 #include "Leaf.h"
 #include "FourierSeries.h"
 #include "ParametricGeometry.h"
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 #define PI 3.14159265
 
@@ -36,13 +36,35 @@ float LeafProfileEnd::profileXZ(float x) const {
 /*Leaf::Leaf() : geometry(generateGeometry()) {
 }*/
 
-Leaf::Leaf() {};
+Leaf::Leaf(const glm::mat4& leafPose) : leafAge(0.0f), stemGirth(0.0f), 
+pose(leafPose), basePose(leafPose) {};
+
+void Leaf::updateStemGirth(float newGirth) {
+	stemGirth = newGirth;
+}
+
+float Leaf::grow(const WorldTime& worldTime) {
+	float newAge = leafAge + Leaf::growthRate * worldTime.dt();
+
+	if (newAge > Leaf::maxAge) {
+		newAge = Leaf::maxAge;
+	}
+	return newAge;
+}
+
+void Leaf::act(const WorldTime& worldTime) {
+	leafAge = grow(worldTime);
+	pose = basePose * glm::translate(glm::vec3(stemGirth, 0, 0));
+}
+
+glm::mat4 Leaf::getPose() {
+	return pose;
+}
 
 ParametricGeometry<LeafProfileStart> Leaf::generateGeometry() const {
 
 	float magnitudeA = 1.0;
 	float magnitudeB = 2.0;
-
 
 	// Construct leaf shape with fourier terms
 	std::vector<FourierTerm> terms;
@@ -69,64 +91,4 @@ ParametricGeometry<LeafProfileStart> Leaf::generateGeometry() const {
 
 glm::vec3 PlaneSurface::operator()(float u, float v) const {
 	return glm::vec3(u, v, 0.0);
-}
-
-Mesh Leaves::generatePlane() const {
-
-	GeometryConstraints constraints{0.0, 0.5, 0.0, 0.5, 4, 4};
-
-	PlaneSurface surface;
-	ParametricGeometry<PlaneSurface> planeGeometry(surface, constraints);
-	planeGeometry.generateGeometry();
-
-	Material material;
-
-	Mesh mesh(material, std::make_unique<Geometry>(planeGeometry));
-
-	mesh.shaderPrograms.emplace(
-		std::make_pair(
-			"Default", 
-			Shader("LeafShader", "./src/shaders/leafVertex.glsl", "./src/shaders/leafFragment.glsl")
-		)
-	);
-
-	return mesh;
-}
-
-/*void Leaf::act() {
-
-}*/
-
-Leaves::Leaves() : Entity(Object3D(generatePlane())) {
-	Geometry& geometry = *worldObject.getMesh()._geometry;
-	geometry.useInstancing();
-
-	/*std::map<std::string, BufferAttributeElement> newInstance = {
-		{"aPose", BufferAttributeElement(glm::mat4(1.0))}
-	};
-
-	std::map<std::string, BufferAttributeElement> newInstance2 = {
-		{"aPose", BufferAttributeElement(glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.1)))}
-	};
-	std::map<std::string, BufferAttributeElement> newInstance3 = {
-		{"aPose", BufferAttributeElement(glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.2)))}
-	};
-	std::map<std::string, BufferAttributeElement> newInstance4 = {
-		{"aPose", BufferAttributeElement(glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.3)))}
-	};
-	geometry.instanceBuffer->addInstance(newInstance);
-	geometry.instanceBuffer->addInstance(newInstance2);
-	geometry.instanceBuffer->addInstance(newInstance3);
-	geometry.instanceBuffer->addInstance(newInstance4);*/
-}
-
-void Leaves::act(const WorldTime& worldTime) {
-
-}
-
-void Leaves::addLeaf(const glm::mat4& pose) {
-	std::map<std::string, BufferAttributeElement> newInstance = {
-		{"aPose", BufferAttributeElement(pose)}
-	};
-	geometry.instanceBuffer->addInstance(newInstance);
 }

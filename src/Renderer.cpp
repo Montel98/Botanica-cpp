@@ -26,7 +26,6 @@ void Renderer::renderEntity(Object3D& entityObj, const Scene& scene, const DrawP
 	GLuint program = bindShaderProgram(mesh.shaderPrograms.at(drawState.shaderName));
 
 	updateUniforms(scene.camera, program, entityObj);
-
 	setBuffersAndAttributes(program, entityObj);
 
 	Buffer& buffer = bufferManager.getBufferById(geometry.bufferId);
@@ -324,6 +323,7 @@ int Renderer::initBuffers(Geometry& geometry, GLuint program) {
 
 	if (geometry.instanceBuffer) {
 		GLuint IBO = initBuffer<float>(geometry.instanceBuffer->instanceAttributes, false);
+		geometry.instanceBuffer->ibo = IBO;
 		initBufferAttributes(program, geometry.instanceBuffer->instanceAttributes, buffer._vao, IBO, true);
 	}
 
@@ -386,6 +386,10 @@ void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 		//std::cout << "modified!!!\n";
 		updateBuffers(geometry);
 	}
+
+	if (geometry.instanceBuffer) {
+		updateInstanceBuffer(*(geometry.instanceBuffer));
+	}
 }
 
 void Renderer::updateBuffers(Geometry& geometry) {
@@ -447,7 +451,13 @@ void Renderer::updateBuffers(Geometry& geometry) {
 }
 
 // Rewrites entire instance buffer for now
-void Renderer::updateInstanceBuffers(BufferAttributes& instanceBufferAttributes) {
+void Renderer::updateInstanceBuffer(InstanceBuffer& instanceBuffer) {
+
+	glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer.ibo);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
+
+	BufferAttributes& instanceBufferAttributes = instanceBuffer.instanceAttributes;
 
 	std::vector<float> newInstanceBuffer = instanceBufferAttributes.mergeAttributes<float>(
 		0, instanceBufferAttributes.getNoElements()
@@ -459,6 +469,8 @@ void Renderer::updateInstanceBuffers(BufferAttributes& instanceBufferAttributes)
 		newInstanceBuffer.size() * sizeof(GL_FLOAT),
 		&newInstanceBuffer.front()
 	);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 }
 
 void Renderer::clear(GLuint fbo) {

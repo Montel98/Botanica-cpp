@@ -8,6 +8,7 @@
 class InstanceBuffer {
 public:
 	BufferAttributes instanceAttributes;
+	int ibo;
 
 	InstanceBuffer();
 	/* Insert new instance with all specified attributes and returns its index

@@ -8,6 +8,7 @@
 #include "Object3D.h"
 #include "Entity.h"
 #include "WorldTime.h"
+#include "LSystemParams.h"
 
 class PlaneSurface {
 private:
@@ -39,19 +40,21 @@ public:
 	float profileXZ(float x) const;
 };
 
-class Leaves : public Entity {
-public:
-	Leaves();
-	Mesh generatePlane() const;
-	void act(const WorldTime& worldTime) override;
-	void addLeaf(const glm::mat4& pose);
-};
-
 class Leaf {
-	//Object3D worldObject;
+	static constexpr float maxAge = 1.0f;
+	static constexpr float growthRate = 0.1f;
+private:
+	float stemGirth;
+	float leafAge;
+	glm::mat4 basePose;
+	glm::mat4 pose;
 public:
-	Leaf();
+	Leaf(const glm::mat4& leafPose);
 	ParametricGeometry<LeafProfileStart> generateGeometry() const;
 	//void act() override;
 	//ParametricGeometry<LeafProfileStart> geometry;
+	void updateStemGirth(float newGirth);
+	float grow(const WorldTime& worldTime);
+	void act(const WorldTime& worldTime);
+	glm::mat4 getPose();
 };

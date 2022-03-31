@@ -2,7 +2,6 @@
 #include "Stem.h"
 #include "Geometry.h"
 #include "Material.h"
-#include "StemBuilder.h"
 #include <memory>
 #include <map>
 #include <math.h>
@@ -13,7 +12,15 @@
 
 Stem::Stem(EntityManager& manager, const LSystemParams& lSystemParams, const StemNode* prevStem) 
 : Entity(Object3D(generateMesh(lSystemParams, prevStem))), entityManager(manager), stemLength(0.0f), 
-stemGirth(0.0f), growthRate(0.3f), lParams(lSystemParams) {};
+stemGirth(0.0f), growthRate(0.3f), lParams(lSystemParams),
+radiusFunc(
+	StemBuilder::StemBodyRadius(
+		lParams.radiusStart,
+		lParams.radiusEnd,
+		lParams.branchLength,
+		lParams.count
+	)
+) {};
 
 Mesh Stem::generateMesh(const LSystemParams& lParams, const StemNode* prevStem) {
 	Material material;
@@ -29,7 +36,7 @@ Mesh Stem::generateMesh(const LSystemParams& lParams, const StemNode* prevStem) 
 	return mesh;
 }
 
-Geometry Stem::generateGeometry(const LSystemParams &lParams, const StemNode* prevStem) {
+Geometry Stem::generateGeometry(const LSystemParams& lParams, const StemNode* prevStem) {
 
 	int uStepsBody = 2;
 	int uStepsTip = 3;
@@ -63,13 +70,23 @@ void Stem::act(const WorldTime& worldTime) {
 	worldObject.getMesh().shaderPrograms.at("Default").setUniform<glm::vec1>("stemLength", glm::vec1(stemLength));
 }
 
+void Stem::addLeaves(Leaves& leaves, int count) {
+	leafIndices = leaves.addLeaves(lParams, count);
+}
+
+void Stem::updateLeaves(Leaves& leaves) {
+
+	for (int i = 0; i < leafIndices.size(); i++) {
+		leaves.getLeaf(leafIndices[i]).updateStemGirth(radiusFunc(0.0f) * stemGirth);
+	}
+}
+
 float Stem::grow(const WorldTime& worldTime) const {
 	float newLength = stemLength + growthRate * (float)(worldTime.dt()) / 1000.0f;
 
 	if (newLength >= Stem::maxLength) {
 		newLength = maxLength;
 	}
-
 	return newLength;
 }
 
