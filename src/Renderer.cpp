@@ -450,12 +450,11 @@ void Renderer::updateBuffers(Geometry& geometry) {
 	glBindVertexArray(0);
 }
 
-// Rewrites entire instance buffer for now
 void Renderer::updateInstanceBuffer(InstanceBuffer& instanceBuffer) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer.ibo);
 	auto e = glGetError();
-	assert(e == GL_NO_ERROR);
+	//assert(e == GL_NO_ERROR);
 
 	BufferAttributes& instanceBufferAttributes = instanceBuffer.instanceAttributes;
 
@@ -470,7 +469,7 @@ void Renderer::updateInstanceBuffer(InstanceBuffer& instanceBuffer) {
 		&newInstanceBuffer.front()
 	);
 	e = glGetError();
-	assert(e == GL_NO_ERROR);
+	//assert(e == GL_NO_ERROR);
 }
 
 void Renderer::clear(GLuint fbo) {

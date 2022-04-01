@@ -25,8 +25,8 @@ manager(entityManager), age(0.0f), growthRate(0.01f) {
 Mesh Tree::initMesh() {
 	Material material;
 	std::unique_ptr<Geometry> treeGeometry = std::make_unique<Geometry>();
-	treeGeometry->indexBuffer.sizeBytes = 2*1048576;//65536;
-	treeGeometry->vertexBuffer.sizeBytes = 2*1048576;//65536;
+	treeGeometry->indexBuffer.sizeBytes = 2*1048576;
+	treeGeometry->vertexBuffer.sizeBytes = 2*1048576;
 	treeGeometry->useNormals(false);
 	treeGeometry->vertexBuffer.addBufferAttribute<glm::vec3>("aMatureStart");
 
@@ -114,8 +114,6 @@ void Tree::generateNewStems(EntityManager& manager) {
 		terminalStems.push_back(TerminalStem{stemsToAdd[i], false});
 		Leaves& leaves = *manager.getEntityById<Leaves>(leavesId);
 		manager.getEntityById<Stem>(terminalStems.back().node->current)->addLeaves(leaves, 2);
-		//LSystemParams& lParams = manager.getEntityById<Stem>(terminalStems.back().node->current)->lParams;
-		//manager.getEntityById<Leaves>(leavesId)->addLeaves(lParams, 2);
 	}
 
 	// Remove fully grown terminal stems
@@ -124,6 +122,9 @@ void Tree::generateNewStems(EntityManager& manager) {
 	}
 }
 
+/* Update girth of stems and positions of leaves from top-down
+*(Leaf and stems need not be concerned about how these states are updated) 
+*/
 void Tree::updateStems() {
 	for (int i = 0; i < stems.size(); i++) {
 		Stem& stem = *manager.getEntityById<Stem>(stems[i]);
@@ -132,6 +133,8 @@ void Tree::updateStems() {
 	}
 }
 
+// Add geometry from mature terminal stem to geometry of tree
+// Tree is drawn with 1 draw call
 void Tree::mergeToGeometry(StemNode* stemNode) {
 	int uStepsBody = 2;
 	int vSteps = 16;
@@ -165,7 +168,6 @@ float Tree::grow(const WorldTime& worldTime) const {
 	if (newAge >= Tree::maxAge) {
 		newAge = Tree::maxAge;
 	}
-
 	return newAge;
 }
 

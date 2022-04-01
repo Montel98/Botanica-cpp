@@ -58,8 +58,6 @@ Geometry* Geometry::clone() const {
 
 Geometry::~Geometry() {}
 
-// Merges any type of geometry provided they share the same buffer attributes
-// A generic geometry container is returned, any geometry specific info is lost
 Geometry mergeGeometry(std::vector<std::reference_wrapper<Geometry>>& geometries) {
 
 	// Copy first geometry in list to merged geometry

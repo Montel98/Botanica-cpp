@@ -59,8 +59,8 @@ Geometry Stem::generateGeometry(const LSystemParams& lParams, const StemNode* pr
 
 	Geometry mergedGeometry = mergeGeometry(geometries);
 	mergedGeometry.bufferName = "stemBuffer";
-	mergedGeometry.vertexBuffer.sizeBytes = 2*1048576;//524288;
-	mergedGeometry.indexBuffer.sizeBytes = 2*1048576;//524288;
+	mergedGeometry.vertexBuffer.sizeBytes = 3*1048576;//524288;
+	mergedGeometry.indexBuffer.sizeBytes = 1048576;//524288;
 
 	return mergedGeometry;
 }
@@ -77,7 +77,9 @@ void Stem::addLeaves(Leaves& leaves, int count) {
 void Stem::updateLeaves(Leaves& leaves) {
 
 	for (int i = 0; i < leafIndices.size(); i++) {
-		leaves.getLeaf(leafIndices[i]).updateStemGirth(radiusFunc(0.0f) * stemGirth);
+		Leaf& leaf = leaves.getLeaf(leafIndices[i]);
+		leaf.updateStemGirth(radiusFunc(0.0f) * stemGirth);
+		leaf.updateLeafHeight(0.03f * stemLength);
 	}
 }
 

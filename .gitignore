@@ -1,5 +1,8 @@
 bin/
 textures/
+html/
+latex/
+Doxyfile
 glad.o
 src/test.cpp
 src/glad.o
