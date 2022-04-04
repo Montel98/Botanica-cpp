@@ -4,12 +4,15 @@ default:
 	g++ -g -std=c++2a -c src/BezierLinear.cpp -o bin/BezierLinear.o
 	g++ -g -std=c++2a -c src/BezierCubic.cpp -o bin/BezierCubic.o
 	g++ -g -std=c++2a -c src/Leaf.cpp -o bin/Leaf.o
+	g++ -g -std=c++2a -c src/LeafBuilder.cpp -o bin/LeafBuilder.o
 	g++ -g -std=c++2a -c src/Leaves.cpp -o bin/Leaves.o
 	g++ -g -std=c++2a -c src/Geometry.cpp -o bin/Geometry.o
 	g++ -g -std=c++2a -c src/ParametricGeometry.cpp -o bin/ParametricGeometry.o
 	g++ -g -std=c++2a -c src/Entity.cpp -o bin/Entity.o
 	g++ -g -std=c++2a -c src/BufferAttributes.cpp -o bin/BufferAttributes.o
 	g++ -g -std=c++2a -c src/Texture.cpp -o bin/Texture.o
+	g++ -g -std=c++2a -c src/TextureBuilder.cpp -o bin/TextureBuilder.o
+	g++ -g -std=c++2a -c src/TextureManager.cpp -o bin/TextureManager.o
 	g++ -g -std=c++2a -c src/Material.cpp -o bin/Material.o
 	g++ -g -std=c++2a -c src/Mesh.cpp -o bin/Mesh.o
 	g++ -g -std=c++2a -c src/InstanceBuffer.cpp -o bin/InstanceBuffer.o
@@ -34,4 +37,4 @@ default:
 	g++ -g -std=c++2a -c src/test.cpp -o bin/Test.o
 
 
-	g++ -g -std=c++2a bin/Test.o bin/Mesh.o bin/Entity.o bin/Leaf.o bin/Leaves.o bin/FourierSeries.o bin/Geometry.o bin/ParametricGeometry.o bin/BufferAttributes.o bin/Texture.o bin/Material.o bin/BezierCubic.o bin/BezierLinear.o bin/Stem.o bin/StemBuilder.o bin/EntityManager.o bin/Object3D.o bin/Axis.o bin/LSystem.o bin/LSystemRules.o bin/LSystemOps.o bin/Tree.o bin/RandomLCG.o bin/Scene.o bin/Camera.o bin/Renderer.o bin/Shader.o bin/Buffer.o bin/Controller.o bin/WorldTime.o bin/TreeString.o bin/InstanceBuffer.o src/glad.o -lGL -lGLEW -lGLU -lglfw -ldl -o bin/OpenGLTest
+	g++ -g -std=c++2a bin/Test.o bin/Mesh.o bin/Entity.o bin/Leaf.o bin/LeafBuilder.o bin/Leaves.o bin/FourierSeries.o bin/Geometry.o bin/ParametricGeometry.o bin/BufferAttributes.o bin/Texture.o bin/TextureBuilder.o bin/TextureManager.o bin/Material.o bin/BezierCubic.o bin/BezierLinear.o bin/Stem.o bin/StemBuilder.o bin/EntityManager.o bin/Object3D.o bin/Axis.o bin/LSystem.o bin/LSystemRules.o bin/LSystemOps.o bin/Tree.o bin/RandomLCG.o bin/Scene.o bin/Camera.o bin/Renderer.o bin/Shader.o bin/Buffer.o bin/Controller.o bin/WorldTime.o bin/TreeString.o bin/InstanceBuffer.o src/glad.o -lGL -lGLEW -lGLU -lglfw -ldl -o bin/OpenGLTest

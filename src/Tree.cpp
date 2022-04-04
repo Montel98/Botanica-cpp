@@ -10,8 +10,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define PI 3.14
-
 Tree::Tree(EntityManager& entityManager, Generator& gen) 
 : Entity(Object3D(initMesh())), root(buildTree(manager, gen)), 
 manager(entityManager), age(0.0f), growthRate(0.01f) {
@@ -23,12 +21,14 @@ manager(entityManager), age(0.0f), growthRate(0.01f) {
 }
 
 Mesh Tree::initMesh() {
-	Material material;
 	std::unique_ptr<Geometry> treeGeometry = std::make_unique<Geometry>();
 	treeGeometry->indexBuffer.sizeBytes = 2*1048576;
 	treeGeometry->vertexBuffer.sizeBytes = 2*1048576;
 	treeGeometry->useNormals(false);
 	treeGeometry->vertexBuffer.addBufferAttribute<glm::vec3>("aMatureStart");
+	
+	Material material;
+	material.textureHandle = "StemTexture";
 
 	Mesh mesh(material, std::move(treeGeometry));
 
@@ -123,7 +123,7 @@ void Tree::generateNewStems(EntityManager& manager) {
 }
 
 /* Update girth of stems and positions of leaves from top-down
-*(Leaf and stems need not be concerned about how these states are updated) 
+* (Leaf and stems need not be concerned about how these states are updated) 
 */
 void Tree::updateStems() {
 	for (int i = 0; i < stems.size(); i++) {
@@ -141,7 +141,7 @@ void Tree::mergeToGeometry(StemNode* stemNode) {
 
 	Stem& stem = *manager.getEntityById<Stem>(stemNode->current);
 
-	GeometryConstraints stemBodyConstraints = {0.0, 1.0, 0.0, 2.0 * PI, uStepsBody, vSteps};
+	GeometryConstraints stemBodyConstraints = {0.0, 1.0, 0.0, 2.0 * M_PI, uStepsBody, vSteps};
 
 	ParametricGeometry<StemBuilder::StemSurface> stemBody = (stem.lParams.connectParent && stemNode->prev) ? 
 		StemBuilder::generateStemBody(

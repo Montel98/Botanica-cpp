@@ -53,13 +53,16 @@ void Leaves::updateLeafAttributes(int index) {
 
 Mesh Leaves::generatePlane() const {
 
-	GeometryConstraints constraints{0.0, 0.015, -0.003, 0.003, 4, 4};
+	GeometryConstraints constraints{0.0, 0.015, -0.003, 0.003, /*4, 4*/2, 2};
 
 	PlaneSurface surface;
 	ParametricGeometry<PlaneSurface> planeGeometry(surface, constraints);
+	planeGeometry.useSTs();
+	planeGeometry.setSTMap(STMapping{0.0f, 1.0f, 0.0f, 1.0f});
 	planeGeometry.generateGeometry();
 
 	Material material;
+	material.textureHandle = "StemTexture";
 
 	Mesh mesh(material, std::make_unique<Geometry>(planeGeometry));
 

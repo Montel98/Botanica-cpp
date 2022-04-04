@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "Buffer.h"
 #include "InstanceBuffer.h"
+#include "TextureManager.h"
 #include <string>
 #include <glad/glad.h>
 
@@ -19,17 +20,16 @@ struct DrawPassState {
 class Renderer {
 private:
 	std::vector<DrawPassState> drawPassStates;
+	TextureManager& textureManager;
 
 public:
-	Renderer();
+	Renderer(TextureManager& resourceManager);
 	void renderEntity(Object3D& entityObj, const Scene& scene, const DrawPassState& drawState);
 	void renderScene(const Scene& scene, const std::vector<std::reference_wrapper<Object3D>>& entityObjects);
 
 	void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, GLuint vao, GLuint vbo, bool isInstanced);
 	void initBufferAttribute(int location, int attributeLength, int stride, int offset, bool isInstanced);
-	//void initInstanceBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, GLuint vao, GLuint vbo);
-	
-	//void initBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, Buffer& buffer, bool isInstanced);
+
 	void updateUniforms(const Camera& camera, GLuint program, Object3D& object3D);
 	void updateModelUniforms(GLuint program, Object3D& object3D);
 

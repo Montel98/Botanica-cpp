@@ -9,12 +9,11 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
-Renderer::Renderer() {
+Renderer::Renderer(TextureManager& resourceManager) : textureManager(resourceManager) {
 	drawPassStates.push_back(DrawPassState{0, "Default"});
 
 	// Configure depth testing flag
 	glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_EQUAL);
 	glDisable(GL_CULL_FACE);
 }
 
@@ -139,18 +138,6 @@ void Renderer::initBufferAttribute(int location, int attributeLength, int stride
 		glVertexAttribDivisor(location, 1);
 	}
 }
-
-/*void Renderer::initInstanceBufferAttributes(GLuint program, BufferAttributes& bufferAttributes, GLuint vao, GLuint vbo) {
-	initBufferAttributes(program, bufferAttributes, vao, vbo);
-
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	for (const std::string& name : bufferAttributes.getAttributeNames()) {
-		GLint location = glGetAttribLocation(program, name.c_str());
-		glVertexAttribDivisor(location, 1);
-	}
-}*/
 
 void Renderer::updateUniforms(const Camera& camera, GLuint program, Object3D& object3D) {
 
@@ -277,6 +264,8 @@ GLuint Renderer::initTexture(const Texture& texture) {
 
 	glGenTextures(1, &textureHandle);
 	glBindTexture(GL_TEXTURE_2D, textureHandle);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glTexImage2D(
 		GL_TEXTURE_2D, 
 		level, 
@@ -288,10 +277,14 @@ GLuint Renderer::initTexture(const Texture& texture) {
 		GL_UNSIGNED_BYTE, 
 		(void*)(texture.bufferData.data())
 	);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
 	return textureHandle;
 }
 
@@ -335,12 +328,19 @@ int Renderer::initBuffers(Geometry& geometry, GLuint program) {
 }
 
 void Renderer::bindTexture(GLuint program, Material& material) {
-	if (material.textureMap.textureId == -1) {
-		material.textureMap.textureId = initTexture(material.textureMap);
+
+	Texture& texture = textureManager.getTextureById(material.textureHandle);
+
+	if (texture.textureId == -1) {
+		texture.textureId = initTexture(texture);
 	}
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, material.textureMap.textureId);
-	glUniform1i(glGetUniformLocation(program, material.textureMap.name.c_str()), 1);
+	glBindTexture(GL_TEXTURE_2D, texture.textureId);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
+	glUniform1i(glGetUniformLocation(program, texture.name.c_str()), 1);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 }
 
 GLuint Renderer::bindShaderProgram(Shader shader) {
@@ -360,14 +360,13 @@ GLuint Renderer::bindShaderProgram(Shader shader) {
 void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 
 	Geometry& geometry = *(object3D.getMesh()._geometry);
-	//bindTexture(program, object3D.getMesh()._material);
+
+	bindTexture(program, object3D.getMesh()._material);
 
 	if (geometry.bufferId == -1) {
-
 		geometry.modificationEvents.clear();
 
 		if (geometry.bufferName != "" && bufferManager.bufferExists(geometry.bufferName)) {
-
 			geometry.bufferId = bufferManager.getBufferIdByName(geometry.bufferName);
 
 			geometry.addGeometryEvent(
@@ -383,7 +382,6 @@ void Renderer::setBuffersAndAttributes(GLuint program, Object3D& object3D) {
 	}
 
 	if (geometry.modificationEvents.size() > 0) {
-		//std::cout << "modified!!!\n";
 		updateBuffers(geometry);
 	}
 

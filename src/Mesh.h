@@ -17,5 +17,4 @@ public:
 	Mesh(const Mesh&);
 
 	bool usesProgram(const std::string programName);
-	//void useInstancing();
 };

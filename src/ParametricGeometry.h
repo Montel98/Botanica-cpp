@@ -29,19 +29,19 @@ private:
 	std::vector<glm::ivec1> generateIndices() const;
 
 public:
-	ParametricGeometry(const F &surfaceFunc, const GeometryConstraints &constraints);
+	ParametricGeometry(const F& surfaceFunc, const GeometryConstraints& constraints);
 	virtual ParametricGeometry<F>* clone() const override;
 	virtual ~ParametricGeometry<F>();
 
 	// Concatenates all vertex attributes and populates the vertex + index buffer
 	void generateGeometry();
-	void useSTMapping(const STMapping &mappingST);
+	void setSTMap(const STMapping &mappingST);
 
 	GeometryConstraints limits;
 };
 
 template <typename F>
-ParametricGeometry<F>::ParametricGeometry(const F &surfaceFunc, const GeometryConstraints &constraints) :
+ParametricGeometry<F>::ParametricGeometry(const F& surfaceFunc, const GeometryConstraints& constraints) :
 surface(surfaceFunc), limits(constraints), mapping({0.0, 1.0, 0.0, 1.0}) {
 
 	deltaU = (limits.uMax - limits.uMin) / (limits.uSteps - 1.0);
@@ -52,16 +52,20 @@ template <typename F>
 std::vector<glm::vec2> ParametricGeometry<F>::generateSTs() const {
 
 	std::vector<glm::vec2> newSTs;
+
+	std::cout << "sMin: " << mapping.sMin << "sMax: " << mapping.sMax << "tMin: " << mapping.tMin << "tMax: " << mapping.tMax << "\n";
 	
-	for (auto vStep = 0; vStep < limits.vSteps; vStep++) {
+	for (int vStep = 0; vStep < limits.vSteps; vStep++) {
 
-		for (auto uStep = 0; uStep < limits.uSteps; uStep++) {
+		for (int uStep = 0; uStep < limits.uSteps; uStep++) {
 
-			float u = limits.uMin + (uStep * deltaU);
-			float v = limits.vMin + (vStep * deltaV);
+			//float u = limits.uMin + (uStep * deltaU);
+			//float v = limits.vMin + (vStep * deltaV);
 
-			float s = mapping.sMin + ((mapping.sMax - mapping.sMin) * (u / (limits.uSteps - 1)));
-			float t = mapping.tMin + ((mapping.tMax - mapping.tMin) * (v / (limits.vSteps - 1)));
+			float s = mapping.sMin + ((mapping.sMax - mapping.sMin) * (uStep / (limits.uSteps - 1)));
+			float t = mapping.tMin + ((mapping.tMax - mapping.tMin) * (vStep / (limits.vSteps - 1)));
+
+			std::cout << s << ",,," << t << "\n";
 
 			newSTs.push_back(glm::vec2(s, t));
 		}
@@ -76,9 +80,9 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateNormals() const {
 	std::vector<glm::vec3> newNormals;
 	float epsilon = 0.0001;
 
-	for (auto vStep = 0; vStep < limits.vSteps; vStep++) {
+	for (int vStep = 0; vStep < limits.vSteps; vStep++) {
 
-		for (auto uStep = 0; uStep < limits.uSteps; uStep++) {
+		for (int uStep = 0; uStep < limits.uSteps; uStep++) {
 
 			float u = limits.uMin + (uStep * deltaU);
 			float v = limits.vMin + (vStep * deltaV);
@@ -106,9 +110,9 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateVertices() const {
 
 	std::vector<glm::vec3> newVertices;
 
-	for (auto vStep = 0; vStep < limits.vSteps; vStep++) {
+	for (int vStep = 0; vStep < limits.vSteps; vStep++) {
 
-		for (auto uStep = 0; uStep < limits.uSteps; uStep++) {
+		for (int uStep = 0; uStep < limits.uSteps; uStep++) {
 
 			float u = limits.uMin + (uStep * deltaU);
 			float v = limits.vMin + (vStep * deltaV);
@@ -171,7 +175,7 @@ void ParametricGeometry<F>::generateGeometry() {
 }
 
 template<typename F>
-void ParametricGeometry<F>::useSTMapping(const STMapping &mappingST) {
+void ParametricGeometry<F>::setSTMap(const STMapping &mappingST) {
 	mapping = mappingST;
 }
 

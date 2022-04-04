@@ -2,13 +2,12 @@
 #include "Stem.h"
 #include "Geometry.h"
 #include "Material.h"
+#include "TextureBuilder.h"
 #include <memory>
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <glm/glm.hpp>
 #include <iostream>
-
-#define PI 3.1415
 
 Stem::Stem(EntityManager& manager, const LSystemParams& lSystemParams, const StemNode* prevStem) 
 : Entity(Object3D(generateMesh(lSystemParams, prevStem))), entityManager(manager), stemLength(0.0f), 
@@ -24,6 +23,7 @@ radiusFunc(
 
 Mesh Stem::generateMesh(const LSystemParams& lParams, const StemNode* prevStem) {
 	Material material;
+	material.textureHandle = "StemTexture";
 
 	Mesh mesh(material, std::make_unique<Geometry>(generateGeometry(lParams, prevStem)));
 
@@ -42,8 +42,8 @@ Geometry Stem::generateGeometry(const LSystemParams& lParams, const StemNode* pr
 	int uStepsTip = 3;
 	int vSteps = 16;
 
-	GeometryConstraints stemBodyConstraints = {0.0, 1.0, 0.0, 2.0 * PI, uStepsBody, vSteps};
-	GeometryConstraints stemTipConstraints = {0.0, 1.0, 0.0, 2.0 * PI, uStepsTip, vSteps};
+	GeometryConstraints stemBodyConstraints = {0.0, 1.0, 0.0, 2.0 * M_PI, uStepsBody, vSteps};
+	GeometryConstraints stemTipConstraints = {0.0, 1.0, 0.0, 2.0 * M_PI, uStepsTip, vSteps};
 
 	ParametricGeometry<StemBuilder::StemSurface> stemBody = (lParams.connectParent && prevStem) ? 
 		StemBuilder::generateStemBody(

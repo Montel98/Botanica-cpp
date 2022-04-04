@@ -3,8 +3,8 @@
 #include <vector>
 #include <string>
 
-enum TextureInterpolation { Linear, NearestNeighbour };
-enum TextureType { Unsigned, Float };
+enum class TextureInterpolation { Linear, NearestNeighbour };
+enum class TextureType { Unsigned, Float };
 
 struct Texture {
 	TextureInterpolation interpolation;
