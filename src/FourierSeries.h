@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 class FourierTerm {
@@ -11,8 +11,6 @@ private:
 	float attenuation;
 public:
 	FourierTerm(float sinMag, float cosMag, float n, float sharpness);
-	FourierTerm(FourierTerm&& other) noexcept;
-	FourierTerm(const FourierTerm& other) noexcept;
 	float eval(float x) const;
 };
 
@@ -21,6 +19,6 @@ private:
 	float a0;
 	std::vector<FourierTerm> terms;
 public:
-	FourierSeries(float a0, const std::vector<FourierTerm> &t);
+	FourierSeries(float a0, const std::vector<FourierTerm>& fourierTerms);
 	float sum(float x) const;
 };

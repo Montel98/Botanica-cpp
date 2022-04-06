@@ -10,6 +10,7 @@
 #include "WorldTime.h"
 #include "LSystemParams.h"
 #include "Leaf.h"
+#include "LeafBuilder.h"
 
 class Leaves : public Entity {
 private:

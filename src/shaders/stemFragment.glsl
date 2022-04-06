@@ -1,7 +1,11 @@
 #version 330 core
 
 in vec3 vNormal;
-out vec4 FragColor;
+in vec2 vTexCoord;
+
+out vec4 FragColour;
+
+uniform sampler2D uStemTexture;
 
 void main() {
 
@@ -11,5 +15,7 @@ void main() {
 
 	float light = ambient + diffuse;
 
-	FragColor = vec4(light * vec3(0.0, 1.0, 1.0), 1.0);
+	vec4 colour = texture(uStemTexture, vTexCoord);
+
+	FragColour = light * colour;
 }

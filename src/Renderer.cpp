@@ -277,11 +277,16 @@ GLuint Renderer::initTexture(const Texture& texture) {
 		GL_UNSIGNED_BYTE, 
 		(void*)(texture.bufferData.data())
 	);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	e = glGetError();
 	assert(e == GL_NO_ERROR);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	e = glGetError();
 	assert(e == GL_NO_ERROR);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -334,11 +339,11 @@ void Renderer::bindTexture(GLuint program, Material& material) {
 	if (texture.textureId == -1) {
 		texture.textureId = initTexture(texture);
 	}
-	glActiveTexture(GL_TEXTURE1);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture.textureId);
 	auto e = glGetError();
 	assert(e == GL_NO_ERROR);
-	glUniform1i(glGetUniformLocation(program, texture.name.c_str()), 1);
+	glUniform1i(glGetUniformLocation(program, texture.name.c_str()), 0);
 	e = glGetError();
 	assert(e == GL_NO_ERROR);
 }
@@ -425,7 +430,7 @@ void Renderer::updateBuffers(Geometry& geometry) {
 
 	// Update indices
 	glBufferSubData(
-		GL_ELEMENT_ARRAY_BUFFER, 
+		GL_ELEMENT_ARRAY_BUFFER,
 		(bufferInfo.indexBufferStart + (event.indexStart * geometry.indexBuffer.getStride())) * sizeof(GL_UNSIGNED_INT), 
 		newIndexBuffer.size() * sizeof(GL_UNSIGNED_INT), 
 		&newIndexBuffer.front()
@@ -437,7 +442,7 @@ void Renderer::updateBuffers(Geometry& geometry) {
 
 	// Update vertices
 	glBufferSubData(
-		GL_ARRAY_BUFFER, 
+		GL_ARRAY_BUFFER,
 		(bufferInfo.vertexBufferStart + (event.vertexStart * geometry.vertexBuffer.getStride())) * sizeof(GL_FLOAT), 
 		newVertexBuffer.size() * sizeof(GL_FLOAT), 
 		&newVertexBuffer.front()

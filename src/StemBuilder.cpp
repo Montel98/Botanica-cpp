@@ -1,10 +1,7 @@
 #include "StemBuilder.h"
 #include <memory>
-#include <math.h>
+#include <cmath>
 #include <iostream>
-
-#define BRANCH_LENGTH 0
-#define PI 3.14
 
 namespace StemBuilder {
 
@@ -12,7 +9,7 @@ StemRadius::StemRadius(float rStart, float rEnd, int branchLength, int shift)
 : radiusStart(rStart), radiusEnd(rEnd), noStems(branchLength), _shift(shift) {
 
 	if (radiusEnd == radiusStart) {
-		decayRate = 0.0f;
+		decayRate = 0.0f; // Radius is constant
 	}
 	else {
 		decayRate = (-1.0f / noStems) * log((0.9f * radiusEnd) / (radiusStart - radiusEnd));
@@ -74,9 +71,9 @@ glm::vec3 StemSurface::operator()(float u, float v) const {
 
 glm::vec3 StemSurface::crossSection(float u, float v) const {
 	float radius = _radiusFunc->operator()(u);
-	glm::vec3 position = (_axis.left * radius * cos(v)) + (_axis.up * radius * sin(v));
+	glm::vec3 position = (_axis.left * radius * std::cos(v)) + (_axis.up * radius * std::sin(v));
 
-	return position * (0.9f + (0.1f * pow(cos(3.0f * v), 2.0f)));
+	return position * (0.9f + (0.1f * std::pow(std::cos(3.0f * v), 2.0f)));
 }
 
 StemSurfaceMorphInfo::StemSurfaceMorphInfo(
@@ -110,7 +107,8 @@ ParametricGeometry<StemSurface> generateStemBody(
 	BezierLinear stemBodyPath(p0, p1);
 	BezierLinear immatureStemBodyPath(p0, p0);
 
-	StemBodyRadius startBodyRadiusFunc(0.001f, 0.001f, /*BRANCH_LENGTH*/lParams.branchLength, 0);
+	// Define the parametric functions for radius over length of body
+	StemBodyRadius startBodyRadiusFunc(0.001f, 0.001f, lParams.branchLength, 0);
 
 	StemBodyRadius endBodyRadiusFunc(
 		lParams.radiusStart,
@@ -206,7 +204,7 @@ ParametricGeometry<StemSurface> generateStemGeometry(
 	StemSurface endSurface(std::unique_ptr<StemRadius>(keyFrameInfo.radiusEnd->clone()), keyFrameInfo.pathEnd, axis);
 	ParametricGeometry<StemSurface> endGeometry(endSurface, constraints);
 	endGeometry.useNormals(false);
-	//endGeometry.useSTs();
+	endGeometry.useSTs();
 	endGeometry.generateGeometry();
 
 	

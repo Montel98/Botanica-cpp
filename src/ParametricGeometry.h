@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include "Geometry.h"
 #include <memory>
-#include <iostream>
 
 // Defines bounds and granularity for 2 variable parametric function
 struct GeometryConstraints {
@@ -52,20 +51,13 @@ template <typename F>
 std::vector<glm::vec2> ParametricGeometry<F>::generateSTs() const {
 
 	std::vector<glm::vec2> newSTs;
-
-	std::cout << "sMin: " << mapping.sMin << "sMax: " << mapping.sMax << "tMin: " << mapping.tMin << "tMax: " << mapping.tMax << "\n";
 	
 	for (int vStep = 0; vStep < limits.vSteps; vStep++) {
 
 		for (int uStep = 0; uStep < limits.uSteps; uStep++) {
 
-			//float u = limits.uMin + (uStep * deltaU);
-			//float v = limits.vMin + (vStep * deltaV);
-
-			float s = mapping.sMin + ((mapping.sMax - mapping.sMin) * (uStep / (limits.uSteps - 1)));
-			float t = mapping.tMin + ((mapping.tMax - mapping.tMin) * (vStep / (limits.vSteps - 1)));
-
-			std::cout << s << ",,," << t << "\n";
+			float s = mapping.sMin + ((mapping.sMax - mapping.sMin) * ((float)uStep / (float)(limits.uSteps - 1)));
+			float t = mapping.tMin + ((mapping.tMax - mapping.tMin) * ((float)vStep / (float)(limits.vSteps - 1)));
 
 			newSTs.push_back(glm::vec2(s, t));
 		}
@@ -119,13 +111,9 @@ std::vector<glm::vec3> ParametricGeometry<F>::generateVertices() const {
 
 			glm::vec3 vertex = surface(u, v);
 
-			//std::cout << u << "," << v << " -> " << vertex.x << "," << vertex.y << "," << vertex.z << "\n";
-
 			newVertices.push_back(vertex);
 		}
 	}
-
-	//std::cout << "\n";
 
 	return newVertices;
 }

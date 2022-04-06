@@ -12,6 +12,6 @@ struct Texture {
 	unsigned int width;
 	unsigned int height;
 	int textureId = -1;
-	std::vector<unsigned int> bufferData;
+	std::vector<unsigned char> bufferData;
 	std::string name;
 };

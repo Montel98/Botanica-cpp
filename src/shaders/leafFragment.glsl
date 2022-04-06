@@ -1,11 +1,24 @@
 #version 330 core
 
-in vec2 aTexCoord;
-out vec4 FragColor;
+in vec3 vNormal;
+in vec2 vTexCoord;
 
-uniform sampler2D uSampler;
+out vec4 FragColour;
+
+uniform sampler2D uLeafTexture;
 
 void main() {
 
-	FragColor = texture2D(uSampler, aTexCoord);
+	vec4 colour = texture(uLeafTexture, vTexCoord);
+
+	if (colour.a < 0.1) {
+		discard;
+	}
+	
+	vec3 lightDir = normalize(vec3(0.0, -1.0, 1.0));
+	float ambient = 0.2;
+	float diffuse = 0.6 * clamp(dot(normalize(vNormal), lightDir), 0.0, 1.0);
+	float light = ambient + diffuse;
+
+	FragColour = light * colour;
 }

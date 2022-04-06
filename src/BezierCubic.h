@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <math.h>
+#include <cmath>
 
 class BezierCubic {
 private:

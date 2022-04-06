@@ -14,7 +14,7 @@ float FourierTerm::eval(float x) const {
 }
 
 
-FourierSeries::FourierSeries(float a0, const std::vector<FourierTerm> &t) : a0(a0), terms(t) {};
+FourierSeries::FourierSeries(float a0, const std::vector<FourierTerm>& fourierTerms) : a0(a0), terms(fourierTerms) {};
 
 float FourierSeries::sum(float x) const {
 	float sum = a0;
@@ -25,13 +25,3 @@ float FourierSeries::sum(float x) const {
 
 	return sum;
 }
-
-FourierTerm::FourierTerm(FourierTerm &&other) noexcept : sinMagnitude(std::move(other.sinMagnitude)), 
-														cosMagnitude(std::move(other.cosMagnitude)), 
-														angularFreq(std::move(other.angularFreq)), 
-														attenuation(std::move(other.attenuation)) { std::cout << "move being called!\n";};
-
-FourierTerm::FourierTerm(const FourierTerm &other) noexcept : sinMagnitude(other.sinMagnitude), 
-														cosMagnitude(other.cosMagnitude), 
-														angularFreq(other.angularFreq), 
-														attenuation(other.attenuation) { std::cout << "copy being done!\n";};

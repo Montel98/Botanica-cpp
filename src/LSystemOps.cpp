@@ -80,7 +80,7 @@ LSystemStackFrame StackPush::operator()(const std::vector<OpCode>& lString, cons
 	newFrame.lParams.radiusStart = 1.2f * radiusFunc(newFrame.lParams.count);
 	newFrame.lParams.radiusEnd = 0.3f * radiusFunc(newFrame.lParams.branchLength - 1);
 	newFrame.lParams.connectParent = _connectParent;
-	//newFrame.lParams.stringIndex++;
+	newFrame.lParams.level++;
 	newFrame.lParams.count = 0;
 	newFrame.lParams.branchLength = LSystemOps::getNoSegmentsInRange(
 		lString,

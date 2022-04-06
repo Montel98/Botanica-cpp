@@ -5,6 +5,7 @@
 Leaves::Leaves() : Entity(Object3D(generatePlane())) {
 	Geometry& geometry = *worldObject.getMesh()._geometry;
 	geometry.useInstancing();
+	geometry.instanceBuffer->addInstanceBufferAttribute<glm::vec1>("aAge");
 	geometry.instanceBuffer->instanceAttributes.sizeBytes = 131072;
 }
 
@@ -18,7 +19,8 @@ void Leaves::act(const WorldTime& worldTime) {
 
 int Leaves::addLeaf(const glm::mat4& pose, const glm::vec3& direction) {
 	std::map<std::string, BufferAttributeElement> newInstance = {
-		{"aPose", BufferAttributeElement(pose)}
+		{"aPose", BufferAttributeElement(pose)},
+		{"aAge", glm::vec1(0.0f)}
 	};
 	Geometry& geometry = *worldObject.getMesh()._geometry;
 	geometry.instanceBuffer->addInstance(newInstance);
@@ -49,22 +51,35 @@ Leaf& Leaves::getLeaf(int index) {
 void Leaves::updateLeafAttributes(int index) {
 	Geometry& geometry = *worldObject.getMesh()._geometry;
 	geometry.instanceBuffer->instanceAttributes.getBufferAttribute<glm::mat4>("aPose").bufferData[index] = leaves[index].getPose();
+	geometry.instanceBuffer->instanceAttributes.getBufferAttribute<glm::vec1>("aAge").bufferData[index][0] = leaves[index].getAge();
 }
 
 Mesh Leaves::generatePlane() const {
 
-	GeometryConstraints constraints{0.0, 0.015, -0.003, 0.003, /*4, 4*/2, 2};
+	GeometryConstraints constraints{0.0, 0.03f*1.2f, -0.006*1.5f*1.2f, 0.006*1.5f*1.2f, 6, 6};
 
-	PlaneSurface surface;
-	ParametricGeometry<PlaneSurface> planeGeometry(surface, constraints);
-	planeGeometry.useSTs();
-	planeGeometry.setSTMap(STMapping{0.0f, 1.0f, 0.0f, 1.0f});
-	planeGeometry.generateGeometry();
+	PlaneSurface<LeafProfileEnd> surfaceEnd;
+	ParametricGeometry<PlaneSurface<LeafProfileEnd>> planeGeometryEnd(surfaceEnd, constraints);
+	planeGeometryEnd.useNormals(false);
+	planeGeometryEnd.useSTs();
+	planeGeometryEnd.setSTMap(STMapping{0.0f, 1.0f, 0.0f, 1.0f});
+	planeGeometryEnd.generateGeometry();
+
+	PlaneSurface<LeafProfileStart> surfaceStart;
+	ParametricGeometry<PlaneSurface<LeafProfileStart>> planeGeometryStart(surfaceStart, constraints);
+	planeGeometryStart.generateGeometry();
+	//planeGeometryStart.useNormals(false);
+
+	planeGeometryEnd.addMorphTarget(
+		"aStart",
+		std::move(planeGeometryStart.vertexBuffer.getBufferAttribute<glm::vec3>("aVertexPosition").bufferData)
+		//PlaneGeometryStart.vertexBuffer.getBufferAttribute<glm::vec3>("aNormal").bufferData
+	);
 
 	Material material;
-	material.textureHandle = "StemTexture";
+	material.textureHandle = "LeafTexture";
 
-	Mesh mesh(material, std::make_unique<Geometry>(planeGeometry));
+	Mesh mesh(material, std::make_unique<Geometry>(planeGeometryEnd));
 
 	mesh.shaderPrograms.emplace(
 		std::make_pair(

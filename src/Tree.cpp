@@ -25,6 +25,7 @@ Mesh Tree::initMesh() {
 	treeGeometry->indexBuffer.sizeBytes = 2*1048576;
 	treeGeometry->vertexBuffer.sizeBytes = 2*1048576;
 	treeGeometry->useNormals(false);
+	treeGeometry->useSTs();
 	treeGeometry->vertexBuffer.addBufferAttribute<glm::vec3>("aMatureStart");
 	
 	Material material;
@@ -70,7 +71,8 @@ StemNode Tree::buildTree(EntityManager& manager, Generator& gen) {
         0,
         0.15,
         0.01,
-        branchLength
+        branchLength,
+        0
     };
 
     StemNode root = lSystem.buildTree(finalString, lParams, finalString.size(), manager);
@@ -113,7 +115,11 @@ void Tree::generateNewStems(EntityManager& manager) {
 		//worldObject.addChild(manager.getEntityById(stemsToAdd[i]->current).worldObject);
 		terminalStems.push_back(TerminalStem{stemsToAdd[i], false});
 		Leaves& leaves = *manager.getEntityById<Leaves>(leavesId);
-		manager.getEntityById<Stem>(terminalStems.back().node->current)->addLeaves(leaves, 2);
+		//Experimental
+		Stem& stem = *manager.getEntityById<Stem>(stemsToAdd[i]->current);
+		if (stem.lParams.level >= 2) {
+			manager.getEntityById<Stem>(terminalStems.back().node->current)->addLeaves(leaves, 2);
+		}
 	}
 
 	// Remove fully grown terminal stems

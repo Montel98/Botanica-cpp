@@ -5,31 +5,31 @@ namespace TextureBuilder {
 
 Texture generateLeafTexture(unsigned int width, unsigned int height, const LeafSurface& surfaceFunc) {
 
-	std::vector<unsigned int> buffer(width * height * 4);
+	std::vector<unsigned char> buffer(width * height * 4);
 	int index = 0;
+	float threshold = 1.0f;
 
-	float threshold = 0.95f;
+	for (int y = 0; y < height; y++) {
 
-	for (int x = 0; x < width; x++) {
+		float yNorm = ((2.0f * y) / (height - 1)) - 1.0f;
 
-		float xNorm = ((2.0f * x) / (width - 1)) - 1.0f;
+		for (int x = width - 1; x >= 0; x--) {
 
-		for (int y = 0; y < height; y++) {
+			float xNorm = ((2.0f * x) / (width - 1)) - 1.0f;
 
-			float yNorm = ((2.0f * y) / (height - 1)) - 1.0f;
-
-			float angle = M_PI + atan2(yNorm, xNorm);
-			float distance = sqrt(xNorm * xNorm + yNorm * yNorm);
+			float angle = M_PI + std::atan2(yNorm, xNorm);
+			float distance = std::sqrt(xNorm * xNorm + yNorm * yNorm);
 
 			glm::vec2 point = surfaceFunc(angle, distance);
 			glm::vec2 target = surfaceFunc(angle, threshold);
 
-			float colour = 1.0f - step(glm::length(target), glm::length(point));
+			unsigned char alpha = 255 * (1 - step(glm::length(target), distance));
+			//unsigned char colour = 255 * distance;
 
-			buffer[index] = colour;
-			buffer[index + 1] = colour;
-			buffer[index + 2] = colour;
-			buffer[index + 3] = colour;
+			buffer[index] = 255 * 0.6f;
+			buffer[index + 1] = 255 * 0.6f;
+			buffer[index + 2] = 255 * 0.4f;
+			buffer[index + 3] = alpha;
 			index += 4;
 		}
 	}
@@ -41,7 +41,7 @@ Texture generateLeafTexture(unsigned int width, unsigned int height, const LeafS
 		height, 
 		-1, 
 		std::move(buffer),
-		"uSampler"
+		"uLeafTexture"
 	};
 
 	return texture;
@@ -49,17 +49,18 @@ Texture generateLeafTexture(unsigned int width, unsigned int height, const LeafS
 
 Texture generateStemTexture(unsigned int width, unsigned int height) {
 
-	std::vector<unsigned int> buffer(width * height * 4);
+	std::vector<unsigned char> buffer(width * height * 4);
 	int index = 0;
 
 	for (int x = 0; x < width; x++) {
 
 		for (int y = 0; y < height; y++) {
 
-			buffer[index] = 255;
-			buffer[index + 1] = 255;
-			buffer[index + 2] = 255;
-			buffer[index + 3] = 255;
+			buffer[index] = 54;
+			buffer[index + 1] = 51;//255;
+			buffer[index + 2] = 50;//0;
+			buffer[index + 3] = 255;//255;
+			//54, 51, 50
 			index += 4;
 		}
 	}
@@ -71,7 +72,7 @@ Texture generateStemTexture(unsigned int width, unsigned int height) {
 		height,
 		-1,
 		std::move(buffer),
-		"Stem"
+		"uStemTexture"
 	};
 
 	return texture;
