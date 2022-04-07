@@ -9,6 +9,7 @@ layout(location = 5) in vec2 aTexCoord;
 
 out vec3 vNormal;
 out vec2 vTexCoord;
+out vec3 vFragPosition;
 
 uniform mat4 world;
 uniform mat4 camera;
@@ -23,4 +24,5 @@ void main() {
 	gl_Position = perspective * camera * vec4(immatureGirth + stemLength * (matureGirth - immatureGirth), 1.0);
 	vNormal = aNormal;
 	vTexCoord = aTexCoord;
+	vFragPosition = matureGirth;
 }

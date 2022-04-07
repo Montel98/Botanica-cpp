@@ -142,17 +142,21 @@ void Renderer::initBufferAttribute(int location, int attributeLength, int stride
 void Renderer::updateUniforms(const Camera& camera, GLuint program, Object3D& object3D) {
 
 	GLuint worldLoc = glGetUniformLocation(program, "world");
-	//auto e = glGetError();
-	//assert(e == GL_NO_ERROR);
+	auto e = glGetError();
+	assert(e == GL_NO_ERROR);
 	GLuint cameraLoc = glGetUniformLocation(program, "camera");
-	//e = glGetError();
-	//assert(e == GL_NO_ERROR);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 	GLuint perspectiveLoc = glGetUniformLocation(program, "perspective");
-	//e = glGetError();
-	//assert(e == GL_NO_ERROR);
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
+	GLuint eyeLoc = glGetUniformLocation(program, "eye");
+	e = glGetError();
+	assert(e == GL_NO_ERROR);
 
 	glm::mat4 cameraMatrix = camera.getCameraMatrix();
 	glm::mat4 perspectiveMatrix = camera.getPerspectiveMatrix(1.0);
+	glm::vec3 eye = camera.getPosition();
 
 	glUniformMatrix4fv(worldLoc, 1, false, glm::value_ptr(object3D.worldMatrix));
 	//e = glGetError();
@@ -163,6 +167,7 @@ void Renderer::updateUniforms(const Camera& camera, GLuint program, Object3D& ob
 	glUniformMatrix4fv(perspectiveLoc, 1, false, glm::value_ptr(perspectiveMatrix));
 	//e = glGetError();
 	//assert(e == GL_NO_ERROR);
+	glUniform3fv(eyeLoc, 1, glm::value_ptr(eye));
 
 	updateModelUniforms(program, object3D);
 }

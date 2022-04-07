@@ -152,12 +152,10 @@ void ParametricGeometry<F>::generateGeometry() {
 	indexBuffer.setBufferAttributeData<glm::ivec1>("aIndex", generateIndices());
 
 	if (usesNormals()) {
-		//std::vector<glm::vec3> normals = generateNormals();
 		vertexBuffer.setBufferAttributeData<glm::vec3>("aNormal", generateNormals());
 	}
 
 	if (usesSTs()) {
-		//std::vector<glm::vec2> STs = generateSTs();
 		vertexBuffer.setBufferAttributeData<glm::vec2>("aTexCoord", generateSTs());
 	}
 }
